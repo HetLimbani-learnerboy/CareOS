@@ -1,0 +1,128 @@
+@import "tailwindcss";
+@source "./**/*.{js,jsx,ts,tsx}"; 
+@tailwind utilities;
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100vh;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0ea5e9;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0284c7;
+}
+
+::selection {
+  background: #0ea5e9;
+  color: white;
+}
+
+/* button {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1.5rem;
+  margin-right: 1rem;
+} */
+
+.getstarted-btn {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1.5rem;
+  margin-right: 1rem;
+  
+}
+
+.landing-btn {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .landing-btn {
+    width: 100%;
+    margin-top: 1rem;
+  }
+  * {
+    padding: 0.25rem;
+  }
+}
+
+.healthmanagement-card{
+  padding: 2rem;
+  margin-top: 2rem;
+
+}
+
+.healthmetric-cards {
+  margin-top: 2rem;
+}
+
+.features-card{
+  height: 100%;
+  position: relative;
+  margin-right: 1rem;
+  margin-left: 1rem;
+}
+
+.features-card-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.aboutsection-card{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.aboutsection-leftcontent{
+  max-width: 1500px;
+  margin: 0 auto;
+  margin-bottom: 2rem;
+}
+
+.aboutsection-rightcontent{
+  max-width: 1000px;
+  margin: 0 auto;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  margin-left: 10rem;
+}
