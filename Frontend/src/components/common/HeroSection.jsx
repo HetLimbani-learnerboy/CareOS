@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import HealthManagementAnimation from "./HealthManagementAnimation";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate= useNavigate();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -138,6 +140,7 @@ const HeroSection = () => {
               className="flex flex-col sm:flex-row items-center gap-4 pt-4 w-full sm:max-w-md lg:max-w-none"
             >
               <motion.button
+              onClick={()=>navigate('/patientregister')}
                 whileHover={{
                   scale: 1.02,
                   boxShadow: "0 12px 30px -10px rgba(14, 165, 233, 0.4)",
@@ -145,7 +148,7 @@ const HeroSection = () => {
                 whileTap={{ scale: 0.98 }}
                 className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 group focus:outline-none focus:ring-2 focus:ring-sky-500/40 landing-btn"
               >
-                <span>Get Started</span>
+                <span>Patient Registration</span>
                 <span className="text-base transition-transform duration-200 group-hover:translate-x-1">
                   →
                 </span>

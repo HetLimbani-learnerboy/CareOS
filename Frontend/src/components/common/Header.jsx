@@ -15,11 +15,14 @@ import {
   AnimatePresence
 } from "framer-motion";
 
+import { useNavigate } from "react-router-dom";
+
 import CareOSLogo from "../../assets/CareOS-logo.png";
 
 const Header = () => {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const navigate=useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -166,7 +169,7 @@ const Header = () => {
           >
             <div className="relative">
 
-             <input
+             {/* <input
   type="text"
   placeholder="Search..."
   className="
@@ -194,7 +197,7 @@ const Header = () => {
                   top-2.5
                   text-slate-450
                 "
-              />
+              />*/}
             </div>
 
             <button
@@ -209,6 +212,7 @@ const Header = () => {
 
             <button
               type="button"
+              onClick={()=>navigate('/getconsult')}
               className="
                 cursor-pointer
                 bg-sky-600
@@ -225,7 +229,7 @@ const Header = () => {
                 getstarted-btn
   "
             >
-              <span className="whitespace-nowrap">Get Started</span>
+              <span className="whitespace-nowrap">Request a Consultation</span>
               <ChevronRight size={18} />
             </button>
           </div>
@@ -296,7 +300,7 @@ const Header = () => {
                 </a>
               ))}
 
-              <input
+              {/* <input
                 type="text"
                 placeholder="Search..."
                 className="
@@ -305,13 +309,13 @@ const Header = () => {
                   px-4
                   py-3
                 "
-              />
+              /> */}
 
               <button>
                 Login
               </button>
 
-              <button> Get Started
+              <button onClick={()=>navigate('/getconsult')}> Request a Consultation
               </button>
             </div>
           </motion.div>

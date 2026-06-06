@@ -1,0 +1,324 @@
+/* ==========================================================================
+   GET CONSULTING STYLESHEET ORCHESTRATION 
+   ========================================================================== */
+
+.getconsult-section {
+  min-height: 100vh !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  background: linear-gradient(to bottom right, #f8fafc, #ffffff, #eff6ff) !important;
+  padding: 2rem 1rem;
+  box-sizing: border-box !important;
+  position: relative;
+}
+
+.getconsult-card-wrapper {
+  width: 100% !important;
+  max-width: 38rem !important; /* Prevents card from shrinking down */
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+.consult-main-card {
+  width: 100% !important;
+  background-color: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box !important;
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .consult-main-card {
+    padding: 2.5rem;
+  }
+}
+
+/* Back Link Node Button */
+.consult-back-btn {
+  position: absolute;
+  left: 1.5rem;
+  top: 1.5rem;
+  padding: 0.5rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.consult-back-btn:hover {
+  color: #334155;
+}
+
+.back-arrow-icon {
+  transition: transform 0.2s ease;
+}
+
+.consult-back-btn:hover .back-arrow-icon {
+  transform: translateX(-2px);
+}
+
+/* Badge Layouts */
+.consult-badge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  margin-top: 1rem;
+}
+
+.consult-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #0284c7;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  background-color: #f0f9ff;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(186, 230, 253, 0.6);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.sparkle-pulse-icon {
+  color: #38bdf8;
+  animation: consultPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes consultPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}
+
+/* Header Text elements */
+.consult-header-text {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.consult-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  margin: 0;
+}
+
+.consult-icon-holder {
+  padding: 0.5rem;
+  background: linear-gradient(to bottom right, #0ea5e9, #2563eb);
+  color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.consult-subtitle {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+  margin-top: 0.5rem;
+  max-width: 20rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Form Inner Mechanics */
+.consult-form-element {
+  display: block;
+  width: 100% !important;
+}
+
+.consult-form-element > * + * {
+  margin-top: 1.25rem;
+}
+
+.consult-grid-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  width: 100% !important;
+}
+
+@media (min-width: 640px) {
+  .consult-grid-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.consult-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100% !important;
+}
+
+.consult-input-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+.consult-input-rel {
+  position: relative;
+  width: 100% !important;
+}
+
+.consult-field-icon {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+}
+
+.consult-textarea-icon {
+  position: absolute;
+  left: 0.875rem;
+  top: 1rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+}
+
+/* Text Input Clean Reset Fields */
+.consult-text-input {
+  width: 100% !important;
+  padding: 0.875rem 1rem 0.875rem 2.5rem !important;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1e293b;
+  outline: none;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease;
+}
+
+.consult-text-input:focus,
+.consult-textarea-input:focus {
+  border-color: #0ea5e9;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+}
+
+.consult-textarea-input {
+  width: 100% !important;
+  padding: 0.875rem 1rem 0.875rem 2.5rem !important;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1e293b;
+  outline: none;
+  resize: none;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease;
+}
+
+/* Submit Controls Custom Action logic button */
+.consult-action-wrapper {
+  padding-top: 0.5rem;
+  width: 100% !important;
+}
+
+.consult-submit-btn {
+  width: 100% !important;
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(to right, #0284c7, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease;
+}
+
+.consult-submit-btn:hover {
+  background: linear-gradient(to right, #0369a1, #1d4ed8);
+}
+
+.consult-submit-btn:active {
+  transform: scale(0.99);
+}
+
+.consult-submit-btn.success {
+  background: #059669 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2) !important;
+}
+
+.consult-btn-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.consult-send-arrow {
+  transition: transform 0.2s ease;
+}
+
+.consult-submit-btn:hover .consult-send-arrow {
+  transform: translate(2px, -2px);
+}
+
+.consult-spinner {
+  height: 1.25rem;
+  width: 1.25rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 9999px;
+  animation: consultFormSpin 1s linear infinite;
+}
+
+@keyframes consultFormSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Timing element notice footer text */
+.consult-footer-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding-top: 0.5rem;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  user-select: none;
+  text-align: center;
+  width: 100% !important;
+}
+
+.consult-clock-icon {
+  color: #0ea5e9;
+}
