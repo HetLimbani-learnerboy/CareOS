@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @source "./**/*.{js,jsx,ts,tsx}";
-@tailwind utilities;
 
 * {
   margin: 0;
@@ -8,19 +7,12 @@
   box-sizing: border-box;
 }
 
-@layer base {
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-}
-
 html,
 body,
 #root {
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   scroll-behavior: smooth;
 }
 
@@ -29,10 +21,12 @@ body {
   font-family: "Inter", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff;
+  color: #0f172a;
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -46,82 +40,110 @@ body {
 
 ::selection {
   background: #0ea5e9;
-  color: white;
+  color: #ffffff;
 }
 
-/* button {
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0.5rem 1.5rem;
-  margin-right: 1rem;
-} */
-
 .getstarted-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0.5rem 1.5rem;
-  margin-right: 1rem;
-  
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  border: none;
+  white-space: nowrap;
 }
 
 .landing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0.5rem 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.75rem 2rem;
   margin-top: 1.5rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  border: none;
+  width: auto;
 }
 
-@media (max-width: 640px) {
-  .landing-btn {
-    width: 100%;
-    margin-top: 1rem;
-  }
-  * {
-    padding: 0.25rem;
-  }
-}
-
-.healthmanagement-card{
-  padding: 2rem;
-  margin-top: 2rem;
-
+.healthmanagement-card {
+  width: 100%;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+  border-radius: 1.5rem;
+  box-sizing: border-box;
 }
 
 .healthmetric-cards {
-  margin-top: 2rem;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+  box-sizing: border-box;
 }
 
-.features-card{
+.features-card {
+  width: 100%;
   height: 100%;
   position: relative;
-  margin-right: 1rem;
-  margin-left: 1rem;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  box-sizing: border-box;
 }
 
-.features-card-grid{
+.features-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 1rem;
   margin-top: 2rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.aboutsection-card{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+
+@media (min-width: 640px) {
+  .healthmanagement-card {
+    padding: 2rem;
+    margin-top: 2rem;
+  }
+
+  .healthmetric-cards {
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .features-card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.5rem;
+  }
 }
 
-.aboutsection-leftcontent{
-  max-width: 1500px;
-  margin: 0 auto;
-  margin-bottom: 2rem;
+@media (min-width: 1024px) {
+  .landing-btn {
+    margin-top: 2rem;
+  }
+
+  .features-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+  }
+
 }
 
-.aboutsection-rightcontent{
-  max-width: 1000px;
-  margin: 0 auto;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-  margin-left: 10rem;
+@media (max-width: 639px) {
+  .getstarted-btn,
+  .landing-btn {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .landing-btn {
+    margin-top: 1rem;
+  }
 }
+

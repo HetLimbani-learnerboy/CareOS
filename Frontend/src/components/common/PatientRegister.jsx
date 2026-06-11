@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   User, 
   Mail, 
@@ -11,135 +11,225 @@ import {
   Check, 
   X,
   KeyRound,
-  Activity
+  Activity,
+  Phone,
+  RefreshCw
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
+import "../../style/PatientRegister-style.css";
+
+const countryCodes = [
+  { code: "+91", label: "India (+91)" },
+  { code: "+1", label: "US (+1)" },
+  { code: "+44", label: "UK (+44)" },
+  { code: "+61", label: "Australia (+61)" },
+  { code: "+971", label: "UAE (+971)" },
+  { code: "+49", label: "Germany (+49)" },
+  { code: "+33", label: "France (+33)" },
+  { code: "+81", label: "Japan (+81)" }
+];
 
 const PatientRegister = () => {
   const navigate = useNavigate();
-  
-  // Navigation wizard flow steps tracking: 'form' | 'otp'
   const [step, setStep] = useState("form");
   
-  // Registration Form States
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
+    countryCode: "+91",
+    phone: "",
     password: "",
     confirmPassword: ""
   });
   
-  // Interactive UI configurations
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [otp, setOtp] = useState(new Array(6).fill(""));
-  const [otpError, setOtpError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Fixed static key parameter matching request validation requirements
-  const FIXED_OTP = "123456";
+  // Industrial Resend Timer Configuration Locks
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const [isResending, setIsResending] = useState(false);
+  
   const otpRefs = useRef([]);
 
-  // Form Field Updates Handles
+  // Dynamically resolve base URL endpoints from context environment
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
+  // Countdown timer manager hook
+  useEffect(() => {
+    let intervalId;
+    if (resendCountdown > 0) {
+      intervalId = setInterval(() => {
+        setResendCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(intervalId);
+  }, [resendCountdown]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrorMessage("");
   };
 
-  // Password structural rule criteria mapping evaluation
-  const isPasswordLongEnough = formData.password.length >= 6;
+  // Password rules validation engine
+  const isMinLength = formData.password.length >= 8;
+  const hasUppercase = /[A-Z]/.test(formData.password);
+  const hasLowercase = /[a-z]/.test(formData.password);
+  const hasNumber = /[0-9]/.test(formData.password);
+  const hasSpecialChar = /[!@#$%^&*]/.test(formData.password);
   const doPasswordsMatch = formData.password && formData.password === formData.confirmPassword;
 
-  // Step 1 Submit: Core Initial Info Logging
-  const handleFormSubmit = (e) => {
+  const isFormValid = isMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecialChar && doPasswordsMatch;
+
+  // Real API Form Registration Submit
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (!isPasswordLongEnough || !doPasswordsMatch) return;
+    if (!isFormValid) return;
     
-    setIsSubmitting(true);
-    // Simulate encryption and transactional initialization delay
-    setTimeout(() => {
+    try {
+      setIsSubmitting(true);
+      setErrorMessage("");
+
+      const response = await axios.post(`${API_BASE_URL}/api/v1/auth/signup`, {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        countryCode: formData.countryCode,
+        phone: formData.phone,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword
+      });
+
+      if (response.data.status === "success") {
+        setStep("otp");
+        setResendCountdown(30); // Initiate structural lock parameters immediately on load
+      }
+    } catch (error) {
+      const serverError = error.response?.data?.message || "Registration processing pipeline failed.";
+      setErrorMessage(serverError);
+    } finally {
       setIsSubmitting(false);
-      setStep("otp");
-    }, 1200);
+    }
   };
 
-  // Step 2 Core Verification Tracker Handler
+  // Real API Verification Submit
+  const handleVerifySubmit = async (e) => {
+    e.preventDefault();
+    const enteredOtp = otp.join("");
+    if (enteredOtp.length < 6) return;
+    
+    try {
+      setIsSubmitting(true);
+      setErrorMessage("");
+
+      const response = await axios.post(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
+        email: formData.email,
+        otp: enteredOtp
+      });
+
+      if (response.data.status === "success") {
+        navigate("/patient-dashboard");
+      }
+    } catch (error) {
+      const serverError = error.response?.data?.message || "Invalid or expired verification parameters.";
+      setErrorMessage(serverError);
+      setOtp(new Array(6).fill("")); // Wipe cells on validation failure
+      otpRefs.current[0]?.focus();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Real API Resend OTP Controller Engine
+  const handleResendOtp = async () => {
+    if (resendCountdown > 0 || isResending) return;
+
+    try {
+      setIsResending(true);
+      setErrorMessage("");
+      
+      // Hit the Login route to regenerate a fresh registration OTP block
+      await axios.post(`${API_BASE_URL}/api/v1/auth/login`, {
+        email: formData.email,
+        password: formData.password
+      });
+
+    } catch (error) {
+      // Catch expected unverified 403 blocks as positive resend confirmations
+      if (error.response?.status === 403 || error.response?.data?.code === 'ACCOUNT_UNVERIFIED') {
+        setResendCountdown(30); // Reset lock parameters
+      } else {
+        const errorMsg = error.response?.data?.message || "Failed to resend validation transmission.";
+        setErrorMessage(errorMsg);
+      }
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   const handleOtpChange = (element, index) => {
     if (isNaN(element.value)) return false;
 
     const updatedOtp = [...otp];
     updatedOtp[index] = element.value;
     setOtp(updatedOtp);
-    setOtpError(false);
+    setErrorMessage("");
 
-    // Auto-focus progression chain handling down line cells
     if (element.value !== "" && index < 5) {
       otpRefs.current[index + 1].focus();
     }
   };
 
   const handleOtpKeyDown = (e, index) => {
-    // Backspace deletion behavior tracking focus shifting up row
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       otpRefs.current[index - 1].focus();
     }
   };
 
-  const handleVerifySubmit = (e) => {
-    e.preventDefault();
-    const enteredOtp = otp.join("");
-    
-    setIsSubmitting(true);
-    
-    setTimeout(() => {
-      if (enteredOtp === FIXED_OTP) {
-        setIsSubmitting(false);
-        // Securely routed parameter redirection directly to workspace panel dashboard hub
-        navigate("/patient-dashboard");
-      } else {
-        setIsSubmitting(false);
-        setOtpError(true);
-      }
-    }, 1500);
-  };
-
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50/40 p-4 sm:p-6 lg:p-8 box-border font-sans">
-      
-      <div className="w-full max-w-xl bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-xl relative backdrop-blur-md">
+    <div className="register-viewport">
+      <div className="register-card-container">
         
-        {/* Back To Home Absolute Layout Navigation Trigger Node */}
         <button
           type="button"
           onClick={() => navigate("/")}
-          className="absolute left-6 top-6 p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-50 transition-colors flex items-center gap-1.5 text-xs font-semibold border-none bg-transparent cursor-pointer select-none group"
+          className="register-back-btn"
         >
-          <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+          <ArrowLeft size={18} className="register-back-arrow" />
           <span>Portal Home</span>
-        </button>
+        </button> 
 
-        {/* Brand System Identifier Core Cluster */}
-        <div className="flex flex-col items-center mb-8 mt-4">
-          <span className="inline-flex items-center gap-1.5 text-sky-600 font-semibold tracking-wider uppercase text-xs bg-sky-50 px-3.5 py-1.5 rounded-full border border-sky-200/60 shadow-sm mb-4">
+        <div className="register-brand-header">
+          <span className="register-badge">
             <Sparkles size={14} className="text-sky-500 animate-pulse" />
             Secure Onboarding
           </span>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 flex items-center justify-center gap-2.5 m-0">
-            <div className="p-2 bg-gradient-to-br from-sky-500 to-blue-600 text-white rounded-xl shadow-md shadow-sky-100 flex items-center justify-center">
+          <h2 className="register-main-title">
+            <div className="register-title-icon-wrapper">
               <Activity size={22} />
             </div>
             CareOS Patient Portal
           </h2>
-          <p className="text-xs text-slate-500 mt-2 max-w-xs text-center m-0">
+          <p className="register-subtitle">
             {step === "form" 
               ? "Initialize your clinical EHR data node container profile securely" 
               : "Telemetry link code authorization authentication screen"}
           </p>
         </div>
 
-        {/* Wizard Multi-Stage Condition Component Rendering */}
+        {/* Global Error Context Alert banner */}
+        {errorMessage && (
+          <div className="bg-red-50 text-red-600 text-sm p-3 mb-4 rounded-lg border border-red-200 text-center font-medium">
+            {errorMessage}
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           {step === "form" ? (
             <motion.form 
@@ -148,15 +238,13 @@ const PatientRegister = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 15 }}
               onSubmit={handleFormSubmit}
-              className="space-y-4 text-left w-full block"
+              className="register-form"
             >
-              {/* Split Name Row Layout Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                {/* First Name input */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">First Name</label>
-                  <div className="relative w-full">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center"><User size={16} /></span>
+              <div className="register-grid-2col">
+                <div className="register-field-group">
+                  <label className="register-field-label">First Name</label>
+                  <div className="register-input-wrapper">
+                    <span className="register-input-icon"><User size={16} /></span>
                     <input 
                       type="text" 
                       name="firstName" 
@@ -164,16 +252,15 @@ const PatientRegister = () => {
                       value={formData.firstName}
                       onChange={handleInputChange}
                       placeholder="John" 
-                      className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all box-border"
+                      className="register-input-element pl-10"
                     />
                   </div>
                 </div>
 
-                {/* Last Name input */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Last Name</label>
-                  <div className="relative w-full">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center"><User size={16} /></span>
+                <div className="register-field-group">
+                  <label className="register-field-label">Last Name</label>
+                  <div className="register-input-wrapper">
+                    <span className="register-input-icon"><User size={16} /></span>
                     <input 
                       type="text" 
                       name="lastName" 
@@ -181,17 +268,16 @@ const PatientRegister = () => {
                       value={formData.lastName}
                       onChange={handleInputChange}
                       placeholder="Doe" 
-                      className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all box-border"
+                      className="register-input-element pl-10"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Email Element Configuration Field */}
-              <div className="flex flex-col gap-1.5 w-full">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Email Address</label>
-                <div className="relative w-full">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center"><Mail size={16} /></span>
+              <div className="register-field-group">
+                <label className="register-field-label">Email Address</label>
+                <div className="register-input-wrapper">
+                  <span className="register-input-icon"><Mail size={16} /></span>
                   <input 
                     type="email" 
                     name="email" 
@@ -199,16 +285,47 @@ const PatientRegister = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="john@example.com" 
-                    className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all box-border"
+                    className="register-input-element pl-10"
                   />
                 </div>
               </div>
 
-              {/* Primary Password Input With Functional Icon Toggle */}
-              <div className="flex flex-col gap-1.5 w-full">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Secure Password</label>
-                <div className="relative w-full">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center"><Lock size={16} /></span>
+              <div className="register-field-group">
+                <label className="register-field-label">Phone Number</label>
+                <div className="register-phone-composite">
+                  <div className="register-prefix-wrapper">
+                    <select
+                      name="countryCode"
+                      value={formData.countryCode}
+                      onChange={handleInputChange}
+                      className="register-prefix-select"
+                    >
+                      {countryCodes.map((item) => (
+                        <option key={item.code} value={item.code}>
+                          {item.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="register-phone-input-wrapper">
+                    <span className="register-input-icon"><Phone size={16} /></span>
+                    <input 
+                      type="tel" 
+                      name="phone" 
+                      required 
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      placeholder="98765 43210" 
+                      className="register-input-element pl-10"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="register-field-group">
+                <label className="register-field-label">Secure Password</label>
+                <div className="register-input-wrapper">
+                  <span className="register-input-icon"><Lock size={18} /></span>
                   <input 
                     type={showPassword ? "text" : "password"} 
                     name="password" 
@@ -216,23 +333,22 @@ const PatientRegister = () => {
                     value={formData.password}
                     onChange={handleInputChange}
                     placeholder="••••••••" 
-                    className="w-full pl-10 pr-11 py-2.5 sm:py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all box-border"
+                    className="register-input-element pl-10 pr-11"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 border-none bg-transparent cursor-pointer p-0 flex items-center"
+                    className="register-visibility-toggle"
                   >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </div>
 
-              {/* Confirmation Password Validation Input Box */}
-              <div className="flex flex-col gap-1.5 w-full">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Confirm Password</label>
-                <div className="relative w-full">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 flex items-center"><Lock size={16} /></span>
+              <div className="register-field-group">
+                <label className="register-field-label">Confirm Password</label>
+                <div className="register-input-wrapper">
+                  <span className="register-input-icon"><Lock size={18} /></span>
                   <input 
                     type={showConfirmPassword ? "text" : "password"} 
                     name="confirmPassword" 
@@ -240,52 +356,84 @@ const PatientRegister = () => {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     placeholder="••••••••" 
-                    className="w-full pl-10 pr-11 py-2.5 sm:py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all box-border"
+                    className="register-input-element pl-10 pr-11"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 border-none bg-transparent cursor-pointer p-0 flex items-center"
+                    className="register-visibility-toggle"
                   >
-                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
                 </div>
               </div>
 
-              {/* Password Dynamic Rules Assessment Panel (Color-Changing Indicators) */}
-              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-2 mt-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Security Rules Engine</span>
+              <div className="register-rules-panel">
+                <span className="register-rules-header">Security Rules Engine</span>
                 
-                {/* Metric Rule 1: Length evaluation parameter */}
-                <div className="flex items-center gap-2 text-xs font-medium">
-                  <div className={`p-0.5 rounded-full flex items-center justify-center text-white transition-colors duration-300 ${isPasswordLongEnough ? 'bg-emerald-500' : 'bg-rose-500'}`}>
-                    {isPasswordLongEnough ? <Check size={10} /> : <X size={10} />}
+                <div className="register-rule-row">
+                  <div className={`register-rule-dot ${isMinLength ? 'pass' : 'fail'}`}>
+                    {isMinLength ? <Check size={10} /> : <X size={10} />}
                   </div>
-                  <span className={`transition-colors duration-300 ${isPasswordLongEnough ? 'text-emerald-600 font-semibold' : 'text-rose-600'}`}>
-                    Password contains at least 6 characters
+                  <span className={`register-rule-text ${isMinLength ? 'pass' : 'fail'}`}>
+                    Minimum 8 characters
                   </span>
                 </div>
 
-                {/* Metric Rule 2: Equality match parameters check */}
-                <div className="flex items-center gap-2 text-xs font-medium">
-                  <div className={`p-0.5 rounded-full flex items-center justify-center text-white transition-colors duration-300 ${doPasswordsMatch ? 'bg-emerald-500' : 'bg-rose-500'}`}>
+                <div className="register-rule-row">
+                  <div className={`register-rule-dot ${hasUppercase ? 'pass' : 'fail'}`}>
+                    {hasUppercase ? <Check size={10} /> : <X size={10} />}
+                  </div>
+                  <span className={`register-rule-text ${hasUppercase ? 'pass' : 'fail'}`}>
+                    Uppercase letter
+                  </span>
+                </div>
+
+                <div className="register-rule-row">
+                  <div className={`register-rule-dot ${hasLowercase ? 'pass' : 'fail'}`}>
+                    {hasLowercase ? <Check size={10} /> : <X size={10} />}
+                  </div>
+                  <span className={`register-rule-text ${hasLowercase ? 'pass' : 'fail'}`}>
+                    Lowercase letter
+                  </span>
+                </div>
+
+                <div className="register-rule-row">
+                  <div className={`register-rule-dot ${hasNumber ? 'pass' : 'fail'}`}>
+                    {hasNumber ? <Check size={10} /> : <X size={10} />}
+                  </div>
+                  <span className={`register-rule-text ${hasNumber ? 'pass' : 'fail'}`}>
+                    Number
+                  </span>
+                </div>
+
+                <div className="register-rule-row">
+                  <div className={`register-rule-dot ${hasSpecialChar ? 'pass' : 'fail'}`}>
+                    {hasSpecialChar ? <Check size={10} /> : <X size={10} />}
+                  </div>
+                  <span className={`register-rule-text ${hasSpecialChar ? 'pass' : 'fail'}`}>
+                    Special character (!@#$%^&*)
+                  </span>
+                </div>
+
+                <div className="register-rule-row">
+                  <div className={`register-rule-dot ${doPasswordsMatch ? 'pass' : 'fail'}`}>
                     {doPasswordsMatch ? <Check size={10} /> : <X size={10} />}
                   </div>
-                  <span className={`transition-colors duration-300 ${doPasswordsMatch ? 'text-emerald-600 font-semibold' : 'text-rose-600'}`}>
-                    Passwords inputs match correctly
+                  <span className={`register-rule-text ${doPasswordsMatch ? 'pass' : 'fail'}`}>
+                    Confirm Passwords match
                   </span>
                 </div>
               </div>
 
-              {/* Form Action Submit Button */}
-              <div className="pt-3 w-full">
+              <div className="register-action-wrapper">
                 <button
                   type="submit"
-                  disabled={isSubmitting || !isPasswordLongEnough || !doPasswordsMatch}
-                  className="w-full py-3.5 px-5 font-semibold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-white bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none border-none cursor-pointer box-border"
+                  disabled={isSubmitting || !isFormValid}
+                  className="register-submit-btn"
                 >
                   {isSubmitting ? (
-                    <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="register-spinner" />
                   ) : (
                     <>
                       <span>Generate Security Pipeline</span>
@@ -296,29 +444,26 @@ const PatientRegister = () => {
               </div>
             </motion.form>
           ) : (
-            /* STAGE 2: 6-DIGIT SECURITY VERIFICATION SHEET OVERLAY */
             <motion.form
               key="otp-form"
               initial={{ opacity: 0, x: 15 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -15 }}
               onSubmit={handleVerifySubmit}
-              className="space-y-6 text-left w-full block"
+              className="register-otp-form"
             >
-              <div className="bg-sky-50/50 border border-sky-100 rounded-2xl p-4 text-center">
-                <p className="text-xs text-sky-800 leading-relaxed m-0">
-                  A verification transmission node was simulated toward your profile context. <br />
-                  For testing, apply the system key code parameter: <strong className="font-bold text-slate-900 bg-sky-100/80 px-2 py-0.5 rounded border border-sky-200">{FIXED_OTP}</strong>
+              <div className="register-otp-banner">
+                <p className="register-otp-banner-text">
+                  A verification transmission code was dispatched directly to <strong>{formData.email}</strong>. Please check your inbox context elements.
                 </p>
               </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider text-center block w-full">
+              <div className="register-field-group">
+                <label className="register-otp-label">
                   Enter 6-Digit Telemetry Key
                 </label>
                 
-                {/* 6 Grid Cells Core Input Segment */}
-                <div className="flex justify-between items-center gap-2 max-w-sm mx-auto w-full mt-2">
+                <div className="register-otp-grid">
                   {otp.map((data, index) => (
                     <input
                       key={index}
@@ -329,41 +474,40 @@ const PatientRegister = () => {
                       value={data}
                       onChange={(e) => handleOtpChange(e.target, index)}
                       onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                      focus={(index === 0).toString()}
-                      className={`w-12 h-14 text-center text-xl font-bold bg-slate-50 border rounded-xl outline-none focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition-all box-border ${
-                        otpError 
-                          ? "border-rose-400 bg-rose-50/30 text-rose-600 ring-4 ring-rose-500/10" 
-                          : "border-slate-200 text-slate-800"
-                      }`}
+                      className="register-otp-input"
                     />
                   ))}
                 </div>
-
-                {/* Error feedback text indicator node */}
-                <AnimatePresence>
-                  {otpError && (
-                    <motion.p 
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="text-xs font-semibold text-rose-600 text-center mt-2 m-0"
-                    >
-                      Security key validation mismatch. Please evaluate inputs.
-                    </motion.p>
-                  )}
-                </AnimatePresence>
               </div>
 
-              {/* Action Buttons Hub Row */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full">
+              {/* Industrial Resend Verification Execution Control Container */}
+              <div className="flex justify-center items-center py-2 text-sm">
+                {resendCountdown > 0 ? (
+                  <p className="text-slate-500 font-medium">
+                    Resend validation key in <span className="text-sky-600 font-semibold">{resendCountdown}s</span>
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={isResending}
+                    onClick={handleResendOtp}
+                    className="inline-flex items-center gap-1.5 text-sky-600 hover:text-sky-700 font-semibold transition-colors focus:outline-none disabled:opacity-50"
+                  >
+                    <RefreshCw size={14} className={isResending ? "animate-spin" : ""} />
+                    <span>Resend Verification Code</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="register-otp-actions">
                 <button
                   type="button"
                   onClick={() => {
                     setStep("form");
                     setOtp(new Array(6).fill(""));
-                    setOtpError(false);
+                    setErrorMessage("");
                   }}
-                  className="w-full sm:w-1/3 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm rounded-xl transition-all border-none cursor-pointer box-border"
+                  className="register-otp-back-btn"
                 >
                   Modify Info
                 </button>
@@ -371,10 +515,10 @@ const PatientRegister = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting || otp.some(v => v === "")}
-                  className="w-full sm:w-2/3 py-3.5 px-5 font-semibold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed border-none cursor-pointer box-border"
+                  className="register-otp-submit-btn"
                 >
                   {isSubmitting ? (
-                    <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="register-spinner" />
                   ) : (
                     <>
                       <span>Authorize Registration</span>

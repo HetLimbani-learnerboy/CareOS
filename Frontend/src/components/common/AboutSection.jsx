@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { 
   CheckCircle2, 
-  ArrowRight, 
   Zap, 
   ShieldCheck, 
   Activity, 
@@ -11,8 +10,8 @@ import {
   Layers 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import "../../style/AboutSection-style.css";
 
-// Content arrays
 const features = [
   "Multi-Role Access Control",
   "Electronic Health Records",
@@ -52,7 +51,6 @@ const pipelineSteps = [
   { id: 3, label: "Clinical Consult", icon: Stethoscope, status: "pending", desc: "Awaiting provider connection" },
 ];
 
-// Framer Motion Variants
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -94,7 +92,6 @@ const rightSideCardVariants = {
 const AboutSection = () => {
   const [activeStep, setActiveStep] = useState(0);
 
-  // Auto-rotating pipeline step simulator for the interactive visual panel
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveStep((prev) => (prev + 1) % pipelineSteps.length);
@@ -103,21 +100,7 @@ const AboutSection = () => {
   }, []);
 
   return (
-    <section
-  id="about"
-  className="
-
-    inline-block
-    bg-gradient-to-br
-    from-slate-50
-    via-white
-    to-blue-50/30
-    w-full
-    overflow-hidden
-    relative
-    aboutsection-card
-  "
->
+    <section id="about" className="aboutsection-card bg-gradient-to-br from-slate-50 via-white to-blue-50/30 w-full relative overflow-hidden">
       
       {/* Background Ambience Animations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -136,15 +119,15 @@ const AboutSection = () => {
       <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl">
         
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-18 lg:gap-16 items-center w-full aboutsection-leftcontent">
+        <div className="about-content-layout w-full">
           
-          {/* LEFT COLUMN - STRATEGIC BRAND TEXT (Spans 5 cols on large screens) */}
+          {/* LEFT COLUMN - STRATEGIC BRAND TEXT */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
-            className="w-full lg:col-span-5"
+            className="about-left-panel w-full"
           >
             {/* Badge */}
             <motion.span
@@ -204,12 +187,10 @@ const AboutSection = () => {
                 </motion.div>
               ))}
             </motion.div>
-
-        
           </motion.div>
 
-          {/* RIGHT COLUMN - LIVE DEPARTMENT SYNC SIMULATOR & METRICS (Spans 7 cols on large screens) */}
-          <div className="w-full h-full gap-6 lg:col-span-6 flex flex-col justify-center relative aboutsection-rightcontent">
+          {/* RIGHT COLUMN - LIVE DEPARTMENT SYNC SIMULATOR */}
+          <div className="about-right-panel w-full relative">
             
             {/* Main Interactive Flow Card */}
             <motion.div
@@ -221,11 +202,11 @@ const AboutSection = () => {
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-6">
                 <div>
-                  <h3 className="gap-4 text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 m-0">
                     <span className="h-3 w-3 bg-emerald-500 rounded-full animate-ping inline-block" />
                     Live Data Matrix Pipeline
                   </h3>
-                  <p className="text-xs text-slate-500 mt-1">Simulated view of autonomous telemetry synchronizations</p>
+                  <p className="text-xs text-slate-500 mt-1 m-0">Simulated view of autonomous telemetry synchronizations</p>
                 </div>
                 <div className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg self-start sm:self-center text-xs font-semibold tracking-wider text-slate-600 uppercase">
                   Node: East-Hub-01
@@ -233,7 +214,7 @@ const AboutSection = () => {
               </div>
 
               {/* Pipeline Simulation Steps */}
-              <div className=" space-y-4 relative">
+              <div className="space-y-4 relative">
                 {/* Connector Line behind steps */}
                 <div className="absolute left-[27px] top-4 bottom-4 w-[2px] bg-slate-100 -z-10" />
 
@@ -249,7 +230,7 @@ const AboutSection = () => {
                         scale: isActive ? 1.02 : 1,
                         backgroundColor: isActive ? "rgba(240, 249, 255, 0.7)" : "rgba(255, 255, 255, 0)" 
                       }}
-                      className={`flex items-start gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer ${
+                      className={`flex items-start gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer box-border ${
                         isActive 
                           ? "border-sky-200 shadow-sm" 
                           : "border-transparent hover:border-slate-100 hover:bg-slate-50/50"
@@ -280,7 +261,7 @@ const AboutSection = () => {
                       {/* Step Text Info */}
                       <div className="flex-1 min-w-0 pt-1">
                         <div className="flex items-center justify-between gap-2">
-                          <h4 className={`text-base font-bold transition-colors ${isActive ? "text-sky-900" : "text-slate-800"}`}>
+                          <h4 className={`text-base font-bold transition-colors m-0 ${isActive ? "text-sky-900" : "text-slate-800"}`}>
                             {step.label}
                           </h4>
                           <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
@@ -293,7 +274,7 @@ const AboutSection = () => {
                             {isActive ? "Active Sync" : index < activeStep ? "Secured" : "Queued"}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-500 mt-1 line-clamp-1">{step.desc}</p>
+                        <p className="text-sm text-slate-500 mt-1 line-clamp-1 m-0">{step.desc}</p>
                       </div>
                     </motion.div>
                   );
@@ -316,8 +297,8 @@ const AboutSection = () => {
                     transition={{ duration: 0.2 }}
                     className="space-y-1"
                   >
-                    <p className="text-emerald-400 font-semibold">// STREAM_ESTABLISHED</p>
-                    <p>SYSTEM.ROUTING: {pipelineSteps[activeStep].label.toUpperCase().replace(/\s+/g, '_')} processed in 0.0042s</p>
+                    <p className="text-emerald-400 font-semibold m-0">// STREAM_ESTABLISHED</p>
+                    <p className="m-0">SYSTEM.ROUTING: {pipelineSteps[activeStep].label.toUpperCase().replace(/\s+/g, '_')} processed in 0.0042s</p>
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -329,7 +310,7 @@ const AboutSection = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-20px" }}
-              className=" grid grid-cols-3 md:grid-cols-3 gap-2 mt-6 w-full h-5 pt-5.5"
+              className="about-benefits-grid w-full"
             >
               {careOSBenefits.map((benefit) => {
                 const BenefitIcon = benefit.icon;
@@ -338,15 +319,15 @@ const AboutSection = () => {
                     key={benefit.title}
                     variants={rightSideCardVariants}
                     whileHover={{ y: -4, border: "1px solid rgba(14, 165, 233, 0.3)" }}
-                    className="bg-white/80 backdrop-blur-sm border border-slate-200/60 p-4 rounded-2xl shadow-sm transition-all flex flex-col justify-between"
+                    className="bg-white/80 backdrop-blur-sm border border-slate-200/60 p-4 rounded-2xl shadow-sm transition-all flex flex-col justify-between box-border"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`p-2.5 rounded-xl ${benefit.bgColor} bg-gradient-to-br text-slate-800 flex-shrink-0`}>
+                      <div className={`p-2.5 rounded-xl ${benefit.bgColor} bg-gradient-to-br text-slate-800 flex-shrink-0 flex items-center justify-center`}>
                         <BenefitIcon size={18} className="text-slate-800" />
                       </div>
-                      <h4 className="text-sm font-bold text-slate-900">{benefit.title}</h4>
+                      <h4 className="text-sm font-bold text-slate-900 m-0">{benefit.title}</h4>
                     </div>
-                    <p className="text-xs text-slate-500 mt-3.5 leading-relaxed">{benefit.desc}</p>
+                    <p className="text-xs text-slate-500 mt-3.5 leading-relaxed m-0">{benefit.desc}</p>
                   </motion.div>
                 );
               })}
@@ -361,11 +342,11 @@ const AboutSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-12 h-26 lg:mt-16 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-lg border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full"
+          className="about-footer-card bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-lg border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full box-border"
         >
-          <div className="max-w-2xl">
-            <h4 className="text-base font-bold text-sky-400">Transforming Enterprise Clinical Workflows</h4>
-            <p className="text-sm text-slate-300 mt-1 leading-relaxed">
+          <div className="max-w-2xl text-left">
+            <h4 className="text-base font-bold text-sky-400 m-0">Transforming Enterprise Clinical Workflows</h4>
+            <p className="text-sm text-slate-300 mt-1 leading-relaxed m-0">
               CareOS unifies disparate legacy platforms into an interconnected environment, eliminating administrative overhead and dropping communication friction across hospital staff by up to 40%.
             </p>
           </div>
