@@ -6,24 +6,28 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Bulletproof ES Module resolution pointing straight to your root .env file
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 export const sendOtpEmail = async (email, firstName, otp) => {
   try {
-    // Safety check: ensure variables are completely loaded before opening socket channels
     if (!process.env.BREVO_SMTP_LOGIN || !process.env.BREVO_SMTP_KEY) {
       throw new Error("SMTP credentials missing from environment variables");
     }
 
+    /* ==========================================================================
+       THE RENDER OUTBOUND FILTER FIX: FORCE SECURE PORT 465 SSL HANDSHAKE
+       ========================================================================== */
     const transporter = nodemailer.createTransport({
       host: "smtp-relay.brevo.com",
-      port: 587,
-      secure: false, // TLS requires secure to be false for port 587
+      port: 465,         // <-- CHANGE FROM 587 TO 465
+      secure: true,      // <-- CHANGE FROM FALSE TO TRUE (Forces native SSL wrapper)
       auth: {
         user: process.env.BREVO_SMTP_LOGIN,
         pass: process.env.BREVO_SMTP_KEY,
       },
+      // Higher network timeouts to accommodate free-tier slow spin-ups
+      connectionTimeout: 10000, 
+      greetingTimeout: 10000,
     });
 
     const mailOptions = {
@@ -45,10 +49,10 @@ export const sendOtpEmail = async (email, firstName, otp) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`[SMTP Success] Email sent! ID: ${info.messageId}`);
+    console.log(`[SMTP Success] Email sent dynamically over Render container! ID: ${info.messageId}`);
     return info;
   } catch (error) {
     console.error("[SMTP Error local catch]:", error.message);
-    throw error; // Passes the structural message up to your controllers cleanly
+    throw error; 
   }
 };
