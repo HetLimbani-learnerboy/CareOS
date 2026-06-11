@@ -58,7 +58,7 @@ const PatientRegister = () => {
   const otpRefs = useRef([]);
 
   // Dynamically resolve base URL endpoints from context environment
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // Countdown timer manager hook
   useEffect(() => {
@@ -225,7 +225,7 @@ const PatientRegister = () => {
 
         {/* Global Error Context Alert banner */}
         {errorMessage && (
-          <div className="bg-red-50 text-red-600 text-sm p-3 mb-4 rounded-lg border border-red-200 text-center font-medium">
+          <div className="bg-red-500 text-red-600 text-sm p-3 mb-4 rounded-lg border border-red-200 text-center font-medium">
             {errorMessage}
           </div>
         )}

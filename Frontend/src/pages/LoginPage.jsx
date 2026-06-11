@@ -15,6 +15,7 @@ export default function LoginPage() {
   const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
   const handleTogglePassword = () => setShowPassword((prev) => !prev);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleCaptchaChange = (token) => {
     setCaptchaToken(token);
@@ -41,7 +42,7 @@ export default function LoginPage() {
       setLoading(true);
       setMessage({ type: "", text: "" });
 
-      const response = await axios.post("http://localhost:8000/api/v1/auth/login", {
+      const response = await axios.post (`${API_BASE_URL}/api/v1/auth/login`, {
         email,
         password,
         captchaToken, 
@@ -160,7 +161,7 @@ export default function LoginPage() {
             <svg className="back-arrow-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Home
+            Portal Home
           </button>
         </div>
 
