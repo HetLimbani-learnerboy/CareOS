@@ -1,0 +1,616 @@
+.register-viewport {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(to bottom right, #f8fafc, #ffffff, #eff6ff);
+  padding: 2rem 1rem;
+  box-sizing: border-box;
+}
+
+.register-card-container {
+  width: 100%;
+  max-width: 36rem;
+  background-color: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  position: relative;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .register-card-container {
+    padding: 2.5rem;
+  }
+}
+
+.register-back-btn {
+  position: absolute;
+  left: 1.5rem;
+  top: 1.5rem;
+  padding: 0.5rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 0.575rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.register-back-btn:hover {
+  color: #334155;
+}
+
+.register-back-arrow {
+  transition: transform 0.2s ease;
+}
+
+.register-back-btn:hover .register-back-arrow {
+  transform: translateX(-2px);
+}
+
+.register-brand-header {
+  display: flex;
+  flex-direction: column;
+
+  text-align: center;
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+}
+
+.register-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  color: #0284c7;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  background-color: #f0f9ff;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(186, 230, 253, 0.6);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  margin: 0 auto 1rem auto;
+}
+
+.register-main-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .register-main-title {
+    font-size: 1.875rem;
+  }
+}
+
+.register-title-icon-wrapper {
+  padding: 0.5rem;
+  background: linear-gradient(to bottom right, #0ea5e9, #2563eb);
+  color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-subtitle {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+  margin-top: 0.5rem;
+  max-width: 20rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.register-form,
+.register-otp-form {
+  display: block;
+  width: 100%;
+}
+
+.register-form > * + *,
+.register-otp-form > * + * {
+  margin-top: 1rem;
+}
+
+.register-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .register-grid-2col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.register-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+.register-field-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: left;
+}
+
+.register-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.register-input-icon {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+}
+
+.register-input-element {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.75rem !important; 
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1e293b;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .register-input-element {
+    padding: 0.875rem 1rem 0.875rem 2.75rem !important;
+  }
+}
+
+.register-input-element:focus {
+  border-color: #0ea5e9;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+}
+
+.register-phone-composite {
+  display: flex;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.register-prefix-wrapper {
+  flex-shrink: 0;
+  width: 6.5rem;
+}
+
+@media (min-width: 640px) {
+  .register-prefix-wrapper {
+    width: 7.5rem;
+  }
+}
+
+.register-prefix-select {
+  width: 100%;
+  height: 100%;
+  padding: 0.75rem;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .register-prefix-select {
+    padding: 0.875rem;
+  }
+}
+
+.register-prefix-select:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+}
+
+.register-phone-input-wrapper {
+  position: relative;
+  flex-grow: 1;
+}
+
+.register-visibility-toggle {
+  position: absolute;
+  right: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.register-visibility-toggle:hover {
+  color: #475569;
+}
+
+.register-rules-panel {
+  background-color: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 1rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.register-rules-header {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  text-align: left;
+  margin-bottom: 0.25rem;
+}
+
+.register-rule-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.register-rule-dot {
+  padding: 0.125rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  transition: background-color 0.3s ease;
+}
+
+.register-rule-dot.pass {
+  background-color: #10b981;
+}
+
+.register-rule-dot.fail {
+  background-color: #f43f5e;
+}
+
+.register-rule-text {
+  transition: color 0.3s ease;
+}
+
+.register-rule-text.pass {
+  color: #065f46;
+  font-weight: 600;
+}
+
+.register-rule-text.fail {
+  color: #9f1239;
+}
+
+.register-action-wrapper {
+  padding-top: 0.5rem;
+  width: 100%;
+}
+
+.register-submit-btn {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(to right, #0284c7, #2563eb);
+  color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.register-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(to right, #0369a1, #1d4ed8);
+}
+
+.register-submit-btn:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.register-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.register-spinner {
+  height: 1.25rem;
+  width: 1.25rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 9999px;
+  animation: registerSpin 1s linear infinite;
+}
+
+@keyframes registerSpin {
+  to { transform: rotate(360deg); }
+}
+
+.register-otp-banner {
+  background-color: rgba(240, 249, 255, 0.5);
+  border: 1px solid #e0f2fe;
+  border-radius: 1rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.register-otp-banner-text {
+  color: #0369a1;
+  font-size: 0.75rem;
+  line-height: 1.625;
+  margin: 0;
+}
+
+.register-otp-hardcode {
+  font-weight: 700;
+  color: #0f172a;
+  background-color: rgba(224, 242, 254, 0.8);
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid #bae6fd;
+}
+
+.register-otp-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+.register-otp-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 24rem;
+  margin: 0.5rem auto 0 auto;
+  width: 100%;
+}
+
+.register-otp-input {
+  width: 2.75rem;
+  height: 3.25rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+@media (min-width: 400px) {
+  .register-otp-input {
+    width: 3.25rem;
+    height: 3.5rem;
+  }
+}
+
+.register-otp-input:focus {
+  background-color: #ffffff;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+}
+
+.register-otp-input.error {
+  border-color: #f43f5e;
+  background-color: rgba(254, 242, 242, 0.3);
+  color: #e11d48;
+  box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.1);
+}
+
+.register-otp-error-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e11d48;
+  text-align: center;
+  margin: 0.5rem 0 0 0;
+}
+
+.register-otp-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .register-otp-actions {
+    flex-direction: row;
+  }
+}
+
+.register-otp-back-btn {
+  width: 100%;
+  padding: 0.875rem;
+  background-color: #f1f5f9;
+  color: #475569;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .register-otp-back-btn {
+    width: 33.333%;
+  }
+}
+
+.register-otp-back-btn:hover {
+  background-color: #e2e8f0;
+}
+
+.register-otp-submit-btn {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(to right, #059669, #0d9488);
+  color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .register-otp-submit-btn {
+    width: 66.666%;
+  }
+}
+
+.register-otp-submit-btn:hover:not(:disabled) {
+  background: linear-gradient(to right, #047857, #0f766e);
+}
+
+.register-otp-submit-btn:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.register-otp-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   PRODUCTION-GRADE DYNAMIC ALERTS AND BANNERS
+   ========================================================================== */
+
+.bg-red-50 {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fee2e2;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.25rem;
+  border-radius: 0.625rem; /* 10px matching card styling */
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.875rem; /* 14px default */
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  
+  /* Smooth animation entry when error state toggles */
+  animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN BREAKPOINTS (MEDIA QUERIES)
+   ========================================================================== */
+
+/* Small Devices / Compact Mobile (Screen Widths <= 375px) */
+@media (max-width: 375px) {
+  .bg-red-50 {
+    font-size: 0.75rem; /* Scales text down slightly (12px) to prevent layout wrapping */
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+  }
+}
+
+/* Tablets and Medium Viewports (Screen Widths between 640px and 768px) */
+@media (min-width: 640px) and (max-width: 768px) {
+  .bg-red-50 {
+    font-size: 0.875rem;
+    padding: 1rem 1.5rem;
+    max-width: 100%;
+  }
+}
+
+/* High-Resolution Wide Desktops (Screen Widths >= 1200px) */
+@media (min-width: 1200px) {
+  .bg-red-50 {
+    font-size: 0.9rem;
+    padding: 1rem 1.75rem;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.04); /* Subtle drop-glow for premium visual design */
+  }
+}
+
+/* ==========================================================================
+   ANIMATION LOGIC OVER THE CORE WIRE
+   ========================================================================== */
+@keyframes slideDownFade {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

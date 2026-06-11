@@ -22,7 +22,7 @@ import CareOSLogo from "../../assets/CareOS-logo.png";
 const Header = () => {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -168,39 +168,10 @@ const Header = () => {
             "
           >
             <div className="relative">
-
-             {/* <input
-  type="text"
-  placeholder="Search..."
-  className="
-  relative
-    h-10
-    w-64
-    pl-20
-    pr-6
-    py-2.5
-    rounded-xl
-    border
-    border-slate-300
-    focus:outline-none
-    focus:ring-2
-    focus:ring-sky-500
-    transition-colors
-    hover:border-slate-400
-  "
-/>
-              <Search
-                size={20}
-                className="
-                  absolute
-                  right-3
-                  top-2.5
-                  text-slate-450
-                "
-              />*/}
             </div>
 
             <button
+              onClick={() => navigate('/login')}
               className="
     bg-transparent
     cursor-pointer
@@ -212,7 +183,7 @@ const Header = () => {
 
             <button
               type="button"
-              onClick={()=>navigate('/getconsult')}
+              onClick={() => navigate('/getconsult')}
               className="
                 cursor-pointer
                 bg-sky-600
@@ -300,22 +271,11 @@ const Header = () => {
                 </a>
               ))}
 
-              {/* <input
-                type="text"
-                placeholder="Search..."
-                className="
-                  border
-                  rounded-xl
-                  px-4
-                  py-3
-                "
-              /> */}
-
               <button>
                 Login
               </button>
 
-              <button onClick={()=>navigate('/getconsult')}> Request a Consultation
+              <button onClick={() => navigate('/getconsult')}> Request a Consultation
               </button>
             </div>
           </motion.div>

@@ -49,9 +49,9 @@ const GetConsult = () => {
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="consult-back-btn"
+            className="consult-backbtn"
           >
-            <ArrowLeft size={14} className="back-arrow-icon" />
+            <ArrowLeft size={18} className="back-arrow-icon" />
             <span>Portal Home</span>
           </button>
 

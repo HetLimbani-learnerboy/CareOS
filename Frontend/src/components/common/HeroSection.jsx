@@ -66,6 +66,7 @@ const HeroSection = () => {
             <motion.div variants={badgeVariants} className="self-start">
               <span className="inline-flex items-center gap-2 bg-sky-50 text-sky-700 px-4 py-2 rounded-full text-xs sm:text-sm font-bold border border-sky-100 shadow-sm">
                 <span className="w-2 h-2 bg-sky-500 rounded-full animate-pulse" />
+
                 Healthcare ERP Platform
               </span>
             </motion.div>

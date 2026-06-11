@@ -40,24 +40,23 @@
 }
 
 /* Back Link Node Button */
-.consult-back-btn {
+.consult-backbtn {
   position: absolute;
   left: 1.5rem;
   top: 1.5rem;
-  padding: 0.5rem;
+  padding: 1.5rem;
   color: #94a3b8;
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 700;
   border: none;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: 0.2s ease;
 }
 
-.consult-back-btn:hover {
+.consult-backbtn:hover {
   color: #334155;
 }
 
@@ -65,7 +64,7 @@
   transition: transform 0.2s ease;
 }
 
-.consult-back-btn:hover .back-arrow-icon {
+.consult-backbtn:hover .back-arrow-icon {
   transform: translateX(-2px);
 }
 
@@ -74,7 +73,7 @@
   display: flex;
   justify-content: center;
   margin-bottom: 1.5rem;
-  margin-top: 1rem;
+  margin-top: 3rem;
 }
 
 .consult-status-badge {
