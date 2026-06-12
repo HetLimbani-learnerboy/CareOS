@@ -10,43 +10,96 @@ import SystemCounter from "./modules/auth/counter.model.js";
 import UserIdentity from "./modules/auth/userIdentity.model.js";
 import OtpVerification from "./modules/auth/otpVerification.model.js";
 
-const errorHandler = (err, req, res, next) => {
-  res.status(err.statusCode || 500).json({
-    status: "error",
-    message: err.message || "Internal Server Error",
-  });
-};
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Explicitly link the environment configuration wrapper
 dotenv.config({
   path: path.resolve(__dirname, "../.env"),
 });
 
 const app = express();
-const PORT = process.env.PORT || 8000;
 const MONGO_URI = process.env.MONGODB_URL;
 
 if (!MONGO_URI) {
-  console.error("FATAL ERROR: MONGODB_URL missing in .env");
-  process.exit(1);
+  console.error("FATAL ERROR: MONGODB_URL missing in environment variables");
 }
 
+/* ==========================================================================
+   GLOBAL MIDDLEWARE CONFIGURATIONS
+   ========================================================================== */
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    // Replace with your Vercel frontend URL in production
+    origin: process.env.CLIENT_URL || "http://localhost:5173", 
     credentials: true,
   })
 );
 app.use(express.json());
 
-app.use("/api/v1/auth", authRoutes);
+/* ==========================================================================
+   LAZY DATABASE INITIALIZATION MIDDLEWARE (SERVERLESS COMPLIANT)
+   ========================================================================== */
+let isDbInitialized = false;
 
+const connectAndInitializeDb = async (req, res, next) => {
+  try {
+    // If connection is ready and pipeline initialized, proceed immediately
+    if (mongoose.connection.readyState === 1 && isDbInitialized) {
+      return next();
+    }
+
+    // 1. Establish/reuse connection to MongoDB Atlas cluster
+    if (mongoose.connection.readyState !== 1) {
+      console.log("[Serverless Data Engine]: Connecting to MongoDB Atlas...");
+      await mongoose.connect(MONGO_URI);
+      console.log(`[Serverless Data Engine]: Connected to -> ${mongoose.connection.name}`);
+    }
+
+    // 2. Safely initialize schemas and structural pipelines once per container boot
+    if (!isDbInitialized) {
+      console.log("[Serverless Data Engine]: Verifying schemas and indexes...");
+      await UserIdentity.init();
+      await OtpVerification.init();
+      await SystemCounter.init();
+
+      // Enforce sequence counter definitions inside Atlas
+      await SystemCounter.findOneAndUpdate(
+        { _id: "user_identity_id" },
+        { $setOnInsert: { sequence_value: 0 } },
+        { upsert: true }
+      );
+
+      await SystemCounter.findOneAndUpdate(
+        { _id: "otp_verification_id" },
+        { $setOnInsert: { sequence_value: 0 } },
+        { upsert: true }
+      );
+
+      isDbInitialized = true;
+      console.log("[Serverless Data Engine]: Sync and counters verified.");
+    }
+
+    next();
+  } catch (error) {
+    console.error("[Database Serverless Init Failure]:", error.message);
+    res.status(500).json({
+      status: "error",
+      message: "Database system pipeline failed to initialize within serverless context.",
+    });
+  }
+};
+
+// Apply database connection layer to your transactional authentication routes
+app.use("/api/v1/auth", connectAndInitializeDb, authRoutes);
+
+/* ==========================================================================
+   ROUTING & CORE SYSTEM CONTROLLERS
+   ========================================================================== */
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({
     status: 'success',
-    message: 'CareOS Server Engine is running cleanly...'
+    message: 'CareOS Server Engine is running cleanly on Vercel Edge Serverless...'
   });
 });
 
@@ -57,66 +110,37 @@ app.use((req, res) => {
   });
 });
 
-app.use(errorHandler);
+// Global Error Handler
+app.use((err, req, res, next) => {
+  res.status(err.statusCode || 500).json({
+    status: "error",
+    message: err.message || "Internal Server Error",
+  });
+});
 
-async function initializeDatabase() {
-  try {
-    console.log("Connecting to MongoDB...");
-    await mongoose.connect(MONGO_URI);
-    console.log(`MongoDB Connected Successfully -> ${mongoose.connection.name}`);
-
-    console.log("Compiling database schema configurations and indexes...");
-    await UserIdentity.init();
-    await OtpVerification.init();
-    await SystemCounter.init();
-
-    console.log("Enforcing initialization of system counters...");
-    await SystemCounter.findOneAndUpdate(
-      { _id: "user_identity_id" },
-      { $setOnInsert: { sequence_value: 0 } },
-      { upsert: true, returnDocument: "after" }
-    );
-
-    await SystemCounter.findOneAndUpdate(
-      { _id: "otp_verification_id" },
-      { $setOnInsert: { sequence_value: 0 } },
-      { upsert: true, returnDocument: "after" }
-    );
-
-    console.log("Executing physical structural synchronization down database modules...");
-
-    // Skip email verification for temporary marker user
+/* ==========================================================================
+   LOCAL RECOVERY EMULATION (ONLY RUNS OUTSIDE VERCEL CONTEXT)
+   ========================================================================== */
+if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+  const PORT = process.env.PORT || 8000;
+  
+  const startLocalServer = async () => {
     try {
-      const tempUser = await UserIdentity.create({
-        firstName: "Database",
-        lastName: "Initializer",
-        email: "init_marker@careos.internal",
-        countryCode: "+91",
-        phone: "0000000000",
-        password: "TemporaryInitializationPassword123!",
-        is_verified: true
+      await mongoose.connect(MONGO_URI);
+      console.log(`[Local Development]: MongoDB Connected -> ${mongoose.connection.name}`);
+      
+      app.listen(PORT, () => {
+        console.log(`[Local Development]: CareOS Backend Running On http://localhost:${PORT}`);
       });
-      await UserIdentity.deleteOne({ _id: tempUser._id });
-
-      const tempOtp = await OtpVerification.create({
-        email: "init_marker@careos.internal",
-        otp_hash: "temporary_hash",
-        expires_at: new Date(Date.now() + 1000)
-      });
-      await OtpVerification.deleteOne({ _id: tempOtp._id });
-
-      console.log("Database collections and auto-increment pipelines are permanently visible on disk.");
-    } catch (initError) {
-      console.warn("[Database Initialization] Temporary marker creation skipped - collections may already exist");
+    } catch (err) {
+      console.error("[Local Boot Error]:", err.message);
     }
+  };
 
-    app.listen(PORT, () => {
-      console.log(`CareOS Backend Running On http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error("Application startup failed due to structural failure:", error.message);
-    process.exit(1);
-  }
+  startLocalServer();
 }
 
-initializeDatabase();
+/* ==========================================================================
+   CRITICAL VERCEL ROUTING BRIDGE EXPORT
+   ========================================================================== */
+export default app;
