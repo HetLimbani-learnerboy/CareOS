@@ -14,18 +14,14 @@ export const sendOtpEmail = async (email, firstName, otp) => {
       throw new Error("SMTP credentials missing from environment variables");
     }
 
-    /* ==========================================================================
-       THE RENDER OUTBOUND FILTER FIX: FORCE SECURE PORT 465 SSL HANDSHAKE
-       ========================================================================== */
     const transporter = nodemailer.createTransport({
       host: "smtp-relay.brevo.com",
-      port: 465,         // <-- CHANGE FROM 587 TO 465
-      secure: true,      // <-- CHANGE FROM FALSE TO TRUE (Forces native SSL wrapper)
+      port: 465,       
+      secure: true,      
       auth: {
         user: process.env.BREVO_SMTP_LOGIN,
         pass: process.env.BREVO_SMTP_KEY,
       },
-      // Higher network timeouts to accommodate free-tier slow spin-ups
       connectionTimeout: 10000, 
       greetingTimeout: 10000,
     });
@@ -49,7 +45,6 @@ export const sendOtpEmail = async (email, firstName, otp) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`[SMTP Success] Email sent dynamically over Render container! ID: ${info.messageId}`);
     return info;
   } catch (error) {
     console.error("[SMTP Error local catch]:", error.message);

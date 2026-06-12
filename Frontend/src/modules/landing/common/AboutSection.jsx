@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { 
-  CheckCircle2, 
-  Zap, 
-  ShieldCheck, 
-  Activity, 
-  UserPlus, 
-  Stethoscope, 
-  Sparkles, 
-  Layers 
+import {
+  CheckCircle2,
+  Zap,
+  ShieldCheck,
+  Activity,
+  UserPlus,
+  Stethoscope,
+  Sparkles,
+  Layers
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import "../../style/AboutSection-style.css";
+import "../style/AboutSection-style.css";
 
 const features = [
   "Multi-Role Access Control",
@@ -81,11 +81,11 @@ const cardStaggerContainer = {
 
 const rightSideCardVariants = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
+  visible: {
+    opacity: 1,
+    y: 0,
     scale: 1,
-    transition: { type: "spring", stiffness: 100, damping: 15 } 
+    transition: { type: "spring", stiffness: 100, damping: 15 }
   }
 };
 
@@ -101,8 +101,7 @@ const AboutSection = () => {
 
   return (
     <section id="about" className="aboutsection-card bg-gradient-to-br from-slate-50 via-white to-blue-50/30 w-full relative overflow-hidden">
-      
-      {/* Background Ambience Animations */}
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           animate={{ rotate: 360 }}
@@ -117,11 +116,9 @@ const AboutSection = () => {
       </div>
 
       <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl">
-        
-        {/* Content Grid */}
+
         <div className="about-content-layout w-full">
-          
-          {/* LEFT COLUMN - STRATEGIC BRAND TEXT */}
+
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -129,7 +126,6 @@ const AboutSection = () => {
             transition={{ duration: 0.6 }}
             className="about-left-panel w-full"
           >
-            {/* Badge */}
             <motion.span
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -141,7 +137,6 @@ const AboutSection = () => {
               About CareOS
             </motion.span>
 
-            {/* Title */}
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -152,7 +147,6 @@ const AboutSection = () => {
               One Platform For Complete Healthcare Operations
             </motion.h2>
 
-            {/* Description */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -163,7 +157,6 @@ const AboutSection = () => {
               CareOS centralizes patient management, doctor scheduling, pharmacy operations, laboratory workflows, billing systems, telemedicine, analytics, and more into one modern platform.
             </motion.p>
 
-            {/* Core Features Check-List */}
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -189,10 +182,8 @@ const AboutSection = () => {
             </motion.div>
           </motion.div>
 
-          {/* RIGHT COLUMN - LIVE DEPARTMENT SYNC SIMULATOR */}
           <div className="about-right-panel w-full relative">
-            
-            {/* Main Interactive Flow Card */}
+
             <motion.div
               variants={rightSideCardVariants}
               initial="hidden"
@@ -213,33 +204,29 @@ const AboutSection = () => {
                 </div>
               </div>
 
-              {/* Pipeline Simulation Steps */}
               <div className="space-y-4 relative">
-                {/* Connector Line behind steps */}
                 <div className="absolute left-[27px] top-4 bottom-4 w-[2px] bg-slate-100 -z-10" />
 
                 {pipelineSteps.map((step, index) => {
                   const StepIcon = step.icon;
                   const isActive = index === activeStep;
-                  
+
                   return (
                     <motion.div
                       key={step.id}
                       onClick={() => setActiveStep(index)}
-                      animate={{ 
+                      animate={{
                         scale: isActive ? 1.02 : 1,
-                        backgroundColor: isActive ? "rgba(240, 249, 255, 0.7)" : "rgba(255, 255, 255, 0)" 
+                        backgroundColor: isActive ? "rgba(240, 249, 255, 0.7)" : "rgba(255, 255, 255, 0)"
                       }}
-                      className={`flex items-start gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer box-border ${
-                        isActive 
-                          ? "border-sky-200 shadow-sm" 
+                      className={`flex items-start gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer box-border ${isActive
+                          ? "border-sky-200 shadow-sm"
                           : "border-transparent hover:border-slate-100 hover:bg-slate-50/50"
-                      }`}
+                        }`}
                     >
-                      {/* Animated Node Circle */}
                       <div className="relative">
-                        <motion.div 
-                          animate={{ 
+                        <motion.div
+                          animate={{
                             backgroundColor: isActive ? "#0284c7" : "rgba(226, 232, 240, 1)",
                             color: isActive ? "#ffffff" : "rgba(100, 116, 139, 1)",
                             boxShadow: isActive ? "0 0 15px rgba(14, 165, 233, 0.4)" : "none"
@@ -249,8 +236,8 @@ const AboutSection = () => {
                           <StepIcon size={22} />
                         </motion.div>
                         {isActive && (
-                          <motion.div 
-                            layoutId="pulse-ring" 
+                          <motion.div
+                            layoutId="pulse-ring"
                             className="absolute inset-0 rounded-full border-2 border-sky-400 -z-10"
                             animate={{ scale: [1, 1.3, 1], opacity: [1, 0, 1] }}
                             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
@@ -258,19 +245,17 @@ const AboutSection = () => {
                         )}
                       </div>
 
-                      {/* Step Text Info */}
                       <div className="flex-1 min-w-0 pt-1">
                         <div className="flex items-center justify-between gap-2">
                           <h4 className={`text-base font-bold transition-colors m-0 ${isActive ? "text-sky-900" : "text-slate-800"}`}>
                             {step.label}
                           </h4>
-                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                            isActive 
-                              ? "bg-sky-100 text-sky-700" 
-                              : index < activeStep 
-                                ? "bg-emerald-50 text-emerald-700" 
+                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${isActive
+                              ? "bg-sky-100 text-sky-700"
+                              : index < activeStep
+                                ? "bg-emerald-50 text-emerald-700"
                                 : "bg-slate-100 text-slate-500"
-                          }`}>
+                            }`}>
                             {isActive ? "Active Sync" : index < activeStep ? "Secured" : "Queued"}
                           </span>
                         </div>
@@ -281,7 +266,6 @@ const AboutSection = () => {
                 })}
               </div>
 
-              {/* Dynamic Console Feed */}
               <div className="mt-6 bg-slate-900 rounded-xl p-4 font-mono text-[11px] text-slate-400 shadow-inner overflow-hidden relative min-h-[62px]">
                 <div className="absolute right-3 top-3 flex gap-1">
                   <div className="w-2 h-2 rounded-full bg-red-500/80" />
@@ -304,8 +288,7 @@ const AboutSection = () => {
               </div>
             </motion.div>
 
-            {/* Bottom Row: Core Structural Architecture Benefits */}
-            <motion.div 
+            <motion.div
               variants={cardStaggerContainer}
               initial="hidden"
               whileInView="visible"
@@ -336,7 +319,6 @@ const AboutSection = () => {
           </div>
         </div>
 
-        {/* Global Horizontal Context Footer Card */}
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}

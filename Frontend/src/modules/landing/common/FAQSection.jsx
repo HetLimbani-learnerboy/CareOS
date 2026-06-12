@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
-import { 
-  ChevronDown, 
-  HelpCircle, 
-  MessageSquare, 
-  Activity, 
-  GraduationCap, 
-  Building2, 
-  User, 
-  X, 
-  Mail, 
-  Send 
+import {
+  ChevronDown,
+  HelpCircle,
+  MessageSquare,
+  Activity,
+  GraduationCap,
+  Building2,
+  User,
+  X,
+  Mail,
+  Send
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import CareOSLogo from "../../assets/CareOS-logo.png"; // Fixed: Removed curly braces from default image import
-import "../../style/FAQSection-style.css"; // Import the external stylesheet
+import CareOSLogo from "../../../assets/CareOS-logo.png";
+import "../style/FAQSection-style.css";
 
 const faqs = [
   {
@@ -46,7 +46,7 @@ const faqs = [
 const FAQSection = () => {
   const [openIndex, setOpenIndex] = useState(null);
   const [isContactOpen, setIsContactOpen] = useState(false);
-  
+
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -72,7 +72,7 @@ const FAQSection = () => {
     setIsSubmitting(false);
     setSubmitSuccess(true);
     setFormData({ name: "", email: "", message: "" });
-    
+
     setTimeout(() => {
       setSubmitSuccess(false);
       setIsContactOpen(false);
@@ -82,8 +82,7 @@ const FAQSection = () => {
   return (
     <section id="faq" className="faq-section scroll-mt-28">
       <div className="faq-container faqsection-content">
-        
-        {/* Header Section */}
+
         <div className="faq-header">
           <motion.span
             initial={{ opacity: 0, scale: 0.9 }}
@@ -94,8 +93,8 @@ const FAQSection = () => {
             <HelpCircle size={14} />
             Support Hub
           </motion.span>
-          
-          <motion.h2 
+
+          <motion.h2
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -104,8 +103,8 @@ const FAQSection = () => {
           >
             Frequently Asked Questions
           </motion.h2>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -116,11 +115,10 @@ const FAQSection = () => {
           </motion.p>
         </div>
 
-        {/* Accordion Group */}
         <div className="accordion-group faqsection-centered-content">
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
-            
+
             return (
               <motion.div
                 key={index}
@@ -150,16 +148,16 @@ const FAQSection = () => {
                   {isOpen && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
-                      animate={{ 
-                        height: "auto", 
+                      animate={{
+                        height: "auto",
                         opacity: 1,
                         transition: {
                           height: { type: "spring", stiffness: 300, damping: 30 },
                           opacity: { duration: 0.2, delay: 0.05 }
                         }
                       }}
-                      exit={{ 
-                        height: 0, 
+                      exit={{
+                        height: 0,
                         opacity: 0,
                         transition: {
                           height: { type: "spring", stiffness: 300, damping: 30 },
@@ -178,8 +176,7 @@ const FAQSection = () => {
           })}
         </div>
 
-        {/* Support Context Card Trigger */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -195,7 +192,7 @@ const FAQSection = () => {
               <p className="support-card-desc">Our enterprise support specialists are available around the clock.</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={() => setIsContactOpen(true)}
             className="contact-trigger-btn"
           >
@@ -203,10 +200,8 @@ const FAQSection = () => {
           </button>
         </motion.div>
 
-        {/* Divider */}
         <div className="section-divider" />
 
-        {/* About Us Signature Meta Block */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -245,7 +240,7 @@ const FAQSection = () => {
 
             <div className="meta-column">
               <span className="meta-label">
-                <Building2 size={10} /> Internship Company 
+                <Building2 size={10} /> Internship Company
               </span>
               <a href="https://www.covrize.com/" target="_blank" rel="noopener noreferrer" className="meta-value-gradient">
                 Covrize IT Solutions Private Limited
@@ -256,11 +251,9 @@ const FAQSection = () => {
 
       </div>
 
-      {/* OVERLAP CONTACT FORM INTERACTIVE DRAWER PIPELINE */}
       <AnimatePresence>
         {isContactOpen && (
           <>
-            {/* Backdrop Blur Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -269,7 +262,6 @@ const FAQSection = () => {
               className="drawer-backdrop"
             />
 
-            {/* Sidebar Sliding Drawer Panel Container */}
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
@@ -277,7 +269,6 @@ const FAQSection = () => {
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="drawer-panel"
             >
-              {/* Drawer Top Header */}
               <div className="drawer-header">
                 <div className="drawer-header-left">
                   <div className="mail-icon-box">
@@ -288,7 +279,7 @@ const FAQSection = () => {
                     <p className="drawer-subtitle">Enterprise deployment orchestration routing</p>
                   </div>
                 </div>
-                
+
                 <button
                   onClick={() => setIsContactOpen(false)}
                   className="drawer-close-btn"
@@ -298,7 +289,6 @@ const FAQSection = () => {
                 </button>
               </div>
 
-              {/* Central Form Field Area Container */}
               <div className="drawer-body">
                 <form onSubmit={handleSubmit} className="contact-form">
                   <div className="form-group">

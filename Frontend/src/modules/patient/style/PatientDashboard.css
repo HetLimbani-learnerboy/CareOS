@@ -1,0 +1,210 @@
+/* ==========================================================================
+   PATIENT PORTAL SYSTEM STRUCTURAL HOOKS
+   ========================================================================== */
+:root {
+  --slate-900: #0f172a;
+  --slate-800: #1e293b;
+  --slate-700: #334155;
+  --slate-500: #64748b;
+  --slate-100: #f1f5f9;
+  --sky-600: #0284c7;
+  --sky-50: #f0f9ff;
+  --emerald-600: #059669;
+}
+
+.patient-portal-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   COMPACT OUTBOUND SIDEBAR NAVIGATION
+   ========================================================================== */
+.portal-sidebar-container {
+  width: 280px;
+  background-color: var(--slate-900);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 1.75rem 1.25rem;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-identity-block h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--sky-600);
+  font-weight: 800;
+}
+
+.sidebar-identity-block p {
+  margin: 0.15rem 0 0 0;
+  font-size: 0.725rem;
+  color: var(--slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.sidebar-nav-menu {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex-grow: 1;
+}
+
+.sidebar-nav-item {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.8rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  text-align: left;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.sidebar-nav-item:hover, 
+.sidebar-nav-item.nav-item-active {
+  color: #ffffff;
+  background-color: var(--slate-800);
+}
+
+.sidebar-nav-item.nav-item-active {
+  color: #ffffff;
+  background-color: var(--slate-800);
+  box-shadow: inset 4px 0 0 0 var(--sky-600);
+}
+
+.nav-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-logout-action {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: none;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sidebar-logout-action:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* ==========================================================================
+   CANVAS SYSTEM WORKSPACE RESPONSIVENESS
+   ========================================================================== */
+.portal-workspace-canvas {
+  flex-grow: 1;
+  padding: 2.5rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.mobile-portal-navbar {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .patient-portal-wrapper {
+    flex-direction: column;
+  }
+  .mobile-portal-navbar {
+    display: flex;
+    align-items: center;
+    background-color: var(--slate-900);
+    color: #ffffff;
+    height: 60px;
+    padding: 0 1.25rem;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    gap: 1rem;
+  }
+  .mobile-navbar-brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .portal-sidebar-container {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    height: calc(100vh - 60px);
+    z-index: 50;
+    transform: translateX(-100%);
+  }
+  .portal-sidebar-container.sidebar-drawer-open {
+    transform: translateX(0);
+  }
+  .portal-workspace-canvas {
+    padding: 1.5rem 1.25rem;
+    height: calc(100vh - 60px);
+  }
+  .sidebar-mobile-overlay {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 60px);
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(2px);
+    z-index: 45;
+  }
+  
+  /* Micro Hamburger Graphics */
+  .mobile-menu-trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hamburger-bar {
+    width: 20px;
+    height: 2px;
+    background-color: #ffffff;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  .hamburger-bar::before, .hamburger-bar::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    background-color: #ffffff;
+    left: 0;
+    transition: all 0.2s ease;
+  }
+  .hamburger-bar::before { top: -6px; }
+  .hamburger-bar::after { top: 6px; }
+  .hamburger-bar.open { background-color: transparent; }
+  .hamburger-bar.open::before { transform: rotate(45deg); top: 0; }
+  .hamburger-bar.open::after { transform: rotate(-45deg); top: 0; }
+}

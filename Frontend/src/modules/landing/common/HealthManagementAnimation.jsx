@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Heart, Activity, Zap, TrendingUp } from "lucide-react";
 
 const HealthManagementAnimation = () => {
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0, x: 60 },
     visible: {

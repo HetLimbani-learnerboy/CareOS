@@ -1,4 +1,4 @@
-@import "./index.css"; 
+@import "./index.css";
 @import "tailwindcss";
 @source "./**/*.{js,jsx,ts,tsx}";
 @tailwind utilities;
@@ -31,6 +31,7 @@ body {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -42,6 +43,7 @@ body {
     opacity: 0;
     transform: translateY(-30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -53,6 +55,7 @@ body {
     opacity: 0;
     transform: translateX(-60px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -64,6 +67,7 @@ body {
     opacity: 0;
     transform: translateX(60px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -71,10 +75,13 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
   }
+
   50% {
     opacity: 0.8;
     box-shadow: 0 0 40px rgba(14, 165, 233, 0.5);
@@ -82,9 +89,12 @@ body {
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-20px);
   }
@@ -94,24 +104,31 @@ body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
 }
 
 @keyframes bounce-subtle {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-8px);
   }
 }
 
 @keyframes glow-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     background-color: rgba(14, 165, 233, 0.2);
   }
+
   50% {
     background-color: rgba(14, 165, 233, 0.4);
   }
@@ -121,27 +138,35 @@ body {
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
 }
 
 @keyframes heartbeat {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   25% {
     transform: scale(1.1);
   }
+
   50% {
     transform: scale(1);
   }
 }
 
 @keyframes wave {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scaleY(1);
   }
+
   50% {
     transform: scaleY(0.8);
   }
@@ -216,7 +241,7 @@ html {
   .md\:hidden-mobile {
     display: none;
   }
-  
+
   .text-responsive {
     font-size: clamp(1.25rem, 5vw, 3rem);
   }
@@ -248,4 +273,4 @@ a::after {
 
 a:hover::after {
   width: 100%;
-}  
+}

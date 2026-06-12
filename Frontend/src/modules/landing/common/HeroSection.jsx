@@ -3,7 +3,7 @@ import HealthManagementAnimation from "./HealthManagementAnimation";
 import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
-  const navigate= useNavigate();
+  const navigate = useNavigate();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -20,7 +20,7 @@ const HeroSection = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }, // Smooth easeOutExpo
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
     },
   };
 
@@ -35,8 +35,7 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-[calc(100vh-5rem)] flex items-center justify-center py-12 lg:py-20 overflow-hidden bg-slate-50/30">
-      
-      {/* Animated Depth Background Elements */}
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none select-none z-0">
         <motion.div
           animate={{ y: [0, 30, 0], rotate: [0, 15, 0] }}
@@ -50,7 +49,6 @@ const HeroSection = () => {
         />
       </div>
 
-      {/* Main Structural Layout Container */}
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           variants={containerVariants}
@@ -58,11 +56,9 @@ const HeroSection = () => {
           animate="visible"
           className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center"
         >
-          
-          {/* Left Hero Content Typography and CTA Engine */}
+
           <div className="lg:col-span-6 space-y-6 sm:space-y-8 flex flex-col justify-center text-left">
-            
-            {/* Inline Dynamic Badge */}
+
             <motion.div variants={badgeVariants} className="self-start">
               <span className="inline-flex items-center gap-2 bg-sky-50 text-sky-700 px-4 py-2 rounded-full text-xs sm:text-sm font-bold border border-sky-100 shadow-sm">
                 <span className="w-2 h-2 bg-sky-500 rounded-full animate-pulse" />
@@ -71,7 +67,6 @@ const HeroSection = () => {
               </span>
             </motion.div>
 
-            {/* Main Typographic Stack */}
             <div className="space-y-10 mb-3">
               <motion.h1
                 variants={itemVariants}
@@ -80,7 +75,7 @@ const HeroSection = () => {
                 Smart Hospital
                 <span className="block mt-1 sm:mt-2">
                   <motion.span
-                    animate={{ 
+                    animate={{
                       backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                     }}
                     transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
@@ -98,23 +93,21 @@ const HeroSection = () => {
                 Manage Patients, Doctors, Pharmacy, Laboratory, Billing, Analytics, Telemedicine and Hospital Operations through one intelligent platform.
               </motion.p>
             </div>
-            
-            {/* Interactive Analytical Metrics Grid */}
+
             <motion.div
               variants={itemVariants}
               className="
-    grid
-    grid-cols-3
-    gap-6
-    sm:gap-8
-    max-w-md
-    mt-8
-    mb-8
-    pt-6
-    border-t
-    border-slate-100
-    "
-            >
+                grid
+                grid-cols-3
+                gap-6
+                sm:gap-8
+                max-w-md
+                mt-8
+                mb-8
+                pt-6
+                border-t
+                border-slate-100
+                " >
               {[
                 { number: "50+", label: "Hospitals" },
                 { number: "100K+", label: "Patients" },
@@ -135,13 +128,12 @@ const HeroSection = () => {
               ))}
             </motion.div>
 
-            {/* Conversion Triggers & Interactive CTAs */}
             <motion.div
               variants={itemVariants}
               className="flex flex-col sm:flex-row items-center gap-4 pt-4 w-full sm:max-w-md lg:max-w-none"
             >
               <motion.button
-              onClick={()=>navigate('/patientregister')}
+                onClick={() => navigate('/patientregister')}
                 whileHover={{
                   scale: 1.02,
                   boxShadow: "0 12px 30px -10px rgba(14, 165, 233, 0.4)",
@@ -171,7 +163,6 @@ const HeroSection = () => {
             </motion.div>
           </div>
 
-          {/* Right Hero Interactive Device/Dashboard Simulation Vector */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, x: 30 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
