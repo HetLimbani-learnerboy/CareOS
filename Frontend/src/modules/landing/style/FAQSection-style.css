@@ -1,6 +1,3 @@
-/* ==========================================================================
-   FAQ SECTION BASE STYLES & LAYOUT SYSTEM
-   ========================================================================== */
 .faq-section {
   background: linear-gradient(to bottom, #ffffff, #f8fafc, #ffffff);
   width: 100% !important;
@@ -10,7 +7,7 @@
 
 .faq-container {
   width: 100% !important;
-  max-width: 56rem !important; /* Matches max-w-4xl */
+  max-width: 56rem !important;
   margin-left: auto !important;
   margin-right: auto !important;
   padding-left: 1rem;
@@ -34,16 +31,12 @@
   }
 }
 
-/* Force layout contents to take full container space */
-.faqsection-content, 
+.faqsection-content,
 .faqsection-centered-content {
   width: 100% !important;
   display: block !important;
 }
 
-/* ==========================================================================
-   HEADER STRUCTURAL STYLES
-   ========================================================================== */
 .faq-header {
   text-align: center;
   max-width: 42rem;
@@ -92,14 +85,11 @@
   margin-bottom: 2.5rem;
 }
 
-/* ==========================================================================
-   ACCORDION CORE HOUSING
-   ========================================================================== */
 .accordion-group {
   margin-top: 4rem;
 }
 
-.accordion-group > * + * {
+.accordion-group>*+* {
   margin-top: 1rem;
 }
 
@@ -215,9 +205,6 @@
   }
 }
 
-/* ==========================================================================
-   SUPPORT HUB CALL-TO-ACTION PANEL
-   ========================================================================== */
 .support-card {
   margin-top: 3rem;
   width: 100% !important;
@@ -317,9 +304,6 @@
   margin-bottom: 2rem;
 }
 
-/* ==========================================================================
-   METADATA INFORMATION FOOTER MODULE
-   ========================================================================== */
 .meta-block {
   width: 100% !important;
   background-color: #ffffff;
@@ -418,6 +402,7 @@
   align-items: center;
   gap: 0.25rem;
 }
+
 .meta-logo {
   height: 3rem;
   width: 3rem;
@@ -426,13 +411,13 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  overflow: hidden; /* Keeps the logo inside the bounding container boxes */
+  overflow: hidden;
 }
 
 .logo-img {
   height: 100%;
   width: 100%;
-  object-fit: contain; /* Ensures the logo scales down uniformly without distortion */
+  object-fit: contain;
 }
 
 .meta-value {
@@ -459,9 +444,6 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* ==========================================================================
-   SLIDING CONTEXT OVERLAY OVERLAP CONTAINER (FORM DRAWER)
-   ========================================================================== */
 .drawer-backdrop {
   position: fixed;
   top: 0;
@@ -554,11 +536,10 @@
   padding: 1.5rem;
 }
 
-.drawer-body > * + * {
+.drawer-body>*+* {
   margin-top: 1.5rem;
 }
 
-/* Informative Banner Box Inside Form Overlay */
 .alert-banner {
   background-color: rgba(240, 249, 255, 0.5);
   border: 1px solid #e0f2fe;
@@ -587,14 +568,11 @@
   color: #0f172a;
 }
 
-/* ==========================================================================
-   FORM INPUT DESIGNS
-   ========================================================================== */
 .contact-form {
   text-align: left;
 }
 
-.contact-form > * + * {
+.contact-form>*+* {
   margin-top: 1.25rem;
 }
 
@@ -640,7 +618,7 @@
   box-sizing: border-box;
 }
 
-.form-input::placeholder, 
+.form-input::placeholder,
 .form-textarea::placeholder {
   color: #94a3b8;
 }
@@ -676,7 +654,6 @@
   padding-top: 0.5rem;
 }
 
-/* Submit Controls Custom Logic Transitions */
 .submit-btn {
   width: 100%;
   padding: 0.875rem 1.25rem;
@@ -738,10 +715,11 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Drawer Sticky Footer Minimal Block */
 .drawer-footer {
   padding: 1rem;
   background-color: #f8fafc;

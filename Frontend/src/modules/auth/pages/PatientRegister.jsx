@@ -18,7 +18,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import "../../style/PatientRegister-style.css";
+import "../style/PatientRegister-style.css";
 
 const countryCodes = [
   { code: "+91", label: "India (+91)" },

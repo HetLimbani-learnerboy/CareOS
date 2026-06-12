@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../style/LoginPage.css"; 
 
@@ -10,12 +11,13 @@ export default function LoginPage() {
   const [captchaToken, setCaptchaToken] = useState(null);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const recaptchaRef = useRef(null);
   const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleTogglePassword = () => setShowPassword((prev) => !prev);
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleCaptchaChange = (token) => {
     setCaptchaToken(token);
@@ -42,7 +44,7 @@ export default function LoginPage() {
       setLoading(true);
       setMessage({ type: "", text: "" });
 
-      const response = await axios.post (`${API_BASE_URL}/api/v1/auth/login`, {
+      const response = await axios.post(`${API_BASE_URL}/api/v1/auth/login`, {
         email,
         password,
         captchaToken, 
@@ -50,6 +52,25 @@ export default function LoginPage() {
 
       setMessage({ type: "success", text: "Login successful! Redirecting..." });
       console.log("Authentication Response Payload:", response.data);
+
+      const userRole = response.data?.data?.user?.role;
+
+      if (userRole) {
+        setTimeout(() => {
+          if (userRole === "patient") navigate("/patient-dashboard");
+          else if (userRole === "doctor") navigate("/doctor-dashboard");
+          else if (userRole === "nurse") navigate("/nurse-dashboard");
+          else if (userRole === "hospital_admin") navigate("/hospital_admin-dashboard");
+          else if (userRole === "lab_technician") navigate("/lab_technician-dashboard");
+          else if (userRole === "pharmacist") navigate("/pharmacist-dashboard");
+          else if (userRole === "receptionist") navigate("/receptionist-dashboard");
+          else {
+            setMessage({ type: "error", text: "Unauthorized role profile layout context." });
+          }
+        }, 1200);
+      } else {
+        console.error("Role verification failed. 'role' property missing from response payload context.");
+      }
 
     } catch (error) {
       const errorMsg = error.response?.data?.message || "Internal login network error.";
@@ -126,7 +147,7 @@ export default function LoginPage() {
           </div>
 
           <div className="forgot-password-row">
-            <button type="button" className="forgot-password-link">
+            <button type="button" className="forgot-password-link" onClick={()=>navigate('/forgot-password')}>
               Forgot your password?
             </button>
           </div>

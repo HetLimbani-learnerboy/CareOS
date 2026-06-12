@@ -101,7 +101,7 @@ export const verifyOtpCode = async (email, enteredOtp) => {
   }
 
   await OtpVerification.deleteOne({ email });
-  
+
   const updatedUser = await UserIdentity.findOneAndUpdate(
     { email },
     { is_verified: true },
@@ -109,4 +109,75 @@ export const verifyOtpCode = async (email, enteredOtp) => {
   ).select('-password');
 
   return updatedUser;
+};
+
+export const initiatePasswordReset = async (email) => {
+  const user = await UserIdentity.findOne({ email: email.toLowerCase() });
+  if (!user) {
+    return { success: true };
+  }
+  await generateAndSaveOtp(user.email, user.firstName);
+  return { success: true };
+};
+
+export const verifyPasswordResetOtp = async (email, enteredOtp) => {
+  const record = await OtpVerification.findOne({ email: email.toLowerCase() });
+
+  if (!record || Date.now() > record.expires_at.getTime()) {
+    const error = new Error('Verification code has expired or does not exist');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (record.attempts_count >= 5) {
+    await OtpVerification.deleteOne({ email: email.toLowerCase() });
+    const error = new Error('Maximum verification attempts exceeded. Please request a new code.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const isValid = await bcrypt.compare(enteredOtp, record.otp_hash);
+  if (!isValid) {
+    await OtpVerification.updateOne({ email: email.toLowerCase() }, { $inc: { attempts_count: 1 } });
+    const error = new Error('Invalid verification code entered');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return { success: true };
+};
+
+export const executePasswordResetUpdate = async (email, tokenOtp, newPassword) => {
+  const record = await OtpVerification.findOne({ email: email.toLowerCase() });
+
+  if (!record) {
+    const error = new Error('Session expired. Please request a fresh security token.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const isOtpValid = await bcrypt.compare(tokenOtp, record.otp_hash);
+  if (!isOtpValid) {
+    const error = new Error('Session validation failure. Unauthorized credential change.');
+    error.statusCode = 401;
+    throw error;
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const securelyHashedPassword = await bcrypt.hash(newPassword, salt);
+
+  const updatedUser = await UserIdentity.findOneAndUpdate(
+    { email: email.toLowerCase() },
+    { $set: { password: securelyHashedPassword } },
+    { runValidators: true }
+  );
+
+  if (!updatedUser) {
+    const error = new Error('Profile reference context detached.');
+    error.statusCode = 444;
+    throw error;
+  }
+  await OtpVerification.deleteOne({ email: email.toLowerCase() });
+
+  return { success: true };
 };

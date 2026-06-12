@@ -1,21 +1,21 @@
 import React, { useState } from "react";
-import { 
-  User, 
-  Send, 
-  Sparkles, 
-  Mail, 
-  FileText, 
-  ArrowLeft, 
+import {
+  User,
+  Send,
+  Sparkles,
+  Mail,
+  FileText,
+  ArrowLeft,
   CheckCircle,
   Clock
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import "../../style/GetConsult-style.css"; // Ensure this matches your file name
+import "../style/GetConsult-style.css";
 
 const GetConsult = () => {
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -32,7 +32,7 @@ const GetConsult = () => {
     setIsSubmitting(false);
     setSubmitSuccess(true);
     setFormData({ firstName: "", lastName: "", email: "", message: "" });
-    
+
     setTimeout(() => {
       navigate("/");
     }, 2200);
@@ -41,11 +41,9 @@ const GetConsult = () => {
   return (
     <section className="getconsult-section">
       <div className="getconsult-card-wrapper">
-        
-        {/* The main card body */}
+
         <div className="consult-main-card">
-          
-          {/* Back Trigger */}
+
           <button
             type="button"
             onClick={() => navigate("/")}
@@ -55,7 +53,6 @@ const GetConsult = () => {
             <span>Portal Home</span>
           </button>
 
-          {/* Badge */}
           <div className="consult-badge-container">
             <span className="consult-status-badge">
               <Sparkles size={14} className="sparkle-pulse-icon" />
@@ -63,7 +60,6 @@ const GetConsult = () => {
             </span>
           </div>
 
-          {/* Title block */}
           <div className="consult-header-text">
             <h3 className="consult-title">
               <div className="consult-icon-holder">
@@ -76,23 +72,21 @@ const GetConsult = () => {
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="consult-form-element">
-            
-            {/* Split Name Row */}
+
             <div className="consult-grid-row">
               <div className="consult-field-group">
                 <label htmlFor="first-name" className="consult-input-label">First Name</label>
                 <div className="consult-input-rel">
                   <span className="consult-field-icon"><User size={16} /></span>
-                  <input 
+                  <input
                     id="first-name"
                     type="text"
                     name="firstName"
                     required
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    placeholder="e.g. John" 
+                    placeholder="e.g. John"
                     className="consult-text-input"
                   />
                 </div>
@@ -102,57 +96,54 @@ const GetConsult = () => {
                 <label htmlFor="last-name" className="consult-input-label">Last Name</label>
                 <div className="consult-input-rel">
                   <span className="consult-field-icon"><User size={16} /></span>
-                  <input 
+                  <input
                     id="last-name"
                     type="text"
                     name="lastName"
                     required
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    placeholder="e.g. Doe" 
+                    placeholder="e.g. Doe"
                     className="consult-text-input"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Email Field */}
             <div className="consult-field-group">
               <label htmlFor="consult-email" className="consult-input-label">Business Email</label>
               <div className="consult-input-rel">
                 <span className="consult-field-icon"><Mail size={16} /></span>
-                <input 
+                <input
                   id="consult-email"
                   type="email"
                   name="email"
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="john@hospitalnet.com" 
+                  placeholder="john@hospitalnet.com"
                   className="consult-text-input"
                 />
               </div>
             </div>
 
-            {/* Message Area */}
             <div className="consult-field-group">
               <label htmlFor="consult-msg" className="consult-input-label">Consultancy Requirements</label>
               <div className="consult-input-rel">
                 <span className="consult-textarea-icon"><FileText size={16} /></span>
-                <textarea 
+                <textarea
                   id="consult-msg"
                   name="message"
                   rows={4}
                   required
                   value={formData.message}
                   onChange={handleInputChange}
-                  placeholder="Briefly describe your medical network layout or system migration targets..." 
+                  placeholder="Briefly describe your medical network layout or system migration targets..."
                   className="consult-textarea-input"
                 />
               </div>
             </div>
 
-            {/* Submit Action */}
             <div className="consult-action-wrapper">
               <button
                 type="submit"
@@ -188,7 +179,6 @@ const GetConsult = () => {
               </button>
             </div>
 
-            {/* Footer Notice */}
             <div className="consult-footer-notice">
               <Clock size={12} className="consult-clock-icon" />
               <span>Average initial triage callback architecture response: &lt; 6 hours</span>

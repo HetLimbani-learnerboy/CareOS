@@ -1,7 +1,3 @@
-/* ==========================================================================
-   GET CONSULTING STYLESHEET ORCHESTRATION 
-   ========================================================================== */
-
 .getconsult-section {
   min-height: 100vh !important;
   width: 100% !important;
@@ -16,7 +12,7 @@
 
 .getconsult-card-wrapper {
   width: 100% !important;
-  max-width: 38rem !important; /* Prevents card from shrinking down */
+  max-width: 38rem !important;
   margin-left: auto !important;
   margin-right: auto !important;
   box-sizing: border-box !important;
@@ -39,7 +35,6 @@
   }
 }
 
-/* Back Link Node Button */
 .consult-backbtn {
   position: absolute;
   left: 1.5rem;
@@ -68,7 +63,6 @@
   transform: translateX(-2px);
 }
 
-/* Badge Layouts */
 .consult-badge-container {
   display: flex;
   justify-content: center;
@@ -97,11 +91,17 @@
 }
 
 @keyframes consultPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .5;
+  }
 }
 
-/* Header Text elements */
 .consult-header-text {
   text-align: center;
   margin-bottom: 2rem;
@@ -139,13 +139,12 @@
   margin-right: auto;
 }
 
-/* Form Inner Mechanics */
 .consult-form-element {
   display: block;
   width: 100% !important;
 }
 
-.consult-form-element > * + * {
+.consult-form-element>*+* {
   margin-top: 1.25rem;
 }
 
@@ -202,7 +201,6 @@
   align-items: center;
 }
 
-/* Text Input Clean Reset Fields */
 .consult-text-input {
   width: 100% !important;
   padding: 0.875rem 1rem 0.875rem 2.5rem !important;
@@ -239,7 +237,6 @@
   transition: all 0.2s ease;
 }
 
-/* Submit Controls Custom Action logic button */
 .consult-action-wrapper {
   padding-top: 0.5rem;
   width: 100% !important;
@@ -300,10 +297,11 @@
 }
 
 @keyframes consultFormSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Timing element notice footer text */
 .consult-footer-notice {
   display: flex;
   align-items: center;

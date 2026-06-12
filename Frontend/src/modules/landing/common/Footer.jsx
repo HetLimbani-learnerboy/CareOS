@@ -8,36 +8,25 @@ import {
 const Footer = () => {
   return (
     <footer className="bg-slate-900 text-white">
-
       <div className="w-full mx-auto px-4 lg:px-8 py-16">
-
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
-
-          {/* Company */}
-
           <div>
-
             <div className="flex items-center gap-3">
-
               <HeartPulse
                 className="text-sky-400"
                 size={30}
               />
-
               <h3 className="text-2xl font-bold">
                 CareOS
               </h3>
 
             </div>
-
             <p className="mt-4 text-slate-400">
               Enterprise Healthcare ERP &
               Hospital Operations Platform.
             </p>
 
           </div>
-
-          {/* Product */}
 
           <div>
 
@@ -56,8 +45,6 @@ const Footer = () => {
 
           </div>
 
-          {/* Company */}
-
           <div>
 
             <h4 className="font-semibold text-lg mb-4">
@@ -74,8 +61,6 @@ const Footer = () => {
             </ul>
 
           </div>
-
-          {/* Contact */}
 
           <div>
 
