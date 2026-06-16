@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  ArrowLeft, 
-  ShieldCheck, 
-  Sparkles, 
-  Check, 
+import {
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowLeft,
+  ShieldCheck,
+  Sparkles,
+  Check,
   X,
   KeyRound,
   Activity,
@@ -34,7 +34,7 @@ const countryCodes = [
 const PatientRegister = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState("form");
-  
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -44,23 +44,17 @@ const PatientRegister = () => {
     password: "",
     confirmPassword: ""
   });
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [otp, setOtp] = useState(new Array(6).fill(""));
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Industrial Resend Timer Configuration Locks
   const [resendCountdown, setResendCountdown] = useState(0);
   const [isResending, setIsResending] = useState(false);
-  
   const otpRefs = useRef([]);
-
-  // Dynamically resolve base URL endpoints from context environment
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  // Countdown timer manager hook
   useEffect(() => {
     let intervalId;
     if (resendCountdown > 0) {
@@ -77,7 +71,6 @@ const PatientRegister = () => {
     setErrorMessage("");
   };
 
-  // Password rules validation engine
   const isMinLength = formData.password.length >= 8;
   const hasUppercase = /[A-Z]/.test(formData.password);
   const hasLowercase = /[a-z]/.test(formData.password);
@@ -87,11 +80,10 @@ const PatientRegister = () => {
 
   const isFormValid = isMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecialChar && doPasswordsMatch;
 
-  // Real API Form Registration Submit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!isFormValid) return;
-    
+
     try {
       setIsSubmitting(true);
       setErrorMessage("");
@@ -108,7 +100,7 @@ const PatientRegister = () => {
 
       if (response.data.status === "success") {
         setStep("otp");
-        setResendCountdown(30); // Initiate structural lock parameters immediately on load
+        setResendCountdown(30);
       }
     } catch (error) {
       const serverError = error.response?.data?.message || "Registration processing pipeline failed.";
@@ -118,12 +110,11 @@ const PatientRegister = () => {
     }
   };
 
-  // Real API Verification Submit
   const handleVerifySubmit = async (e) => {
     e.preventDefault();
     const enteredOtp = otp.join("");
     if (enteredOtp.length < 6) return;
-    
+
     try {
       setIsSubmitting(true);
       setErrorMessage("");
@@ -139,31 +130,28 @@ const PatientRegister = () => {
     } catch (error) {
       const serverError = error.response?.data?.message || "Invalid or expired verification parameters.";
       setErrorMessage(serverError);
-      setOtp(new Array(6).fill("")); // Wipe cells on validation failure
+      setOtp(new Array(6).fill(""));
       otpRefs.current[0]?.focus();
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Real API Resend OTP Controller Engine
   const handleResendOtp = async () => {
     if (resendCountdown > 0 || isResending) return;
 
     try {
       setIsResending(true);
       setErrorMessage("");
-      
-      // Hit the Login route to regenerate a fresh registration OTP block
+
       await axios.post(`${API_BASE_URL}/api/v1/auth/login`, {
         email: formData.email,
         password: formData.password
       });
 
     } catch (error) {
-      // Catch expected unverified 403 blocks as positive resend confirmations
       if (error.response?.status === 403 || error.response?.data?.code === 'ACCOUNT_UNVERIFIED') {
-        setResendCountdown(30); // Reset lock parameters
+        setResendCountdown(30);
       } else {
         const errorMsg = error.response?.data?.message || "Failed to resend validation transmission.";
         setErrorMessage(errorMsg);
@@ -195,7 +183,7 @@ const PatientRegister = () => {
   return (
     <div className="register-viewport">
       <div className="register-card-container">
-        
+
         <button
           type="button"
           onClick={() => navigate("/")}
@@ -203,7 +191,7 @@ const PatientRegister = () => {
         >
           <ArrowLeft size={18} className="register-back-arrow" />
           <span>Portal Home</span>
-        </button> 
+        </button>
 
         <div className="register-brand-header">
           <span className="register-badge">
@@ -217,8 +205,8 @@ const PatientRegister = () => {
             CareOS Patient Portal
           </h2>
           <p className="register-subtitle">
-            {step === "form" 
-              ? "Initialize your clinical EHR data node container profile securely" 
+            {step === "form"
+              ? "Initialize your clinical EHR data node container profile securely"
               : "Telemetry link code authorization authentication screen"}
           </p>
         </div>
@@ -232,7 +220,7 @@ const PatientRegister = () => {
 
         <AnimatePresence mode="wait">
           {step === "form" ? (
-            <motion.form 
+            <motion.form
               key="reg-form"
               initial={{ opacity: 0, x: -15 }}
               animate={{ opacity: 1, x: 0 }}
@@ -245,13 +233,13 @@ const PatientRegister = () => {
                   <label className="register-field-label">First Name</label>
                   <div className="register-input-wrapper">
                     <span className="register-input-icon"><User size={16} /></span>
-                    <input 
-                      type="text" 
-                      name="firstName" 
-                      required 
+                    <input
+                      type="text"
+                      name="firstName"
+                      required
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      placeholder="John" 
+                      placeholder="John"
                       className="register-input-element pl-10"
                     />
                   </div>
@@ -261,13 +249,13 @@ const PatientRegister = () => {
                   <label className="register-field-label">Last Name</label>
                   <div className="register-input-wrapper">
                     <span className="register-input-icon"><User size={16} /></span>
-                    <input 
-                      type="text" 
-                      name="lastName" 
-                      required 
+                    <input
+                      type="text"
+                      name="lastName"
+                      required
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      placeholder="Doe" 
+                      placeholder="Doe"
                       className="register-input-element pl-10"
                     />
                   </div>
@@ -278,13 +266,13 @@ const PatientRegister = () => {
                 <label className="register-field-label">Email Address</label>
                 <div className="register-input-wrapper">
                   <span className="register-input-icon"><Mail size={16} /></span>
-                  <input 
-                    type="email" 
-                    name="email" 
-                    required 
+                  <input
+                    type="email"
+                    name="email"
+                    required
                     value={formData.email}
                     onChange={handleInputChange}
-                    placeholder="john@example.com" 
+                    placeholder="john@example.com"
                     className="register-input-element pl-10"
                   />
                 </div>
@@ -309,13 +297,13 @@ const PatientRegister = () => {
                   </div>
                   <div className="register-phone-input-wrapper">
                     <span className="register-input-icon"><Phone size={16} /></span>
-                    <input 
-                      type="tel" 
-                      name="phone" 
-                      required 
+                    <input
+                      type="tel"
+                      name="phone"
+                      required
                       value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="98765 43210" 
+                      placeholder="98765 43210"
                       className="register-input-element pl-10"
                     />
                   </div>
@@ -326,13 +314,18 @@ const PatientRegister = () => {
                 <label className="register-field-label">Secure Password</label>
                 <div className="register-input-wrapper">
                   <span className="register-input-icon"><Lock size={18} /></span>
-                  <input 
-                    type={showPassword ? "text" : "password"} 
-                    name="password" 
-                    required 
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    required
+                    autoComplete="new-password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    placeholder="••••••••" 
+                    onCopy={(e) => e.preventDefault()}
+                    onPaste={(e) => e.preventDefault()}
+                    onCut={(e) => e.preventDefault()}
+                    onDragStart={(e) => e.preventDefault()}
+                    placeholder="••••••••"
                     className="register-input-element pl-10 pr-11"
                   />
                   <button
@@ -349,13 +342,18 @@ const PatientRegister = () => {
                 <label className="register-field-label">Confirm Password</label>
                 <div className="register-input-wrapper">
                   <span className="register-input-icon"><Lock size={18} /></span>
-                  <input 
-                    type={showConfirmPassword ? "text" : "password"} 
-                    name="confirmPassword" 
-                    required 
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    required
+                    autoComplete="new-password"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    placeholder="••••••••" 
+                    onCopy={(e) => e.preventDefault()}
+                    onPaste={(e) => e.preventDefault()}
+                    onCut={(e) => e.preventDefault()}
+                    onDragStart={(e) => e.preventDefault()}
+                    placeholder="••••••••"
                     className="register-input-element pl-10 pr-11"
                   />
                   <button
@@ -370,7 +368,7 @@ const PatientRegister = () => {
 
               <div className="register-rules-panel">
                 <span className="register-rules-header">Security Rules Engine</span>
-                
+
                 <div className="register-rule-row">
                   <div className={`register-rule-dot ${isMinLength ? 'pass' : 'fail'}`}>
                     {isMinLength ? <Check size={10} /> : <X size={10} />}
@@ -462,7 +460,7 @@ const PatientRegister = () => {
                 <label className="register-otp-label">
                   Enter 6-Digit Telemetry Key
                 </label>
-                
+
                 <div className="register-otp-grid">
                   {otp.map((data, index) => (
                     <input
@@ -511,7 +509,7 @@ const PatientRegister = () => {
                 >
                   Modify Info
                 </button>
-                
+
                 <button
                   type="submit"
                   disabled={isSubmitting || otp.some(v => v === "")}

@@ -11,6 +11,7 @@ import {
   executePasswordResetUpdate
 } from './auth.service.js';
 import { verifyRecaptchaToken } from "../../utils/recaptcha.js";
+import { forwardContactFormToBrevo } from "../../service/email.service.js";
 
 export const signup = async (req, res) => {
   try {
@@ -114,7 +115,7 @@ export const forgotPasswordRequest = async (req, res) => {
     if (!userExists) {
       return res.status(404).json({
         status: "fail",
-        message: "This email address is not registered in our system."
+        message: "If an account is associated with this email address, a verification code will be sent to your inbox."
       });
     }
 
@@ -163,6 +164,31 @@ export const forgotPasswordUpdate = async (req, res) => {
     return res.status(error.statusCode || 500).json({
       status: "error",
       message: error.message || "Failed to update user credentials.",
+    });
+  }
+};
+
+export const contactSupportInquiry = async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+
+    if (!name || !email || !message) {
+      return res.status(400).json({ 
+        status: "fail", 
+        message: "All validation parameters (name, email, message) are explicitly required." 
+      });
+    }
+    await forwardContactFormToBrevo(name, email, message);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Communications transmission securely forwarded to Brevo system gateways."
+    });
+  } catch (error) {
+    console.error("[Brevo Gateway Exception Block]:", error.message);
+    return res.status(500).json({
+      status: "error",
+      message: "Failed to dispatch communications transmission over to Brevo SMTP servers."
     });
   }
 };

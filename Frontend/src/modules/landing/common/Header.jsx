@@ -3,7 +3,7 @@ import { Menu, X, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import CareOSLogo from "../../../assets/CareOS-logo.png";
-import "../style/Header.css"; // External CSS reference hook
+import "../style/Header.css"; 
 
 const Header = () => {
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -31,7 +31,6 @@ const Header = () => {
       <div className="header-container">
         <div className="header-navbar">
 
-          {/* Logo Branding Node */}
           <a href="#" className="header-brand">
             <img src={CareOSLogo} alt="CareOS" className="brand-logo" />
             <div className="brand-text-wrapper">
@@ -40,7 +39,6 @@ const Header = () => {
             </div>
           </a>
 
-          {/* Desktop Navigation Links */}
           <nav className="desktop-nav">
             {navLinks.map((link) => (
               <a key={link.name} href={link.href} className="nav-link-item">
@@ -50,7 +48,6 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Desktop Action Interactivity Node */}
           <div className="desktop-actions">
             <button onClick={() => navigate('/login')} className="action-btn-login">
               Login
@@ -65,7 +62,6 @@ const Header = () => {
             </button>
           </div>
 
-          {/* Hamburger Menu Toggle Button */}
           <button onClick={() => setMobileMenu(!mobileMenu)} className="mobile-toggle-btn">
             {mobileMenu ? <X size={26} /> : <Menu size={26} />}
           </button>
@@ -73,7 +69,6 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Sidebar Dropdown Pane */}
       <AnimatePresence>
         {mobileMenu && (
           <motion.div
@@ -88,20 +83,15 @@ const Header = () => {
                 <a
                   key={link.name}
                   href={link.href}
-                  /* ==========================================================================
-                     THE FIX: CLOSE DROPDOWN MENU FIRST, THEN LET ANCHOR SCROLL FIRE
-                     ========================================================================== */
+
                   onClick={(e) => {
-                    // 1. Instantly hide the mobile dropdown menu layout viewport wrapper
                     setMobileMenu(false);
 
-                    // 2. If it's a local section anchor link, enforce smooth scroll behaviors
                     if (link.href.startsWith("#") && link.href !== "#") {
                       e.preventDefault();
                       const targetId = link.href.replace("#", "");
                       const element = document.getElementById(targetId);
                       if (element) {
-                        // Delayed slightly so the menu closing animation finishes cleanly
                         setTimeout(() => {
                           element.scrollIntoView({ behavior: "smooth", block: "start" });
                         }, 150);

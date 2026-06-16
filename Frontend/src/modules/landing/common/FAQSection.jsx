@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ChevronDown,
   HelpCircle,
   MessageSquare,
-  Activity,
   GraduationCap,
   Building2,
   User,
@@ -12,34 +11,30 @@ import {
   Send
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 import CareOSLogo from "../../../assets/CareOS-logo.png";
 import "../style/FAQSection-style.css";
 
 const faqs = [
   {
     question: "What is CareOS?",
-    answer:
-      "CareOS is a next-generation enterprise healthcare platform designed to centralize core medical ecosystems. It handles patient onboarding, secure electronic health records (EHR), complex doctor schedules, real-time pharmacy inventory tracking, automated billing pipelines, and diagnostic laboratory data streams out of the box."
+    answer: "CareOS is a next-generation enterprise healthcare platform designed to centralize core medical ecosystems. It handles patient onboarding, secure electronic health records (EHR), complex doctor schedules, real-time pharmacy inventory tracking, automated billing pipelines, and diagnostic laboratory data streams out of the box."
   },
   {
     question: "How does CareOS handle high-concurrency patient scheduling during peak hours?",
-    answer:
-      "CareOS uses an optimized Redis-backed token bucket algorithm paired with database transaction isolation layers. When multiple requests target the same slot simultaneously, the application locks the specific resource node temporarily, eliminating race conditions or accidental double-booking anomalies instantly."
+    answer: "CareOS uses an optimized Redis-backed token bucket algorithm paired with database transaction isolation layers. When multiple requests target the same slot simultaneously, the application locks the specific resource node temporarily, eliminating race conditions or accidental double-booking anomalies instantly."
   },
   {
     question: "What security measures protect Electronic Health Records (EHR) within the platform?",
-    answer:
-      "Patient files are protected using field-level AES-256 cryptographic encryption protocols. Access is governed strictly via customized Role-Based Access Control (RBAC), ensuring that only verified medical staff with explicit system permissions can decrypt and view sensitive diagnostic logs or medical histories."
+    answer: "Patient files are protected using field-level AES-256 cryptographic encryption protocols. Access is governed strictly via customized Role-Based Access Control (RBAC), ensuring that only verified medical staff with explicit system permissions can decrypt and view sensitive diagnostic logs or medical histories."
   },
   {
     question: "How does the automated Pharmacy Inventory system prevent supply shortages?",
-    answer:
-      "The system monitors stock thresholds in real time using automated inventory tracking. When a life-saving medication or general supply drops below a pre-configured baseline, the platform automatically logs an internal alert pipeline, registers the tracking code, and drafts a digital restock invoice ready for supplier approval."
+    answer: "The system monitors stock thresholds in real time using automated inventory tracking. When a life-saving medication or general supply drops below a pre-configured baseline, the platform automatically logs an internal alert pipeline, registers the tracking code, and drafts a digital restock invoice ready for supplier approval."
   },
   {
     question: "Does the system support integration with external medical hardware or laboratory tools?",
-    answer:
-      "Yes. CareOS features a modular data integration engine designed to parse standard HL7 (Health Level Seven) and FHIR data streams. This allows direct data ingestion from digital laboratory diagnostic equipment, imaging machinery, and third-party pharmacy tracking systems securely."
+    answer: "Yes. CareOS features a modular data integration engine designed to parse standard HL7 (Health Level Seven) and FHIR data streams. This allows direct data ingestion from digital laboratory diagnostic equipment, imaging machinery, and third-party pharmacy tracking systems securely."
   },
 ];
 
@@ -50,6 +45,9 @@ const FAQSection = () => {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     if (isContactOpen) {
@@ -65,18 +63,35 @@ const FAQSection = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  /* ==========================================================================
+     THE FIX: DISPATCH DATA SECURELY TO YOUR OWN API BACKEND FOR PROXYING
+     ========================================================================== */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1400));
-    setIsSubmitting(false);
-    setSubmitSuccess(true);
-    setFormData({ name: "", email: "", message: "" });
+    try {
+      setIsSubmitting(true);
+      setErrorMessage("");
 
-    setTimeout(() => {
-      setSubmitSuccess(false);
-      setIsContactOpen(false);
-    }, 2000);
+      await axios.post(`${API_BASE_URL}/api/v1/auth/contact-support`, {
+        name: formData.name,
+        email: formData.email,
+        message: formData.message
+      });
+
+      setSubmitSuccess(true);
+      setFormData({ name: "", email: "", message: "" });
+
+      setTimeout(() => {
+        setSubmitSuccess(false);
+        setIsContactOpen(false);
+      }, 2000);
+
+    } catch (error) {
+      const msg = error.response?.data?.message || "Communication transmission error occurred.";
+      setErrorMessage(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -290,6 +305,14 @@ const FAQSection = () => {
               </div>
 
               <div className="drawer-body">
+                
+                {/* Embedded Inline Runtime Error Alert Alert Box */}
+                {errorMessage && (
+                  <div style={{ background: "#fef2f2", color: "#ef4444", padding: "10px", borderRadius: "6px", fontSize: "13px", marginBottom: "15px", border: "1px solid #fecaca" }}>
+                    {errorMessage}
+                  </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="contact-form">
                   <div className="form-group">
                     <label htmlFor="form-name" className="form-label">
