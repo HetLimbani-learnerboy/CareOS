@@ -2,9 +2,7 @@ import React from "react";
 import { ArrowUpRight, Activity, Calendar, ShieldAlert } from "lucide-react";
 import "../style/PatientSubPages.css";
 
-/* ==========================================================================
-   PAGE 1: DASHBOARD OVERVIEW
-   ========================================================================== */
+
 export function DashboardOverview({ setActiveTab }) {
   return (
     <div className="view-fade-in">
@@ -47,9 +45,6 @@ export function DashboardOverview({ setActiveTab }) {
   );
 }
 
-/* ==========================================================================
-   PAGE 2: APPOINTMENT MANAGEMENT
-   ========================================================================== */
 export function AppointmentManagement() {
   return (
     <div className="view-fade-in">
@@ -72,9 +67,6 @@ export function AppointmentManagement() {
   );
 }
 
-/* ==========================================================================
-   PAGE 3: MEDICAL HISTORY
-   ========================================================================== */
 export function MedicalHistory() {
   return (
     <div className="view-fade-in">

@@ -8,23 +8,27 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
+const createBrevoTransporter = () => {
+  if (!process.env.BREVO_SMTP_LOGIN || !process.env.BREVO_SMTP_KEY) {
+    throw new Error("SMTP authentication credentials missing from environment variables.");
+  }
+
+  return nodemailer.createTransport({
+    host: "smtp-relay.brevo.com",
+    port: 465,       
+    secure: true,      
+    auth: {
+      user: process.env.BREVO_SMTP_LOGIN,
+      pass: process.env.BREVO_SMTP_KEY,
+    },
+    connectionTimeout: 10000, 
+    greetingTimeout: 10000,
+  });
+};
+
 export const sendOtpEmail = async (email, firstName, otp) => {
   try {
-    if (!process.env.BREVO_SMTP_LOGIN || !process.env.BREVO_SMTP_KEY) {
-      throw new Error("SMTP credentials missing from environment variables");
-    }
-
-    const transporter = nodemailer.createTransport({
-      host: "smtp-relay.brevo.com",
-      port: 465,       
-      secure: true,      
-      auth: {
-        user: process.env.BREVO_SMTP_LOGIN,
-        pass: process.env.BREVO_SMTP_KEY,
-      },
-      connectionTimeout: 10000, 
-      greetingTimeout: 10000,
-    });
+    const transporter = createBrevoTransporter();
 
     const mailOptions = {
       from: `"${process.env.BREVO_SENDER_NAME || 'CareOS Security'}" <${process.env.BREVO_SENDER_EMAIL || process.env.BREVO_SMTP_LOGIN}>`,
@@ -44,10 +48,46 @@ export const sendOtpEmail = async (email, firstName, otp) => {
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    return info;
+    return await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error("[SMTP Error local catch]:", error.message);
+    console.error("[SMTP OTP Error local catch]:", error.message);
     throw error; 
+  }
+};
+
+export const forwardContactFormToBrevo = async (senderName, senderEmail, detailedMessage) => {
+  try {
+    const transporter = createBrevoTransporter();
+    
+    const targetReceiverEmail = process.env.SUPPORT_RECEIVER_EMAIL;
+
+    const mailOptions = {
+      from: `"CareOS Portal Gateway" <${process.env.BREVO_SENDER_EMAIL || process.env.BREVO_SMTP_LOGIN}>`,
+      to: targetReceiverEmail,
+      replyTo: `"${senderName}" <${senderEmail}>`,
+      subject: `🚨 CareOS Enterprise Lead: Inquiry from ${senderName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; max-width: 600px; color: #0f172a;">
+          <h2 style="color: #0284c7; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-top: 0;">New Enterprise Request Registered</h2>
+          <p style="font-size: 14px; color: #334155;">An inbound operational inquiry has crossed the CareOS Support Hub gateway node.</p>
+          
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+            <tr style="background: #f8fafc;"><td style="padding: 10px; font-weight: bold; width: 30%;">Full Name:</td><td style="padding: 10px;">${senderName}</td></tr>
+            <tr><td style="padding: 10px; font-weight: bold;">Business Email:</td><td style="padding: 10px;"><a href="mailto:${senderEmail}">${senderEmail}</a></td></tr>
+            <tr style="background: #f8fafc;"><td style="padding: 10px; font-weight: bold;">Timestamp:</td><td style="padding: 10px;">${new Date().toLocaleString()}</td></tr>
+          </table>
+          
+          <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; border-left: 4px solid #0284c7; margin-top: 15px;">
+            <h4 style="margin: 0 0 8px 0; color: #0f172a; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;">Detailed Message Content</h4>
+            <p style="margin: 0; line-height: 1.6; color: #334155; white-space: pre-wrap;">${detailedMessage}</p>
+          </div>
+        </div>
+      `,
+    };
+
+    return await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error("[SMTP Contact Forward Error local catch]:", error.message);
+    throw error;
   }
 };

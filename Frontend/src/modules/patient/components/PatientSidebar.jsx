@@ -12,7 +12,6 @@ import {
 
 export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) {
   
-  // Exact list taken from your screenshot image mapping icons
   const menuItems = [
     { name: "Dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "Appointment Management", icon: <CalendarClock size={18} /> },
@@ -25,7 +24,7 @@ export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsO
 
   const handleTabSelection = (tabName) => {
     setActiveTab(tabName);
-    setIsOpen(false); // Auto-closes mobile viewport menu drawer
+    setIsOpen(false);
   };
 
   return (
