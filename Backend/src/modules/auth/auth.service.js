@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import UserIdentity from './userIdentity.model.js';
 import OtpVerification from './otpVerification.model.js';
 import { sendOtpEmail } from "../../service/email.service.js";
@@ -48,7 +49,7 @@ export const registerUser = async (userData) => {
   return userObject;
 };
 
-export const loginUser = async (email, password) => {
+export const loginUser = async (email, password, rememberMe) => {
   const user = await UserIdentity.findOne({ email });
   if (!user) {
     const error = new Error('Invalid email or password credentials');
@@ -72,9 +73,24 @@ export const loginUser = async (email, password) => {
     throw error;
   }
 
+  if (!process.env.JWT_SECRET) {
+    throw new Error("Missing structural JWT_SECRET variable inside environment variables.");
+  }
+
+  const tokenExpiresIn = rememberMe ? '7d' : '24h';
+
+  const token = jwt.sign(
+    { id: user._id, role: user.role, email: user.email },
+    process.env.JWT_SECRET,
+    { expiresIn: tokenExpiresIn }
+  );
+
   const userObject = user.toObject();
   delete userObject.password;
-  return { user: userObject };
+  return { 
+    user: userObject, 
+    token: token 
+  };
 };
 
 export const verifyOtpCode = async (email, enteredOtp) => {

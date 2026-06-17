@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export const LoginDTO = z.object({
-  email: z.string().email({ message: "Invalid email address format" }),
-  password: z.string().min(1, { message: "Password is required" }),
-  captchaToken: z.string({ required_error: "Verification token is explicitly required" }) 
+  email: z.string().email("Invalid email address schema formatting context."),
+  password: z.string().min(1, "Password configuration field cannot be processed blank."),
+  captchaToken: z.string().min(1, "reCAPTCHA validation string token mandatory."),
+  rememberMe: z.boolean().optional().default(false)
 });
