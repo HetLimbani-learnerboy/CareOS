@@ -30,14 +30,14 @@ const patientProfileSchema = new mongoose.Schema({
   emergency_contact_name1: { type: String, required: true, maxlength: 50 },
   emergency_contact_phoneno1: { type: String, required: true, maxlength: 15 },
   emergency_contact_relation1: { type: String, required: true, maxlength: 15 },
-  
+
   emergency_contact_name2: { type: String, maxlength: 50, default: "" },
   emergency_contact_phoneno2: { type: String, maxlength: 15, default: "" },
-  emergency_contact_relation3: { type: String, maxlength: 15, default: "" },
-  
+  emergency_contact_relation2: { type: String, maxlength: 15, default: "" },
+
   insurance_provider: { type: String, maxlength: 50, default: "" },
   insurance_policynumber: { type: String, maxlength: 20, default: "" }
-}, { 
+}, {
   timestamps: true,
   collection: 'patient_profiles'
 });

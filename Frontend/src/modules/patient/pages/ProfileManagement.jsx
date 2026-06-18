@@ -15,7 +15,7 @@ export default function ProfileManagement() {
         phone: "", profile_image: "",
         birth_date: "", gender: "Male", blood_group: "", address: "",
         emergency_contact_name1: "", emergency_contact_phoneno1: "", emergency_contact_relation1: "",
-        emergency_contact_name2: "", emergency_contact_phoneno2: "", emergency_contact_relation3: "",
+        emergency_contact_name2: "", emergency_contact_phoneno2: "", emergency_contact_relation2: "",
         insurance_provider: "", insurance_policynumber: ""
     });
 
@@ -57,7 +57,7 @@ export default function ProfileManagement() {
                     emergency_contact_relation1: medical?.emergency_contact_relation1 || "",
                     emergency_contact_name2: medical?.emergency_contact_name2 || "",
                     emergency_contact_phoneno2: medical?.emergency_contact_phoneno2 || "",
-                    emergency_contact_relation3: medical?.emergency_contact_relation3 || "",
+                    emergency_contact_relation2: medical?.emergency_contact_relation2 || "",
                     insurance_provider: medical?.insurance_provider || "",
                     insurance_policynumber: medical?.insurance_policynumber || ""
                 };
@@ -107,6 +107,7 @@ export default function ProfileManagement() {
             await axios.put(`${API_BASE_URL}/api/v1/patients/profile`, formData);
 
             setMessage({ type: "success", text: "All record updates committed successfully!" });
+            alert("Profile information updated successfully.");
         } catch (err) {
             setMessage({ type: "error", text: err.response?.data?.message || "Internal mutation error." });
         } finally {
@@ -232,7 +233,7 @@ export default function ProfileManagement() {
                         </div>
                         <div className="input-field-block">
                             <label>Relationship</label>
-                            <input type="text" name="emergency_contact_relation3" value={formData.emergency_contact_relation3} onChange={handleInputChange} />
+                            <input type="text" name="emergency_contact_relation2" value={formData.emergency_contact_relation2} onChange={handleInputChange} />
                         </div>
                     </div>
                 </div>

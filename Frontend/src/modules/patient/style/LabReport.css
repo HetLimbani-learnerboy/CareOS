@@ -1,0 +1,217 @@
+.lab-history-canvas {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.lab-header-block h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.lab-header-block p {
+  margin: 4px 0 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.lab-ledger-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lab-card-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.lab-card-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px -3px rgba(0, 0, 0, 0.04);
+  border-color: #cbd5e1;
+}
+
+.lab-expanded {
+  border-color: #0284c7;
+  box-shadow: 0 10px 20px -5px rgba(2, 132, 199, 0.08);
+}
+
+.lab-summary-container {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  gap: 1.5rem;
+}
+
+.lab-title-identity-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.lab-icon-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lab-icon-badge.bg-complete { background-color: #f0fdf4; color: #16a34a; }
+.lab-icon-badge.bg-pending { background-color: #f8fafc; color: #64748b; }
+
+.lab-title-identity-group h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.lab-id-tag-sub {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.lab-meta-summary-flex {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.meta-capsule-cell {
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 500;
+  background-color: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.status-badge.status-complete { background-color: #dcfce7; color: #15803d; }
+.status-badge.status-processing { background-color: #e0f2fe; color: #0369a1; }
+.status-badge.status-pending { background-color: #fef2f2; color: #b91c1c; }
+
+.lab-accordion-arrow-trigger {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  padding: 4px;
+}
+
+.lab-expanded-content-view {
+  border-top: 1px solid #f1f5f9;
+  background-color: #fafafa;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.lab-timeline-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  background-color: #ffffff;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.timeline-node {
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.lab-report-findings-block h5 {
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.lab-report-findings-block p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #1e293b;
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.lab-report-findings-block p.pending-findings-text {
+  color: #64748b;
+  background-color: #f8fafc;
+  font-style: italic;
+  border-style: dashed;
+}
+
+.lab-action-row-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.lab-download-btn {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.lab-download-btn:hover {
+  background-color: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+@media (max-width: 992px) {
+  .lab-summary-container { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .lab-meta-summary-flex { width: 100%; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 10px; }
+  .lab-accordion-arrow-trigger { position: absolute; right: 1.5rem; top: 1.5rem; }
+  .lab-card-item { position: relative; }
+  .lab-timeline-grid { grid-template-columns: 1fr; gap: 6px; }
+}
