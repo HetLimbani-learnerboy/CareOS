@@ -1,17 +1,22 @@
 import React from "react";
-import { 
-  LayoutDashboard, 
-  CalendarClock, 
-  FileClock, 
-  Pill, 
-  FileSpreadsheet, 
-  Receipt, 
+import {
+  LayoutDashboard,
+  CalendarClock,
+  FileClock,
+  Pill,
+  FileSpreadsheet,
+  Receipt,
   UserCog,
-  LogOut
+  LogOut,
+  ChevronLeft
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import CareOSLogo from '../../../assets/CareOS-logo.png';
+import '../style/PatientSlidebarStyle.css'; // Ensure path matches your file tree
 
 export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) {
-  
+  const navigate = useNavigate();
+
   const menuItems = [
     { name: "Dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "Appointment Management", icon: <CalendarClock size={18} /> },
@@ -24,35 +29,77 @@ export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsO
 
   const handleTabSelection = (tabName) => {
     setActiveTab(tabName);
-    setIsOpen(false);
+    setIsOpen(false); // Smoothly auto-closes menu drawer layout on mobile tap events
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("patientActiveTab");
+    localStorage.removeItem("user");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("_grecaptcha");
+    sessionStorage.clear();
+
+    navigate('/login');
   };
 
   return (
-    <aside className={`portal-sidebar-container ${isOpen ? "sidebar-drawer-open" : ""}`}>
-      <div className="sidebar-identity-block">
-        <h3>CareOS</h3>
-        <p>Patient Environment</p>
-      </div>
+    <>
+      {/* Semi-transparent Dimming Mask for Mobile Drawers */}
+      <div 
+        className={`sidebar-overlay ${isOpen ? "sidebar-overlay-show" : ""}`} 
+        onClick={() => setIsOpen(false)}
+      />
 
-      <nav className="sidebar-nav-menu">
-        {menuItems.map((item) => (
-          <button
-            key={item.name}
-            className={`sidebar-nav-item ${activeTab === item.name ? "nav-item-active" : ""}`}
-            onClick={() => handleTabSelection(item.name)}
+      <aside className={`portal-sidebar-container ${isOpen ? "sidebar-drawer-open" : ""}`}>
+        
+        {/* Identity & Branded Header Grid Section */}
+        <div className="sidebar-identity-block">
+          <div className="sidebar-branding-wrapper">
+            {/* 🎯 Logo Integrated Smoothly Here */}
+            <div className="sidebar-logo-wrapper">
+              <img src={CareOSLogo} alt="CareOS Logo" className="sidebar-branding-logo-img" />
+            </div>
+            <div className="sidebar-branding-text">
+              <h3>CareOS</h3>
+              <p>Patient Portal</p>
+            </div>
+          </div>
+
+          {/* Compact Mobile Menu Collapse Trigger Arrow */}
+          <button 
+            className="sidebar-close-drawer-trigger" 
+            onClick={() => setIsOpen(false)}
+            aria-label="Collapse Navigation Menu"
           >
-            <span className="nav-item-icon">{item.icon}</span>
-            <span className="nav-item-text">{item.name}</span>
+            <ChevronLeft size={16} />
           </button>
-        ))}
-      </nav>
+        </div>
 
-      <div className="sidebar-profile-footer">
-        <button className="sidebar-logout-action" onClick={() => window.location.href = '/login'}>
-          <LogOut size={16} />
-          <span>Exit Portal</span>
-        </button>
-      </div>
-    </aside>
+        {/* Dynamic Mapping List Navigation Menus */}
+        <nav className="sidebar-nav-menu">
+          {menuItems.map((item) => {
+            const isTabActive = activeTab === item.name;
+            return (
+              <button
+                key={item.name}
+                className={`sidebar-nav-item ${isTabActive ? "nav-item-active" : ""}`}
+                onClick={() => handleTabSelection(item.name)}
+              >
+                <span className="nav-item-icon">{item.icon}</span>
+                <span className="nav-item-text">{item.name}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* System Profile Footer Action Node */}
+        <div className="sidebar-profile-footer">
+          <button className="sidebar-logout-action" onClick={handleLogout}>
+            <LogOut size={16} />
+            <span>Exit Portal</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }
