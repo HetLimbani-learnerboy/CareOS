@@ -66,6 +66,7 @@ export const loginUser = async (email, password, rememberMe) => {
 
   if (!user.is_verified) {
     await generateAndSaveOtp(user.email, user.firstName);
+    
     const error = new Error('Account verification required');
     error.statusCode = 403;
     error.code = 'ACCOUNT_UNVERIFIED';
@@ -73,23 +74,12 @@ export const loginUser = async (email, password, rememberMe) => {
     throw error;
   }
 
-  if (!process.env.JWT_SECRET) {
-    throw new Error("Missing structural JWT_SECRET variable inside environment variables.");
-  }
-
-  const tokenExpiresIn = rememberMe ? '7d' : '24h';
-
-  const token = jwt.sign(
-    { id: user._id, role: user.role, email: user.email },
-    process.env.JWT_SECRET,
-    { expiresIn: tokenExpiresIn }
-  );
-
   const userObject = user.toObject();
   delete userObject.password;
+
   return { 
-    user: userObject, 
-    token: token 
+    user: userObject,
+    token: "TEMP_SESSION_TOKEN"
   };
 };
 

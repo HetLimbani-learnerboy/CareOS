@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import authRoutes from "./modules/auth/auth.routes.js";
 import SystemCounter from "./modules/auth/counter.model.js";
 import UserIdentity from "./modules/auth/userIdentity.model.js";
+import patientRoutes from './modules/patients/patient.routes.js'; 
 import OtpVerification from "./modules/auth/otpVerification.model.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -79,6 +80,7 @@ const connectAndInitializeDb = async (req, res, next) => {
 };
 
 app.use("/api/v1/auth", connectAndInitializeDb, authRoutes);
+app.use('/api/v1/patients', patientRoutes);
 
 
 app.get('/api/v1/health', (req, res) => {

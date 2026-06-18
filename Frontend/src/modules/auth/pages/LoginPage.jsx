@@ -12,7 +12,6 @@ export default function LoginPage() {
   const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  // Flow State Controller: 1 = Core Credentials Login, 2 = Account Activation OTP Handshake
   const [step, setStep] = useState(1);
 
   const [email, setEmail] = useState("");
@@ -77,30 +76,26 @@ export default function LoginPage() {
 
       setMessage({ type: "success", text: "Login successful! Redirecting..." });
 
-      if (rememberMe && response.data?.token) {
-        localStorage.setItem("authToken", response.data.token);
-      } else if (response.data?.token) {
-        sessionStorage.setItem("authToken", response.data.token);
-      }
-
-      const userRole = response.data?.user?.role;
+      const userObj = response.data?.user;
+      const userRole = userObj?.role;
       const authToken = response.data?.token;
+
+      const userData = {
+        email: userObj.email,
+        firstName: userObj.firstName,
+        lastName: userObj.lastName,
+        role: userObj.role
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+
       if (userRole) {
-
         if (rememberMe) {
-          localStorage.setItem("authToken", authToken);
-
-          localStorage.setItem(
-            "user",
-            JSON.stringify(user)
-          );
+          if (authToken) localStorage.setItem("authToken", authToken);
+          localStorage.setItem("user", JSON.stringify(userObj));
         } else {
-          sessionStorage.setItem("authToken", authToken);
-
-          sessionStorage.setItem(
-            "user",
-            JSON.stringify(user)
-          );
+          if (authToken) sessionStorage.setItem("authToken", authToken);
+          sessionStorage.setItem("user", JSON.stringify(userObj));
         }
 
         setTimeout(() => {
@@ -115,6 +110,8 @@ export default function LoginPage() {
             setMessage({ type: "error", text: "Unauthorized role profile layout context." });
           }
         }, 1200);
+      } else {
+        setMessage({ type: "error", text: "User role context detached from authentication response data." });
       }
 
     } catch (error) {
@@ -148,7 +145,7 @@ export default function LoginPage() {
       setLoading(true);
       setMessage({ type: "", text: "" });
 
-      const response = await axios.post(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
+      await axios.post(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
         email,
         otp
       });
