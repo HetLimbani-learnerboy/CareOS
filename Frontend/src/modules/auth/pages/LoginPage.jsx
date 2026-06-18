@@ -3,7 +3,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Mail, Lock, ShieldCheck, Eye, EyeOff, ArrowLeft } from "lucide-react";
-import "../style/LoginPage.css"; 
+import "../style/LoginPage.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,19 +12,18 @@ export default function LoginPage() {
   const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  // Flow State Controller: 1 = Core Credentials Login, 2 = Account Activation OTP Handshake
   const [step, setStep] = useState(1);
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [captchaToken, setCaptchaToken] = useState(null);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [loading, setLoading] = useState(false);
-  
+
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
 
@@ -47,14 +46,14 @@ export default function LoginPage() {
     setCaptchaToken(token);
     if (token) setMessage({ type: "", text: "" });
   };
-  
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
 
     if (!siteKey) {
-      setMessage({ 
-        type: "error", 
-        text: "Configuration Error: VITE_RECAPTCHA_SITE_KEY is missing from frontend/.env" 
+      setMessage({
+        type: "error",
+        text: "Configuration Error: VITE_RECAPTCHA_SITE_KEY is missing from frontend/.env"
       });
       return;
     }
@@ -72,19 +71,33 @@ export default function LoginPage() {
         email,
         password,
         captchaToken,
-        rememberMe 
+        rememberMe
       });
 
       setMessage({ type: "success", text: "Login successful! Redirecting..." });
-      
-      if (rememberMe && response.data?.token) {
-        localStorage.setItem("authToken", response.data.token);
-      } else if (response.data?.token) {
-        sessionStorage.setItem("authToken", response.data.token);
-      }
 
-     const userRole = response.data?.data?.user?.role;
+      const userObj = response.data?.user;
+      const userRole = userObj?.role;
+      const authToken = response.data?.token;
+
+      const userData = {
+        email: userObj.email,
+        firstName: userObj.firstName,
+        lastName: userObj.lastName,
+        role: userObj.role
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+
       if (userRole) {
+        if (rememberMe) {
+          if (authToken) localStorage.setItem("authToken", authToken);
+          localStorage.setItem("user", JSON.stringify(userObj));
+        } else {
+          if (authToken) sessionStorage.setItem("authToken", authToken);
+          sessionStorage.setItem("user", JSON.stringify(userObj));
+        }
+
         setTimeout(() => {
           if (userRole === "patient") navigate("/patient-dashboard");
           else if (userRole === "doctor") navigate("/doctor-dashboard");
@@ -97,18 +110,20 @@ export default function LoginPage() {
             setMessage({ type: "error", text: "Unauthorized role profile layout context." });
           }
         }, 1200);
+      } else {
+        setMessage({ type: "error", text: "User role context detached from authentication response data." });
       }
 
     } catch (error) {
       if (error.response?.status === 403 && error.response?.data?.code === "ACCOUNT_UNVERIFIED") {
         const unverifiedEmail = error.response.data.email || email;
         setEmail(unverifiedEmail);
-        
-        setMessage({ 
-          type: "error", 
-          text: "Account activation required. A 6-digit code has been dispatched to your email." 
+
+        setMessage({
+          type: "error",
+          text: "Account activation required. A 6-digit code has been dispatched to your email."
         });
-        
+
         setStep(2);
         setResendTimer(30);
         setCanResend(false);
@@ -116,7 +131,7 @@ export default function LoginPage() {
         const errorMsg = error.response?.data?.message || "Internal login network error.";
         setMessage({ type: "error", text: errorMsg });
       }
-      
+
       recaptchaRef.current?.reset();
       setCaptchaToken(null);
     } finally {
@@ -130,13 +145,13 @@ export default function LoginPage() {
       setLoading(true);
       setMessage({ type: "", text: "" });
 
-      const response = await axios.post(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
+      await axios.post(`${API_BASE_URL}/api/v1/auth/verify-otp`, {
         email,
         otp
       });
 
       setMessage({ type: "success", text: "Account activated successfully! Proceeding to re-authenticate..." });
-      
+
       setPassword("");
       setOtp("");
       setStep(1);
@@ -170,7 +185,7 @@ export default function LoginPage() {
   return (
     <div className="login-viewport">
       <div className="login-card animate-slide-up">
-        
+
         <div className="login-header">
           <h2 className="login-title">{step === 1 ? "Welcome Back" : "Verify Account"}</h2>
           <p className="login-subtitle">
@@ -187,7 +202,7 @@ export default function LoginPage() {
         {step === 1 && (
           <form className="login-form" onSubmit={handleLoginSubmit}>
             <div className="form-fields-container">
-              
+
               <div className="form-field-group">
                 <label className="field-label">Email Address</label>
                 <div className="input-icon-wrapper">
@@ -230,18 +245,18 @@ export default function LoginPage() {
 
             <div className="login-options-row">
               <label className="remember-me-checkbox-label">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="remember-me-checkbox-input"
                 />
-                <span>Remember this computer</span>
+                <span>Remember me</span>
               </label>
 
-              <button 
-                type="button" 
-                className="forgot-password-link" 
+              <button
+                type="button"
+                className="forgot-password-link"
                 onClick={() => navigate('/forgot-password')}
               >
                 Forgot your password?
@@ -290,9 +305,9 @@ export default function LoginPage() {
 
             <div className="resend-countdown-row">
               {canResend ? (
-                <button 
-                  type="button" 
-                  onClick={handleResendActivationOtp} 
+                <button
+                  type="button"
+                  onClick={handleResendActivationOtp}
                   className="resend-active-link-action"
                 >
                   Resend Verification OTP
@@ -306,7 +321,7 @@ export default function LoginPage() {
               {loading ? "Activating Record..." : "Confirm Activation"}
             </button>
 
-            <button type="button" onClick={() => { setStep(1); setMessage({type:"",text:""}); }} className="portal-back-to-login-btn">
+            <button type="button" onClick={() => { setStep(1); setMessage({ type: "", text: "" }); }} className="portal-back-to-login-btn">
               <ArrowLeft size={14} /> Back to Sign In
             </button>
           </form>

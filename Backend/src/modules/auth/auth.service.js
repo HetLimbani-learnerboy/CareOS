@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import UserIdentity from './userIdentity.model.js';
 import OtpVerification from './otpVerification.model.js';
 import { sendOtpEmail } from "../../service/email.service.js";
@@ -48,7 +49,7 @@ export const registerUser = async (userData) => {
   return userObject;
 };
 
-export const loginUser = async (email, password) => {
+export const loginUser = async (email, password, rememberMe) => {
   const user = await UserIdentity.findOne({ email });
   if (!user) {
     const error = new Error('Invalid email or password credentials');
@@ -65,6 +66,7 @@ export const loginUser = async (email, password) => {
 
   if (!user.is_verified) {
     await generateAndSaveOtp(user.email, user.firstName);
+    
     const error = new Error('Account verification required');
     error.statusCode = 403;
     error.code = 'ACCOUNT_UNVERIFIED';
@@ -74,7 +76,11 @@ export const loginUser = async (email, password) => {
 
   const userObject = user.toObject();
   delete userObject.password;
-  return { user: userObject };
+
+  return { 
+    user: userObject,
+    token: "TEMP_SESSION_TOKEN"
+  };
 };
 
 export const verifyOtpCode = async (email, enteredOtp) => {

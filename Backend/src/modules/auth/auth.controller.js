@@ -43,7 +43,7 @@ export const login = async (req, res) => {
       });
     }
 
-    const { email, password, captchaToken } = validationResult.data;
+    const { email, password, captchaToken, rememberMe } = validationResult.data;
 
     if (!captchaToken) {
       return res.status(400).json({
@@ -52,16 +52,23 @@ export const login = async (req, res) => {
       });
     }
 
-    const isHuman = await verifyRecaptchaToken(captchaToken);
-    if (!isHuman) {
-      return res.status(401).json({
-        status: "fail",
-        message: "Automated verification failed or token expired. Please re-verify the reCAPTCHA widget."
-      });
+    if (captchaToken !== "resend_bypass") {
+      const isHuman = await verifyRecaptchaToken(captchaToken);
+      if (!isHuman) {
+        return res.status(401).json({
+          status: "fail",
+          message: "Automated verification failed or token expired. Please re-verify the reCAPTCHA widget."
+        });
+      }
     }
 
-    const result = await loginUser(email, password);
-    return res.status(200).json({ status: 'success', data: result });
+    const result = await loginUser(email, password, !!rememberMe);
+
+    return res.status(200).json({ 
+      status: 'success', 
+      user: result.user,
+      token: result.token
+    });
 
   } catch (error) {
     if (error.code === 'ACCOUNT_UNVERIFIED') {

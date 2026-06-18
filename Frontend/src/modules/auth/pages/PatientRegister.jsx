@@ -125,6 +125,17 @@ const PatientRegister = () => {
       });
 
       if (response.data.status === "success") {
+        const user = response.data?.data?.user;
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role
+          })
+        );
         navigate("/patient-dashboard");
       }
     } catch (error) {
