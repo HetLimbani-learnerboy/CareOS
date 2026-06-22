@@ -10,6 +10,9 @@ import SystemCounter from "./modules/auth/counter.model.js";
 import UserIdentity from "./modules/auth/userIdentity.model.js";
 import patientRoutes from './modules/patients/patient.routes.js'; 
 import OtpVerification from "./modules/auth/otpVerification.model.js";
+import doctorAvailabilityRoutes from './modules/doctor/doctorAvailability.routes.js';
+import patientBookingRoutes from './modules/patients/patientBooking.routes.js';
+import doctorProfileRoutes from './modules/doctor/doctorProfile.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -80,7 +83,11 @@ const connectAndInitializeDb = async (req, res, next) => {
 };
 
 app.use("/api/v1/auth", connectAndInitializeDb, authRoutes);
+
+app.use('/api/v1/patients', patientBookingRoutes);
 app.use('/api/v1/patients', patientRoutes);
+app.use('/api/v1/doctors', doctorAvailabilityRoutes);
+app.use('/api/v1/doctors', doctorProfileRoutes);
 
 
 app.get('/api/v1/health', (req, res) => {
