@@ -122,7 +122,7 @@
   width: 100%;
 }
 
-.sidebar-nav-item:hover, 
+.sidebar-nav-item:hover,
 .sidebar-nav-item.nav-item-active {
   color: #ffffff;
   background-color: var(--slate-800);

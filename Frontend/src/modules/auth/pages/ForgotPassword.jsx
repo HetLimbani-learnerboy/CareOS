@@ -107,7 +107,7 @@ export default function ForgotPassword() {
         }
     };
 
-    // Step 3: Commit Passed Secure Credentials Down to Database
+    // Commit Passed Secure Credentials Down to Database
     const handlePasswordReset = async (e) => {
         e.preventDefault();
         const allRulesPassed =
@@ -145,7 +145,6 @@ export default function ForgotPassword() {
         <div className="recovery-viewport">
             <div className="recovery-card animate-slide-up">
 
-                {/* Dynamic Header Titles based on Step Context */}
                 <div className="recovery-header">
                     {step === 1 && <h2>Forgot Password</h2>}
                     {step === 2 && <h2>Enter Secure OTP</h2>}
@@ -259,9 +258,9 @@ export default function ForgotPassword() {
 
                                 <div
                                     className={`rule-item ${confirmPassword &&
-                                            password === confirmPassword
-                                            ? "passed"
-                                            : ""
+                                        password === confirmPassword
+                                        ? "passed"
+                                        : ""
                                         }`}
                                 >
                                     {confirmPassword &&

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CareOSLogo from '../../../assets/CareOS-logo.png';
-import '../style/PatientSlidebarStyle.css'; // Ensure path matches your file tree
+import '../style/PatientSlidebarStyle.css';
 
 export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsO
 
   const handleTabSelection = (tabName) => {
     setActiveTab(tabName);
-    setIsOpen(false); // Smoothly auto-closes menu drawer layout on mobile tap events
+    setIsOpen(false);
   };
 
   const handleLogout = () => {
@@ -44,18 +44,15 @@ export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsO
 
   return (
     <>
-      {/* Semi-transparent Dimming Mask for Mobile Drawers */}
-      <div 
-        className={`sidebar-overlay ${isOpen ? "sidebar-overlay-show" : ""}`} 
+      <div
+        className={`sidebar-overlay ${isOpen ? "sidebar-overlay-show" : ""}`}
         onClick={() => setIsOpen(false)}
       />
 
       <aside className={`portal-sidebar-container ${isOpen ? "sidebar-drawer-open" : ""}`}>
-        
-        {/* Identity & Branded Header Grid Section */}
+
         <div className="sidebar-identity-block">
           <div className="sidebar-branding-wrapper">
-            {/* 🎯 Logo Integrated Smoothly Here */}
             <div className="sidebar-logo-wrapper">
               <img src={CareOSLogo} alt="CareOS Logo" className="sidebar-branding-logo-img" />
             </div>
@@ -65,9 +62,8 @@ export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsO
             </div>
           </div>
 
-          {/* Compact Mobile Menu Collapse Trigger Arrow */}
-          <button 
-            className="sidebar-close-drawer-trigger" 
+          <button
+            className="sidebar-close-drawer-trigger"
             onClick={() => setIsOpen(false)}
             aria-label="Collapse Navigation Menu"
           >
@@ -75,7 +71,6 @@ export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsO
           </button>
         </div>
 
-        {/* Dynamic Mapping List Navigation Menus */}
         <nav className="sidebar-nav-menu">
           {menuItems.map((item) => {
             const isTabActive = activeTab === item.name;
@@ -92,7 +87,6 @@ export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsO
           })}
         </nav>
 
-        {/* System Profile Footer Action Node */}
         <div className="sidebar-profile-footer">
           <button className="sidebar-logout-action" onClick={handleLogout}>
             <LogOut size={16} />

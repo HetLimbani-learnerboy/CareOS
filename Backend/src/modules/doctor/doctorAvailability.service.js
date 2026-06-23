@@ -97,7 +97,7 @@ export const getDoctorSlotsForMonth = async (email, year, month) => {
       date: { $regex: `^${monthPrefix}` }
     }).lean()
   ]);
-   return {
+  return {
     defaultWeeklySlots: Array.isArray(config.default_weekly_slots)
       ? config.default_weekly_slots
       : DEFAULT_SLOTS,

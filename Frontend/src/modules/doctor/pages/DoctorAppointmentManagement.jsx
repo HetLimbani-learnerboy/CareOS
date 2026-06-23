@@ -12,7 +12,8 @@ import {
   ChevronDown,
   ChevronUp,
   User,
-  FileText
+  FileText,
+  Loader2
 } from 'lucide-react';
 import '../style/DoctorAppointmentManagement.css';
 
@@ -37,6 +38,26 @@ const formatLocalDate = (date) => {
 const getErrorMessage = (error, fallback) =>
   error.response?.data?.message || fallback;
 
+const isPastTimeSlot = (selectedDateStr, timeSlotString) => {
+  const todayStr = formatLocalDate(new Date());
+
+  if (selectedDateStr < todayStr) return true;
+  if (selectedDateStr > todayStr) return false;
+
+  try {
+    const startTimeStr = timeSlotString.split('-')[0].trim();
+    const [hours, minutes] = startTimeStr.split(':').map(Number);
+
+    const currentTime = new Date();
+    const slotTime = new Date();
+    slotTime.setHours(hours, minutes, 0, 0);
+
+    return currentTime > slotTime;
+  } catch (err) {
+    return false;
+  }
+};
+
 export default function DoctorAppointmentManagement() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -48,10 +69,15 @@ export default function DoctorAppointmentManagement() {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [doctorEmail, setDoctorEmail] = useState('');
   const [loading, setLoading] = useState(true);
-  const [savingSlot, setSavingSlot] = useState(false);
+  const [savingSlotName, setSavingSlotName] = useState(null);
+  const [isResetting, setIsResetting] = useState(false);
   const [updatingRequestId, setUpdatingRequestId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [expandedItems, setExpandedItems] = useState({});
+
+  const todayKey = useMemo(() => formatLocalDate(new Date()), []);
+  const selectedDateKey = useMemo(() => formatLocalDate(selectedDate), [selectedDate]);
+  const isSelectedDatePast = useMemo(() => selectedDateKey < todayKey, [selectedDateKey, todayKey]);
 
   useEffect(() => {
     try {
@@ -142,44 +168,41 @@ export default function DoctorAppointmentManagement() {
   };
 
   const handleToggleSlot = async (slot) => {
-    if (!doctorEmail || savingSlot) return;
+    if (!doctorEmail || savingSlotName || isResetting || isPastTimeSlot(selectedDateKey, slot)) return;
 
-    const dateKey = formatLocalDate(selectedDate);
     const currentSlots = getSlotsForDate(selectedDate);
     const updatedSlots = currentSlots.includes(slot)
       ? currentSlots.filter((currentSlot) => currentSlot !== slot)
       : [...currentSlots, slot].sort();
 
     try {
-      setSavingSlot(true);
+      setSavingSlotName(slot);
       setErrorMessage('');
-      await saveOverride(dateKey, updatedSlots);
-      setDailyOverrides((current) => ({ ...current, [dateKey]: updatedSlots }));
+      await saveOverride(selectedDateKey, updatedSlots);
+      setDailyOverrides((current) => ({ ...current, [selectedDateKey]: updatedSlots }));
     } catch (error) {
       setErrorMessage(getErrorMessage(error, 'Unable to update this slot.'));
     } finally {
-      setSavingSlot(false);
+      setSavingSlotName(null);
     }
   };
 
   const resetToDefault = async () => {
-    if (!doctorEmail || savingSlot) return;
-
-    const dateKey = formatLocalDate(selectedDate);
+    if (!doctorEmail || savingSlotName || isResetting || isSelectedDatePast) return;
 
     try {
-      setSavingSlot(true);
+      setIsResetting(true);
       setErrorMessage('');
-      await saveOverride(dateKey, null);
+      await saveOverride(selectedDateKey, null);
       setDailyOverrides((current) => {
         const next = { ...current };
-        delete next[dateKey];
+        delete next[selectedDateKey];
         return next;
       });
     } catch (error) {
       setErrorMessage(getErrorMessage(error, 'Unable to restore the default schedule.'));
     } finally {
-      setSavingSlot(false);
+      setIsResetting(false);
     }
   };
 
@@ -228,7 +251,6 @@ export default function DoctorAppointmentManagement() {
     currentDate.getMonth(),
     1
   ).getDay();
-  const todayKey = formatLocalDate(new Date());
 
   if (loading && !doctorEmail && !errorMessage) {
     return (
@@ -295,7 +317,7 @@ export default function DoctorAppointmentManagement() {
                   const day = index + 1;
                   const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
                   const dateKey = formatLocalDate(date);
-                  const isSelected = dateKey === formatLocalDate(selectedDate);
+                  const isSelected = dateKey === selectedDateKey;
                   const hasAppointments = bookedAppointments.some((item) => item.date === dateKey);
 
                   return (
@@ -317,8 +339,18 @@ export default function DoctorAppointmentManagement() {
           <div className="slot-editor-area">
             <div className="editor-header">
               <h4>Manage Slots for {selectedDate.toDateString()}</h4>
-              <button type="button" className="reset-btn" disabled={savingSlot} onClick={resetToDefault}>
-                <Undo2 size={14} /> Use Default
+              <button 
+                type="button" 
+                className="reset-btn" 
+                disabled={!!savingSlotName || isResetting || isSelectedDatePast} 
+                onClick={resetToDefault}
+              >
+                {isResetting ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Undo2 size={14} />
+                )}
+                <span>{isResetting ? 'Restoring...' : 'Use Default'}</span>
               </button>
             </div>
             {loading ? (
@@ -326,22 +358,28 @@ export default function DoctorAppointmentManagement() {
             ) : (
               <div className="slots-flex-container">
                 {allSlotOptions.map((slot) => {
-                  const dateKey = formatLocalDate(selectedDate);
                   const isActive = getSlotsForDate(selectedDate).includes(slot);
                   const isBooked = bookedAppointments.some(
-                    (item) => item.date === dateKey && item.time === slot
+                    (item) => item.date === selectedDateKey && item.time === slot
                   );
+                  const isPast = isPastTimeSlot(selectedDateKey, slot);
+                  const isCurrentSaving = savingSlotName === slot;
+                  const isNodeDisabled = isBooked || !!savingSlotName || isResetting || isPast;
 
                   return (
                     <button
                       type="button"
                       key={slot}
-                      disabled={isBooked || savingSlot}
-                      className={`slot-pill ${isActive ? 'active' : ''} ${isBooked ? 'booked' : ''}`}
+                      disabled={isNodeDisabled}
+                      className={`slot-pill ${isActive ? 'active' : ''} ${isBooked ? 'booked' : ''} ${isPast ? 'past-lockout' : ''} ${isCurrentSaving ? 'mutating-state' : ''}`}
                       onClick={() => handleToggleSlot(slot)}
                     >
-                      {slot}
-                      {isBooked && <Clock size={12} />}
+                      <span>{slot}</span>
+                      {isCurrentSaving ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : isBooked ? (
+                        <Clock size={12} />
+                      ) : null}
                     </button>
                   );
                 })}

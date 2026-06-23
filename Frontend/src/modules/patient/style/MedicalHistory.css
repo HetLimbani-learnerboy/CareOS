@@ -46,7 +46,11 @@
   border-color: #0284c7;
   box-shadow: 0 10px 20px -5px rgba(2, 132, 199, 0.08);
 }
-.card-expanded:hover { border-color: #0284c7; transform: none; }
+
+.card-expanded:hover {
+  border-color: #0284c7;
+  transform: none;
+}
 
 .record-summary-row {
   padding: 1.25rem 1.5rem;
@@ -174,20 +178,75 @@
   color: #94a3b8;
 }
 
-.animate-fade-in { animation: medHistoryFadeIn 0.35s ease forwards; }
-.animate-slide-down { animation: medHistorySlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-@keyframes medHistoryFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes medHistorySlideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in {
+  animation: medHistoryFadeIn 0.35s ease forwards;
+}
+
+.animate-slide-down {
+  animation: medHistorySlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes medHistoryFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes medHistorySlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 @media (max-width: 992px) {
-  .record-summary-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
-  .record-summary-grid { width: 100%; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 10px; }
-  .accordion-toggle-btn { position: absolute; right: 1.5rem; top: 1.5rem; }
-  .appointment-record-card { position: relative; }
-  .details-grid-layout { grid-template-columns: 1fr; }
-  .detail-block.full-width { grid-column: span 1; }
+  .record-summary-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .record-summary-grid {
+    width: 100%;
+    justify-content: space-between;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 10px;
+  }
+
+  .accordion-toggle-btn {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+  }
+
+  .appointment-record-card {
+    position: relative;
+  }
+
+  .details-grid-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-block.full-width {
+    grid-column: span 1;
+  }
 }
 
 @media (max-width: 640px) {
-  .record-summary-grid { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .record-summary-grid {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }

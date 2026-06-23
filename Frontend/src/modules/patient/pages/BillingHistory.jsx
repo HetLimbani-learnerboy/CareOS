@@ -70,7 +70,7 @@ export default function BillingHistory() {
           const isExpanded = expandedInvoice === inv.id;
           return (
             <div key={inv.id} className={`billing-card-item ${isExpanded ? "billing-expanded" : ""}`}>
-              
+
               <div className="billing-summary-container" onClick={() => toggleInvoiceDropdown(inv.id)}>
                 <div className="billing-title-identity-group">
                   <div className={`billing-icon-badge ${inv.payment_status === "paid" ? "rx-paid" : "rx-unpaid"}`}>
@@ -96,7 +96,7 @@ export default function BillingHistory() {
 
               {isExpanded && (
                 <div className="billing-expanded-content-view animate-slide-down">
-                  
+
                   <div className="billing-statement-meta-row">
                     <div><strong>Date Issued:</strong> {inv.date_issued}</div>
                     <div><strong>Due Date:</strong> {inv.due_date}</div>
