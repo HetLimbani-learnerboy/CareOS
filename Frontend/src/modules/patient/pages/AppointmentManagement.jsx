@@ -19,6 +19,8 @@ export default function AppointmentManagement() {
   const [selectedDoctorProfile, setSelectedDoctorProfile] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [editingAppointmentId, setEditingAppointmentId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [slotsLoading, setSlotsLoading] = useState(false);
 
   const [bookingForm, setBookingForm] = useState({
     specialization: "",
@@ -46,10 +48,13 @@ export default function AppointmentManagement() {
   const fetchPatientLedger = async () => {
     if (!patientData.email) return;
     try {
+      setLoading(true);
       const res = await axios.get(`${API_BASE_URL}/api/v1/patients/booked-ledger?email=${encodeURIComponent(patientData.email)}`);
       setAppointments(res.data.data || []);
     } catch (err) {
       console.error("Failed to query systemic booking records layout.", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,6 +86,7 @@ export default function AppointmentManagement() {
 
     const fetchDoctorMetadataAndSlots = async () => {
       try {
+        setSlotsLoading(true);
         const year = currentCalDate.getFullYear();
         const month = currentCalDate.getMonth() + 1;
 
@@ -93,6 +99,8 @@ export default function AppointmentManagement() {
         setSelectedDoctorProfile(profileRes.data.data.profileData);
       } catch (err) {
         console.error("Failed to query runtime doctor configuration records.", err);
+      } finally {
+        setSlotsLoading(false);
       }
     };
 
@@ -191,7 +199,7 @@ export default function AppointmentManagement() {
           <h2>Clinical Consultations & Bookings</h2>
           <p>Schedule new sessions, evaluate clinical timelines, and interface with medical practitioners.</p>
         </div>
-        {!isBookingMode && (
+        {!isBookingMode && !loading && (
           <button className="book-trigger-btn" onClick={() => { setEditingAppointmentId(null); setIsBookingMode(true); }}>
             <CalendarPlus size={16} /> Book New Appointment
           </button>
@@ -262,27 +270,31 @@ export default function AppointmentManagement() {
             {bookingForm.selectedDate && (
               <div className="time-slots-wrapper">
                 <label>Available Target Intervals on {bookingForm.selectedDate}</label>
-                <div className="slots-flex-box">
-                  {getSlotsForDate(bookingForm.selectedDate).length > 0 ? (
-                    getSlotsForDate(bookingForm.selectedDate).map(slot => {
-                      const isSlotTaken = doctorAvailability.activeBookings?.some(
-                        b => b.date === bookingForm.selectedDate && b.time === slot
-                      );
+                {slotsLoading ? (
+                  <div className="skeleton-flex-slots-row" />
+                ) : (
+                  <div className="slots-flex-box">
+                    {getSlotsForDate(bookingForm.selectedDate).length > 0 ? (
+                      getSlotsForDate(bookingForm.selectedDate).map(slot => {
+                        const isSlotTaken = doctorAvailability.activeBookings?.some(
+                          b => b.date === bookingForm.selectedDate && b.time === slot
+                        );
 
-                      return (
-                        <button 
-                          type="button" 
-                          disabled={isSlotTaken}
-                          key={slot} 
-                          className={`slot-pill-node ${bookingForm.selectedTime === slot ? 'active' : ''} ${isSlotTaken ? 'booked' : ''}`}
-                          onClick={() => !isSlotTaken && setBookingForm(prev => ({ ...prev, selectedTime: slot }))}
-                        >
-                          {slot} {isSlotTaken && "(Booked)"}
-                        </button>
-                      );
-                    })
-                  ) : <p className="no-slots-err">No available slots open on this calendar date node.</p>}
-                </div>
+                        return (
+                          <button 
+                            type="button" 
+                            disabled={isSlotTaken}
+                            key={slot} 
+                            className={`slot-pill-node ${bookingForm.selectedTime === slot ? 'active' : ''} ${isSlotTaken ? 'booked' : ''}`}
+                            onClick={() => !isSlotTaken && setBookingForm(prev => ({ ...prev, selectedTime: slot }))}
+                          >
+                            {slot} {isSlotTaken && "(Booked)"}
+                          </button>
+                        );
+                      })
+                    ) : <p className="no-slots-err">No available slots open on this calendar date node.</p>}
+                  </div>
+                )}
               </div>
             )}
 
@@ -308,6 +320,11 @@ export default function AppointmentManagement() {
               <div className="calendar-placeholder-overlay">
                 <Activity size={32} />
                 <p>Please isolate a specialized practitioner to pull runtime calendar availability grids.</p>
+              </div>
+            ) : slotsLoading ? (
+              <div className="interactive-scheduling-stack">
+                <div className="skeleton-calendar-matrix-grid" />
+                <div className="skeleton-profile-summary-box" />
               </div>
             ) : (
               <div className="interactive-scheduling-stack">
@@ -369,7 +386,12 @@ export default function AppointmentManagement() {
         </div>
       ) : (
         <div className="appointments-dashboard-ledger animate-fade-in">
-          {appointments.length > 0 ? (
+          {loading ? (
+            <>
+              <div className="skeleton-ledger-card" />
+              <div className="skeleton-ledger-card" />
+            </>
+          ) : appointments.length > 0 ? (
             appointments.map((apt) => (
               <div key={apt.id} className="appointment-matrix-card">
                 <div className="card-primary-details">

@@ -38,4 +38,16 @@ const protectRoute = async (req, res, next) => {
   }
 };
 
+export const requireDoctor = (req, res, next) => {
+  if (!req.user || req.user.role !== 'doctor') {
+    return res.status(403).json({
+      status: 'fail',
+      message: 'Doctor access is required.'
+    });
+  }
+
+  return next();
+};
+
+
 export default protectRoute;
