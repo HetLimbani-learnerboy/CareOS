@@ -58,7 +58,8 @@
   align-items: start;
 }
 
-.booking-form-panel, .booking-calendar-panel {
+.booking-form-panel,
+.booking-calendar-panel {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
@@ -112,7 +113,9 @@
   color: #0284c7;
 }
 
-.input-node input, .input-node select, .input-node textarea {
+.input-node input,
+.input-node select,
+.input-node textarea {
   width: 100%;
   padding: 10px 14px;
   font-size: 0.95rem;
@@ -134,7 +137,9 @@
   resize: vertical;
 }
 
-.input-node input:focus, .input-node select:focus, .input-node textarea:focus {
+.input-node input:focus,
+.input-node select:focus,
+.input-node textarea:focus {
   outline: none;
   border-color: #0284c7;
   box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12);
@@ -569,18 +574,37 @@
 }
 
 @keyframes ptAptFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideUpBlock {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes appointmentShimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -596,31 +620,31 @@
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .book-trigger-btn {
     width: 100%;
     justify-content: center;
   }
-  
+
   .disabled-demographics-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .disabled-demographics-grid .input-node.full-width {
     grid-column: span 1;
   }
-  
+
   .appointment-matrix-card {
     flex-direction: column;
     align-items: flex-start;
     gap: 1.25rem;
   }
-  
+
   .card-operational-actions {
     width: 100%;
     flex-direction: row;
   }
-  
+
   .action-btn {
     flex: 1;
   }
@@ -844,12 +868,15 @@
     align-items: flex-start;
     gap: 1.25rem;
   }
+
   .details-interactive-header {
     width: 100%;
   }
+
   .details-panel-grid {
     grid-template-columns: 1fr;
   }
+
   .details-panel-grid .panel-meta-node.full-width {
     grid-column: span 1;
   }

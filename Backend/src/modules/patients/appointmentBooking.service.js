@@ -66,7 +66,7 @@ export const findPublicDoctorProfile = async (email) => {
 
 export const findPatientAppointments = async (email) => {
   const patient = await resolvePatient(email);
-  
+
   const appointments = await Appointment.find({
     patient_id: patient._id,
     status: { $ne: 'cancelled' }

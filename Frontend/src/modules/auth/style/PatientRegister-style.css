@@ -127,8 +127,8 @@
   width: 100%;
 }
 
-.register-form > * + *,
-.register-otp-form > * + * {
+.register-form>*+*,
+.register-otp-form>*+* {
   margin-top: 1rem;
 }
 
@@ -178,7 +178,7 @@
 
 .register-input-element {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.75rem !important; 
+  padding: 0.75rem 1rem 0.75rem 2.75rem !important;
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 0.75rem;
@@ -378,7 +378,9 @@
 }
 
 @keyframes registerSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .register-otp-banner {
@@ -554,16 +556,18 @@
   border: 1px solid #fee2e2;
   padding: 0.85rem 1.25rem;
   margin-bottom: 1.25rem;
-  border-radius: 0.625rem; /* 10px matching card styling */
+  border-radius: 0.625rem;
+  /* 10px matching card styling */
   text-align: center;
   font-weight: 500;
-  font-size: 0.875rem; /* 14px default */
+  font-size: 0.875rem;
+  /* 14px default */
   line-height: 1.4;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  
+
   /* Smooth animation entry when error state toggles */
   animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   will-change: transform, opacity;
@@ -576,7 +580,8 @@
 /* Small Devices / Compact Mobile (Screen Widths <= 375px) */
 @media (max-width: 375px) {
   .bg-red-500 {
-    font-size: 0.75rem; /* Scales text down slightly (12px) to prevent layout wrapping */
+    font-size: 0.75rem;
+    /* Scales text down slightly (12px) to prevent layout wrapping */
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
     border-radius: 0.5rem;
@@ -597,7 +602,8 @@
   .bg-red-500 {
     font-size: 0.9rem;
     padding: 1rem 1.75rem;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.04); /* Subtle drop-glow for premium visual design */
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.04);
+    /* Subtle drop-glow for premium visual design */
   }
 }
 
@@ -609,6 +615,7 @@
     opacity: 0;
     transform: translateY(-8px) scale(0.98);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);

@@ -21,7 +21,6 @@ export const updateProfileByEmail = async (email, updateData) => {
     throw error;
   }
 
-  // FIXED: Changed fields from snake_case to match your camelCase database model keys (firstName/lastName)
   if (updateData.phone) user.phone = updateData.phone;
   if (updateData.firstName || updateData.first_name) user.firstName = updateData.firstName || updateData.first_name;
   if (updateData.lastName || updateData.last_name) user.lastName = updateData.lastName || updateData.last_name;

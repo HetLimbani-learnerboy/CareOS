@@ -138,7 +138,8 @@
   letter-spacing: 0.04em;
 }
 
-.input-icon-wrapper, .password-input-wrapper {
+.input-icon-wrapper,
+.password-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;

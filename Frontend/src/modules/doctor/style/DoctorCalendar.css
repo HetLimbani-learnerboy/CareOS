@@ -65,7 +65,7 @@
   color: #475569;
 }
 
-.dr-input-block input, 
+.dr-input-block input,
 .dr-input-block select {
   width: 100%;
   padding: 10px 14px;
@@ -76,7 +76,7 @@
   background-color: #ffffff;
 }
 
-.dr-input-block input:focus, 
+.dr-input-block input:focus,
 .dr-input-block select:focus {
   outline: none;
   border-color: #0284c7;
@@ -186,9 +186,17 @@
   display: inline-block;
 }
 
-.dot-marker.color-sky { background-color: #38bdf8; }
-.dot-marker.color-emerald { background-color: #10b981; }
-.dot-marker.color-purple { background-color: #a855f7; }
+.dot-marker.color-sky {
+  background-color: #38bdf8;
+}
+
+.dot-marker.color-emerald {
+  background-color: #10b981;
+}
+
+.dot-marker.color-purple {
+  background-color: #a855f7;
+}
 
 .calendar-legend-block {
   display: flex;
@@ -222,7 +230,7 @@
   border-radius: 12px;
   border: 1px solid #f1f5f9;
   background: #ffffff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
 }
 
 .pipeline-meta h5 {
@@ -302,8 +310,21 @@
   font-size: 0.9rem;
 }
 
-.animate-fade-in { animation: drAptFadeIn 0.3s ease forwards; }
-@keyframes drAptFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in {
+  animation: drAptFadeIn 0.3s ease forwards;
+}
+
+@keyframes drAptFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 @media (max-width: 1200px) {
   .clinical-split-grid {
@@ -321,6 +342,7 @@
   .dr-form-grid {
     grid-template-columns: 1fr;
   }
+
   .calendar-day-node {
     min-height: 50px;
   }

@@ -46,7 +46,11 @@
   border-color: #06b6d4;
   box-shadow: 0 10px 20px -5px rgba(6, 182, 212, 0.08);
 }
-.rx-expanded:hover { border-color: #06b6d4; transform: none; }
+
+.rx-expanded:hover {
+  border-color: #06b6d4;
+  transform: none;
+}
 
 .rx-archived {
   opacity: 0.85;
@@ -76,8 +80,16 @@
   align-items: center;
   justify-content: center;
 }
-.rx-pill-badge.badge-active { background-color: #ecfeff; color: #0891b2; }
-.rx-pill-badge.badge-expired { background-color: #f1f5f9; color: #64748b; }
+
+.rx-pill-badge.badge-active {
+  background-color: #ecfeff;
+  color: #0891b2;
+}
+
+.rx-pill-badge.badge-expired {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
 
 .rx-title-identity-group h4 {
   margin: 0;
@@ -120,8 +132,16 @@
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
-.status-pill-badge.active-green { background-color: #dcfce7; color: #16a34a; }
-.status-pill-badge.expired-gray { background-color: #e2e8f0; color: #475569; }
+
+.status-pill-badge.active-green {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.status-pill-badge.expired-gray {
+  background-color: #e2e8f0;
+  color: #475569;
+}
 
 .rx-accordion-arrow-trigger {
   background: transparent;
@@ -141,7 +161,8 @@
   gap: 1.5rem;
 }
 
-.medicines-nested-array-table-wrapper h5, .rx-notes-bottom-block h5 {
+.medicines-nested-array-table-wrapper h5,
+.rx-notes-bottom-block h5 {
   margin: 0 0 12px 0;
   font-size: 0.85rem;
   text-transform: uppercase;
@@ -203,19 +224,73 @@
   border: 1px solid #e2e8f0;
 }
 
-.animate-fade-in { animation: rxHistoryFadeIn 0.35s ease forwards; }
-.animate-slide-down { animation: rxHistorySlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-@keyframes rxHistoryFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes rxHistorySlideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in {
+  animation: rxHistoryFadeIn 0.35s ease forwards;
+}
+
+.animate-slide-down {
+  animation: rxHistorySlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes rxHistoryFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rxHistorySlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 @media (max-width: 992px) {
-  .rx-summary-container { flex-direction: column; align-items: flex-start; gap: 1rem; }
-  .rx-meta-summary-flex { width: 100%; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 10px; flex-wrap: wrap; }
-  .rx-accordion-arrow-trigger { position: absolute; right: 1.5rem; top: 1.5rem; }
-  .prescription-card-item { position: relative; }
+  .rx-summary-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .rx-meta-summary-flex {
+    width: 100%;
+    justify-content: space-between;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .rx-accordion-arrow-trigger {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+  }
+
+  .prescription-card-item {
+    position: relative;
+  }
 }
 
 @media (max-width: 640px) {
-  .rx-meta-summary-flex { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .medicines-embedded-table th:nth-child(3), .medicines-embedded-table td:nth-child(3) { display: none; }
+  .rx-meta-summary-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .medicines-embedded-table th:nth-child(3),
+  .medicines-embedded-table td:nth-child(3) {
+    display: none;
+  }
 }

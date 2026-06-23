@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import axiosInstance from "axios";
 import { 
   Calendar as CalendarIcon, Clock, AlertCircle, 
   ChevronLeft, ChevronRight, CalendarPlus, FileText, Activity,
@@ -75,7 +74,7 @@ export default function AppointmentManagement() {
     if (!patientData.email) return;
     try {
       setLoading(true);
-      const res = await axiosInstance.get(`${API_BASE_URL}/api/v1/patients/booked-ledger?email=${encodeURIComponent(patientData.email)}`);
+      const res = await axios.get(`${API_BASE_URL}/api/v1/patients/booked-ledger?email=${encodeURIComponent(patientData.email)}`);
       setAppointments(res.data.data || []);
     } catch (err) {
       console.error("Failed to query systemic booking records layout.", err);
@@ -95,7 +94,7 @@ export default function AppointmentManagement() {
     }
     const fetchDoctors = async () => {
       try {
-        const res = await axiosInstance.get(`${API_BASE_URL}/api/v1/patients/doctors-by-spec?specialization=${encodeURIComponent(bookingForm.specialization)}`);
+        const res = await axios.get(`${API_BASE_URL}/api/v1/patients/doctors-by-spec?specialization=${encodeURIComponent(bookingForm.specialization)}`);
         setDoctorsFromDb(res.data.data || []);
       } catch (err) {
         console.error("Failed to pull matching specialized clinicians.", err);
@@ -117,8 +116,8 @@ export default function AppointmentManagement() {
         const month = currentCalDate.getMonth() + 1;
 
         const [slotsRes, profileRes] = await Promise.all([
-          axiosInstance.get(`${API_BASE_URL}/api/v1/patients/doctor-slots-live?email=${encodeURIComponent(bookingForm.doctorEmail)}&year=${year}&month=${month}`),
-          axiosInstance.get(`${API_BASE_URL}/api/v1/patients/public-doctor-meta?email=${encodeURIComponent(bookingForm.doctorEmail)}`)
+          axios.get(`${API_BASE_URL}/api/v1/patients/doctor-slots-live?email=${encodeURIComponent(bookingForm.doctorEmail)}&year=${year}&month=${month}`),
+          axios.get(`${API_BASE_URL}/api/v1/patients/public-doctor-meta?email=${encodeURIComponent(bookingForm.doctorEmail)}`)
         ]);
 
         setDoctorAvailability(slotsRes.data.data || { defaultWeeklySlots: [], customDayOverrides: {}, activeBookings: [] });
@@ -137,14 +136,15 @@ export default function AppointmentManagement() {
     if (!dateStr || !doctorAvailability) return [];
     if (dateStr < todayStr) return [];
     
+    if (doctorAvailability.customDayOverrides?.[dateStr] !== undefined) {
+      return doctorAvailability.customDayOverrides[dateStr];
+    }
+
     const [year, month, day] = dateStr.split('-').map(Number);
     const dateObj = new Date(year, month - 1, day);
     const dayOfWeek = dateObj.getDay();
     const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
 
-    if (doctorAvailability.customDayOverrides?.[dateStr] !== undefined) {
-      return doctorAvailability.customDayOverrides[dateStr];
-    }
     return isWeekend ? [] : (doctorAvailability.defaultWeeklySlots || []);
   };
 
@@ -162,7 +162,7 @@ export default function AppointmentManagement() {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.post(`${API_BASE_URL}/api/v1/patients/book-request`, {
+      await axios.post(`${API_BASE_URL}/api/v1/patients/book-request`, {
         patientEmail: patientData.email,
         doctorEmail: bookingForm.doctorEmail,
         date: bookingForm.selectedDate,
@@ -198,7 +198,7 @@ export default function AppointmentManagement() {
   const handleCancelAppointment = async (id) => {
     if (window.confirm("Are you sure you want to drop this medical timeline consultation reservation?")) {
       try {
-        await axiosInstance.post(`${API_BASE_URL}/api/v1/patients/book-request`, {
+        await axios.post(`${API_BASE_URL}/api/v1/patients/book-request`, {
           patientEmail: patientData.email,
           appointmentId: id,
           time: "", 
@@ -500,12 +500,14 @@ export default function AppointmentManagement() {
                       const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
                       const isPast = loopDateStr < todayStr;
                       const isSelected = loopDateStr === bookingForm.selectedDate;
-                      const hasSlots = getSlotsForDate(loopDateStr).length > 0 && !isPast && !isWeekend;
+                      const hasSlots = getSlotsForDate(loopDateStr).length > 0 && !isPast;
+                      
+                      const isHoliday = isWeekend && (!doctorAvailability.customDayOverrides?.[loopDateStr] || doctorAvailability.customDayOverrides[loopDateStr].length === 0);
 
                       return (
                         <div 
                           key={day} 
-                          className={`cal-matrix-node ${isSelected ? 'active' : ''} ${hasSlots ? 'open-slots' : 'blocked-slots'} ${isPast ? 'historical-node' : ''} ${isWeekend ? 'holiday-node' : ''}`}
+                          className={`cal-matrix-node ${isSelected ? 'active' : ''} ${hasSlots ? 'open-slots' : 'blocked-slots'} ${isPast ? 'historical-node' : ''} ${isHoliday ? 'holiday-node' : ''}`}
                           onClick={() => hasSlots && handleDateSelect(loopDate)}
                         >
                           {day}

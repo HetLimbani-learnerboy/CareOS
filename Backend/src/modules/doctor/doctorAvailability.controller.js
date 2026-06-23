@@ -98,7 +98,7 @@ export const updateAppointmentStatus = async (req, res, next) => {
       status
     });
     return res.status(200).json({ status: 'success', data });
-     } catch (error) {
+  } catch (error) {
     return next(error);
   }
 };
