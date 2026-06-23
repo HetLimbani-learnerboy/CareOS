@@ -1,248 +1,419 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { 
-  Calendar as CalendarIcon, Clock, User, Check, X, 
-  ChevronLeft, ChevronRight, Settings, AlertCircle, 
-  Undo2
-} from "lucide-react";
-import "../style/DoctorAppointmentManagement.css";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
+import {
+  AlertCircle,
+  Calendar as CalendarIcon,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Undo2,
+  X,
+  ChevronDown,
+  ChevronUp,
+  User,
+  FileText
+} from 'lucide-react';
+import '../style/DoctorAppointmentManagement.css';
+
+const DEFAULT_SLOTS = [
+  '10:00 - 10:50',
+  '11:00 - 11:50',
+  '11:50 - 12:40',
+  '13:30 - 14:20',
+  '14:20 - 15:10',
+  '16:30 - 17:10'
+];
+
+const EXTRA_SLOTS = ['08:00 - 08:50', '09:00 - 09:50', '18:00 - 18:50'];
+
+const formatLocalDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getErrorMessage = (error, fallback) =>
+  error.response?.data?.message || fallback;
 
 export default function DoctorAppointmentManagement() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const DEFAULT_SLOTS = [
-    "10:00 - 10:50", "11:00 - 11:50", "11:50 - 12:40",
-    "13:30 - 14:20", "14:20 - 15:10", "16:30 - 17:10"
-  ];
-
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [defaultWeeklySlots, setDefaultWeeklySlots] = useState(DEFAULT_SLOTS);
   const [dailyOverrides, setDailyOverrides] = useState({});
   const [appointments, setAppointments] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [doctorEmail, setDoctorEmail] = useState('');
   const [loading, setLoading] = useState(true);
-  const [doctorEmail, setDoctorEmail] = useState("");
-
-  const getFormattedDate = (date) => date.toISOString().split('T')[0];
+  const [savingSlot, setSavingSlot] = useState(false);
+  const [updatingRequestId, setUpdatingRequestId] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [expandedItems, setExpandedItems] = useState({});
 
   useEffect(() => {
-    const localUserString = localStorage.getItem("user") || sessionStorage.getItem("user");
-    if (localUserString) {
-      const parsedUser = JSON.parse(localUserString);
-      if (parsedUser?.email) {
-        setDoctorEmail(parsedUser.email);
+    try {
+      const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+      const user = storedUser ? JSON.parse(storedUser) : null;
+
+      if (user?.role && user.role !== 'doctor') {
+        setErrorMessage('This page is available only to doctor accounts.');
+      } else if (user?.email) {
+        setDoctorEmail(user.email.trim().toLowerCase());
+      } else {
+        setErrorMessage('Doctor account information was not found.');
       }
+    } catch {
+      setErrorMessage('Stored account information is invalid. Please sign in again.');
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
+  const fetchDashboard = useCallback(async () => {
     if (!doctorEmail) return;
 
-    const fetchRosterAndAppointments = async () => {
-      try {
-        setLoading(true);
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + 1;
+    const query = `email=${encodeURIComponent(doctorEmail)}&year=${year}&month=${month}`;
 
-        const res = await axios.get(
-          `${API_BASE_URL}/api/v1/doctors/availability?email=${encodeURIComponent(doctorEmail)}&year=${year}&month=${month}`
-        );
+    try {
+      setLoading(true);
+      setErrorMessage('');
 
-        const { defaultWeeklySlots: backendDefaults, customDayOverrides } = res.data.data;
-        
-        if (backendDefaults && backendDefaults.length > 0) {
-          setDefaultWeeklySlots(backendDefaults);
-        }
-        setDailyOverrides(customDayOverrides || {});
+      const [availabilityResponse, appointmentResponse] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/v1/doctors/availability?${query}`),
+        axios.get(`${API_BASE_URL}/api/v1/doctors/appointments?${query}`)
+      ]);
 
-        const mockRequests = [
-          { id: "REQ-901", patient: "Het Limbani", reason: "General Checkup", date: "2026-06-20", time: "11:00 - 11:50" },
-          { id: "REQ-902", patient: "Sarah Jenkins", reason: "Post-op Follow-up", date: "2026-06-21", time: "14:20 - 15:10" }
-        ];
-        setPendingRequests(mockRequests);
+      const availability = availabilityResponse.data.data || {};
+      const roster = appointmentResponse.data.data || {};
 
-        const mockAppointments = [
-          { id: "APT-101", patient: "David Miller", time: "10:00 - 10:50", date: "2026-06-18", status: "Confirmed" }
-        ];
-        setAppointments(mockAppointments);
-
-      } catch (err) {
-        console.error("Failed to compile synchronized clinical roster parameters.", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRosterAndAppointments();
-  }, [doctorEmail, currentDate, API_BASE_URL]);
-
-  const getSlotsForDate = (date) => {
-    const dateKey = getFormattedDate(date);
-    const day = date.getDay();
-    const isWeekend = (day === 0 || day === 6);
-
-    if (dailyOverrides[dateKey] !== undefined) {
-      return dailyOverrides[dateKey];
+      setDefaultWeeklySlots(
+        availability.defaultWeeklySlots?.length
+          ? availability.defaultWeeklySlots
+          : DEFAULT_SLOTS
+      );
+      setDailyOverrides(availability.customDayOverrides || {});
+      setPendingRequests(roster.pendingRequests || []);
+      setAppointments(roster.appointments || []);
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error, 'Unable to load the doctor schedule.'));
+    } finally {
+      setLoading(false);
     }
-    
-    return isWeekend ? [] : defaultWeeklySlots;
+  }, [API_BASE_URL, currentDate, doctorEmail]);
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
+  const getSlotsForDate = useCallback(
+    (date) => {
+      const dateKey = formatLocalDate(date);
+      if (Object.prototype.hasOwnProperty.call(dailyOverrides, dateKey)) {
+        return dailyOverrides[dateKey];
+      }
+
+      const day = date.getDay();
+      return day === 0 || day === 6 ? [] : defaultWeeklySlots;
+    },
+    [dailyOverrides, defaultWeeklySlots]
+  );
+
+  const allSlotOptions = useMemo(
+    () => [...new Set([...EXTRA_SLOTS, ...defaultWeeklySlots])].sort(),
+    [defaultWeeklySlots]
+  );
+
+  const bookedAppointments = useMemo(
+    () => [...pendingRequests, ...appointments],
+    [appointments, pendingRequests]
+  );
+
+  const saveOverride = async (dateKey, slots) => {
+    await axios.post(`${API_BASE_URL}/api/v1/doctors/availability/override`, {
+      email: doctorEmail,
+      date: dateKey,
+      slots
+    });
   };
 
   const handleToggleSlot = async (slot) => {
-    if (!doctorEmail) return;
-    
-    const dateKey = getFormattedDate(selectedDate);
+    if (!doctorEmail || savingSlot) return;
+
+    const dateKey = formatLocalDate(selectedDate);
     const currentSlots = getSlotsForDate(selectedDate);
-    
-    let updatedSlots;
-    if (currentSlots.includes(slot)) {
-      updatedSlots = currentSlots.filter(s => s !== slot);
-    } else {
-      updatedSlots = [...currentSlots, slot].sort();
-    }
+    const updatedSlots = currentSlots.includes(slot)
+      ? currentSlots.filter((currentSlot) => currentSlot !== slot)
+      : [...currentSlots, slot].sort();
 
     try {
-      setDailyOverrides(prev => ({ ...prev, [dateKey]: updatedSlots }));
-
-      await axios.post(`${API_BASE_URL}/api/v1/doctors/availability/override`, {
-        email: doctorEmail,
-        date: dateKey,
-        slots: updatedSlots
-      });
-    } catch (err) {
-      console.error("Failed to persist slot allocation change on backend database.", err);
+      setSavingSlot(true);
+      setErrorMessage('');
+      await saveOverride(dateKey, updatedSlots);
+      setDailyOverrides((current) => ({ ...current, [dateKey]: updatedSlots }));
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error, 'Unable to update this slot.'));
+    } finally {
+      setSavingSlot(false);
     }
   };
 
   const resetToDefault = async () => {
-    if (!doctorEmail) return;
+    if (!doctorEmail || savingSlot) return;
 
-    const dateKey = getFormattedDate(selectedDate);
-    
+    const dateKey = formatLocalDate(selectedDate);
+
     try {
-      const newOverrides = { ...dailyOverrides };
-      delete newOverrides[dateKey];
-      setDailyOverrides(newOverrides);
-
-      await axios.post(`${API_BASE_URL}/api/v1/doctors/availability/override`, {
-        email: doctorEmail,
-        date: dateKey,
-        slots: []
+      setSavingSlot(true);
+      setErrorMessage('');
+      await saveOverride(dateKey, null);
+      setDailyOverrides((current) => {
+        const next = { ...current };
+        delete next[dateKey];
+        return next;
       });
-    } catch (err) {
-      console.error("Failed to revert calendar node parameters back to presets.", err);
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error, 'Unable to restore the default schedule.'));
+    } finally {
+      setSavingSlot(false);
     }
   };
 
-  const handleAccept = (req) => {
-    setAppointments([...appointments, { ...req, status: "Confirmed" }]);
-    setPendingRequests(pendingRequests.filter(r => r.id !== req.id));
+  const updateRequestStatus = async (request, status) => {
+    try {
+      setUpdatingRequestId(request.id);
+      setErrorMessage('');
+
+      const response = await axios.patch(
+        `${API_BASE_URL}/api/v1/doctors/appointments/${request.id}/status`,
+        { email: doctorEmail, status }
+      );
+
+      setPendingRequests((current) => current.filter((item) => item.id !== request.id));
+      if (status === 'confirmed') {
+        setAppointments((current) => [...current, response.data.data].sort((a, b) =>
+          `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`)
+        ));
+      }
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error, `Unable to ${status} this request.`));
+    } finally {
+      setUpdatingRequestId(null);
+    }
   };
 
-  const daysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
-  const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+  const toggleExpandItem = (id) => {
+    setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
-  if (loading && appointments.length === 0 && pendingRequests.length === 0) {
-    return <div className="profile-loading">Assembling Clinical Timelines & Roster Matrices...</div>;
+  const changeMonth = (offset) => {
+    setCurrentDate((current) => {
+      const next = new Date(current.getFullYear(), current.getMonth() + offset, 1);
+      setSelectedDate(next);
+      return next;
+    });
+  };
+
+  const daysInMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    0
+  ).getDate();
+  const firstDayOfMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1
+  ).getDay();
+  const todayKey = formatLocalDate(new Date());
+
+  if (loading && !doctorEmail && !errorMessage) {
+    return (
+      <div className="dr-apt-root">
+        <div className="skeleton-header-box" />
+        <div className="dr-apt-grid">
+          <div className="dr-apt-card skeleton-card-height" />
+          <div className="dr-apt-side-stack">
+            <div className="dr-apt-card skeleton-card-half" />
+            <div className="dr-apt-card skeleton-card-half" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="dr-apt-root animate-fade-in">
-      
       <div className="dr-apt-header">
         <div className="header-text">
           <h1>Clinical Scheduling Console</h1>
-          <p>Manage your recurring availability and process patient consultation requests.</p>
+          <p>Manage your availability and patient consultation requests.</p>
         </div>
       </div>
 
+      {errorMessage && (
+        <div className="schedule-error" role="alert">
+          <AlertCircle size={16} />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
       <div className="dr-apt-grid">
-        
         <div className="dr-apt-card main-calendar-section">
           <div className="card-top">
             <CalendarIcon size={18} />
             <h3>Availability Planner</h3>
           </div>
 
-          <div className="calendar-widget">
-            <div className="cal-nav">
-              <button onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}><ChevronLeft size={18}/></button>
-              <span>{currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
-              <button onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}><ChevronRight size={18}/></button>
-            </div>
-            
-            <div className="cal-grid">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <div key={d} className="cal-day-label">{d}</div>)}
-              {Array(firstDayOfMonth).fill(null).map((_, i) => <div key={`empty-${i}`} />)}
-              {Array.from({ length: daysInMonth(currentDate.getFullYear(), currentDate.getMonth()) }).map((_, i) => {
-                const day = i + 1;
-                const dateObj = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-                const isSelected = getFormattedDate(dateObj) === getFormattedDate(selectedDate);
-                const hasAppointments = appointments.some(a => a.date === getFormattedDate(dateObj));
+          {loading ? (
+            <div className="skeleton-calendar-widget" />
+          ) : (
+            <div className="calendar-widget" aria-busy={loading}>
+              <div className="cal-nav">
+                <button type="button" aria-label="Previous month" onClick={() => changeMonth(-1)}>
+                  <ChevronLeft size={18} />
+                </button>
+                <span>
+                  {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
+                </span>
+                <button type="button" aria-label="Next month" onClick={() => changeMonth(1)}>
+                  <ChevronRight size={18} />
+                </button>
+              </div>
 
-                return (
-                  <div 
-                    key={day} 
-                    className={`cal-date-node ${isSelected ? 'active' : ''} ${hasAppointments ? 'has-apt' : ''}`}
-                    onClick={() => setSelectedDate(dateObj)}
-                  >
-                    {day}
-                    {hasAppointments && <span className="apt-dot"></span>}
-                  </div>
-                );
-              })}
+              <div className="cal-grid">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                  <div key={day} className="cal-day-label">{day}</div>
+                ))}
+                {Array.from({ length: firstDayOfMonth }, (_, index) => (
+                  <div key={`empty-${index}`} />
+                ))}
+                {Array.from({ length: daysInMonth }, (_, index) => {
+                  const day = index + 1;
+                  const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                  const dateKey = formatLocalDate(date);
+                  const isSelected = dateKey === formatLocalDate(selectedDate);
+                  const hasAppointments = bookedAppointments.some((item) => item.date === dateKey);
+
+                  return (
+                    <button
+                      type="button"
+                      key={dateKey}
+                      className={`cal-date-node ${isSelected ? 'active' : ''} ${hasAppointments ? 'has-apt' : ''}`}
+                      onClick={() => setSelectedDate(date)}
+                    >
+                      {day}
+                      {hasAppointments && <span className="apt-dot" />}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="slot-editor-area">
             <div className="editor-header">
               <h4>Manage Slots for {selectedDate.toDateString()}</h4>
-              <button className="reset-btn" onClick={resetToDefault}><Undo2 size={14}/> Use Default</button>
+              <button type="button" className="reset-btn" disabled={savingSlot} onClick={resetToDefault}>
+                <Undo2 size={14} /> Use Default
+              </button>
             </div>
-            <div className="slots-flex-container">
-              {["08:00 - 08:50", "09:00 - 09:50", ...defaultWeeklySlots, "18:00 - 18:50"].filter((v, i, a) => a.indexOf(v) === i).sort().map(slot => {
-                const isActive = getSlotsForDate(selectedDate).includes(slot);
-                const isBooked = appointments.some(a => a.date === getFormattedDate(selectedDate) && a.time === slot);
+            {loading ? (
+              <div className="skeleton-slots-row" />
+            ) : (
+              <div className="slots-flex-container">
+                {allSlotOptions.map((slot) => {
+                  const dateKey = formatLocalDate(selectedDate);
+                  const isActive = getSlotsForDate(selectedDate).includes(slot);
+                  const isBooked = bookedAppointments.some(
+                    (item) => item.date === dateKey && item.time === slot
+                  );
 
-                return (
-                  <button 
-                    key={slot}
-                    disabled={isBooked}
-                    className={`slot-pill ${isActive ? 'active' : ''} ${isBooked ? 'booked' : ''}`}
-                    onClick={() => handleToggleSlot(slot)}
-                  >
-                    {slot}
-                    {isBooked && <Clock size={12} />}
-                  </button>
-                );
-              })}
-            </div>
-            <p className="helper-text">* Click a slot to enable/disable it for this specific date only.</p>
+                  return (
+                    <button
+                      type="button"
+                      key={slot}
+                      disabled={isBooked || savingSlot}
+                      className={`slot-pill ${isActive ? 'active' : ''} ${isBooked ? 'booked' : ''}`}
+                      onClick={() => handleToggleSlot(slot)}
+                    >
+                      {slot}
+                      {isBooked && <Clock size={12} />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
         <div className="dr-apt-side-stack">
-          
           <div className="dr-apt-card requests-panel">
             <div className="card-top">
               <AlertCircle size={18} className="text-warn" />
               <h3>Pending Proposals</h3>
             </div>
             <div className="requests-list">
-              {pendingRequests.length > 0 ? pendingRequests.map(req => (
-                <div key={req.id} className="request-item animate-slide-up">
-                  <div className="req-info">
-                    <strong>{req.patient}</strong>
-                    <span>{req.reason}</span>
-                    <small>{req.date} @ {req.time}</small>
+              {loading ? (
+                <>
+                  <div className="skeleton-item" />
+                  <div className="skeleton-item" />
+                </>
+              ) : pendingRequests.length ? (
+                pendingRequests.map((request) => (
+                  <div key={request.id} className="request-item animate-slide-up structural-item-container">
+                    <div className="item-primary-row">
+                      <div className="req-info" onClick={() => toggleExpandItem(request.id)}>
+                        <div className="name-with-toggle">
+                          <strong>{request.patient}</strong>
+                          <span className="info-toggle-chevron">
+                            {expandedItems[request.id] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                          </span>
+                        </div>
+                        <small>{request.date} @ {request.time}</small>
+                      </div>
+                      <div className="req-actions">
+                        <button
+                          type="button"
+                          className="btn-icon den"
+                          aria-label="Reject request"
+                          disabled={updatingRequestId === request.id}
+                          onClick={() => updateRequestStatus(request, 'rejected')}
+                        >
+                          <X size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-icon acc"
+                          aria-label="Confirm request"
+                          disabled={updatingRequestId === request.id}
+                          onClick={() => updateRequestStatus(request, 'confirmed')}
+                        >
+                          <Check size={16} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {expandedItems[request.id] && (
+                      <div className="item-expanded-details animate-slide-up">
+                        <div className="detail-meta-block">
+                          <span className="meta-icon-label"><FileText size={12} /> Reason/Symptoms:</span>
+                          <p className="meta-value-text">{request.reason || 'No description supplied.'}</p>
+                        </div>
+                        <div className="detail-meta-block">
+                          <span className="meta-icon-label"><User size={12} /> Contact Email:</span>
+                          <p className="meta-value-text">{request.patientEmail || 'N/A'}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="req-actions">
-                    <button className="btn-icon den" onClick={() => setPendingRequests(pendingRequests.filter(r => r.id !== req.id))}><X size={16}/></button>
-                    <button className="btn-icon acc" onClick={() => handleAccept(req)}><Check size={16}/></button>
-                  </div>
-                </div>
-              )) : <p className="empty-msg">No pending requests.</p>}
+                ))
+              ) : (
+                <p className="empty-msg">No pending requests.</p>
+              )}
             </div>
           </div>
 
@@ -252,20 +423,50 @@ export default function DoctorAppointmentManagement() {
               <h3>Upcoming Schedule</h3>
             </div>
             <div className="schedule-list">
-              {appointments.filter(a => new Date(a.date) >= new Date(getFormattedDate(new Date()))).map(apt => (
-                <div key={apt.id} className="apt-item">
-                  <div className="apt-time-badge">{apt.time.split(' ')[0]}</div>
-                  <div className="apt-details">
-                    <strong>{apt.patient}</strong>
-                    <span>{apt.date}</span>
-                  </div>
-                </div>
-              ))}
+              {loading ? (
+                <>
+                  <div className="skeleton-item" />
+                  <div className="skeleton-item" />
+                </>
+              ) : (
+                <>
+                  {appointments.filter((appointment) => appointment.date >= todayKey).map((appointment) => (
+                    <div key={appointment.id} className="apt-item structural-item-container flex-direction-column">
+                      <div className="item-primary-row" onClick={() => toggleExpandItem(appointment.id)}>
+                        <div className="apt-time-badge">{appointment.time.split(' ')[0]}</div>
+                        <div className="apt-details">
+                          <div className="name-with-toggle">
+                            <strong>{appointment.patient}</strong>
+                            <span className="info-toggle-chevron">
+                              {expandedItems[appointment.id] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                            </span>
+                          </div>
+                          <span>{appointment.date}</span>
+                        </div>
+                      </div>
+
+                      {expandedItems[appointment.id] && (
+                        <div className="item-expanded-details animate-slide-up style-bordered-top">
+                          <div className="detail-meta-block">
+                            <span className="meta-icon-label"><FileText size={12} /> Clinical Record Status:</span>
+                            <p className="meta-value-text">{appointment.reason || 'Routine Checkup / Consultation visit.'}</p>
+                          </div>
+                          <div className="detail-meta-block">
+                            <span className="meta-icon-label"><User size={12} /> Patient Email:</span>
+                            <p className="meta-value-text">{appointment.patientEmail || 'N/A'}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {!appointments.some((appointment) => appointment.date >= todayKey) && (
+                    <p className="empty-msg">No confirmed appointments.</p>
+                  )}
+                </>
+              )}
             </div>
           </div>
-
         </div>
-
       </div>
     </div>
   );

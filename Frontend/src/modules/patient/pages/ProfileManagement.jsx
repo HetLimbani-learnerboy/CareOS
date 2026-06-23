@@ -24,7 +24,6 @@ export default function ProfileManagement() {
             try {
                 const localUserString = localStorage.getItem("user") || sessionStorage.getItem("user");
                 let storedEmail = "";
-
                 let parsedUser = null;
 
                 if (localUserString) {
@@ -39,7 +38,6 @@ export default function ProfileManagement() {
                 }
 
                 const res = await axios.get(`${API_BASE_URL}/api/v1/patients/profile?email=${encodeURIComponent(storedEmail)}`);
-
                 const { identity, medical } = res.data.data;
 
                 const loadedData = {
@@ -103,9 +101,7 @@ export default function ProfileManagement() {
         try {
             setSaving(true);
             setMessage({ type: "", text: "" });
-
             await axios.put(`${API_BASE_URL}/api/v1/patients/profile`, formData);
-
             setMessage({ type: "success", text: "All record updates committed successfully!" });
             alert("Profile information updated successfully.");
         } catch (err) {
@@ -115,10 +111,36 @@ export default function ProfileManagement() {
         }
     };
 
-    if (loading) return <div className="profile-loading">Assembling Patient Data Records...</div>;
+    if (loading) {
+        return (
+            <div className="profile-management-view">
+                <div className="skeleton-hero-card" />
+                <div className="profile-form-wrapper">
+                    <div className="profile-form-section">
+                        <div className="skeleton-section-header" />
+                        <div className="form-grid-layout">
+                            <div className="skeleton-input-box" />
+                            <div className="skeleton-input-box" />
+                            <div className="skeleton-input-box" />
+                            <div className="skeleton-input-box" />
+                        </div>
+                    </div>
+                    <div className="profile-form-section">
+                        <div className="skeleton-section-header" />
+                        <div className="form-grid-layout">
+                            <div className="skeleton-input-box" />
+                            <div className="skeleton-input-box" />
+                            <div className="skeleton-input-box" />
+                            <div className="skeleton-input-box full-width-grid" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="profile-management-view">
+        <div className="profile-management-view animate-fade-in">
             <form onSubmit={handleProfileFormSubmit} className="profile-form-wrapper">
 
                 <div className="profile-hero-card">

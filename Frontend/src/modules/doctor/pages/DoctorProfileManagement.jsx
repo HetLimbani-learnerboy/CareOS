@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import axiosInstance from "axios";
 import { User, Award, Briefcase, Phone, MapPin, FileText, Save, CheckCircle } from "lucide-react";
 import "../style/DoctorProfileManagement.css";
 
@@ -34,6 +35,7 @@ export default function DoctorProfileManagement() {
 
     const fetchProfileData = async () => {
       try {
+        setLoading(true);
         const res = await axios.get(`${API_BASE_URL}/api/v1/doctors/profile?email=${encodeURIComponent(email)}`);
         const { user, profile } = res.data.data;
         
@@ -77,10 +79,6 @@ export default function DoctorProfileManagement() {
     }
   };
 
-  if (loading && formData.first_name === "") {
-    return <div className="profile-loading">Fetching Cloud Practitioner Ledger Metrics...</div>;
-  }
-
   return (
     <div className="dr-profile-wrapper animate-fade-in">
       <div className="dr-profile-header">
@@ -94,75 +92,105 @@ export default function DoctorProfileManagement() {
         </div>
       )}
 
-      <form className="dr-profile-form-grid" onSubmit={handleSubmit}>
-        
-        <div className="form-card-column main-inputs">
-          <div className="section-legend-header"><User size={16}/> Base System Accounts (Identity Data)</div>
-          
-          <div className="inputs-dual-flex-row">
-            <div className="profile-input-node">
-              <label>First Name</label>
-              <input type="text" value={formData.first_name} disabled className="disabled-field" />
+      {loading && formData.first_name === "" ? (
+        <div className="dr-profile-form-grid">
+          <div className="form-card-column main-inputs">
+            <div className="skeleton-legend" />
+            <div className="inputs-dual-flex-row">
+              <div className="skeleton-input-node" />
+              <div className="skeleton-input-node" />
             </div>
-            <div className="profile-input-node">
-              <label>Last Name</label>
-              <input type="text" value={formData.last_name} disabled className="disabled-field" />
+            <div className="inputs-dual-flex-row">
+              <div className="skeleton-input-node" />
+              <div className="skeleton-input-node" />
             </div>
-          </div>
-
-          <div className="inputs-dual-flex-row">
-            <div className="profile-input-node">
-              <label>Account Email</label>
-              <input type="email" value={email} disabled className="disabled-field" />
+            <div className="skeleton-legend" />
+            <div className="inputs-dual-flex-row">
+              <div className="skeleton-input-node" />
+              <div className="skeleton-input-node" />
             </div>
-            <div className="profile-input-node">
-              <label><Phone size={12}/> Contact Cell Number</label>
-              <input type="text" name="phone" required value={formData.phone} onChange={handleChange} />
+            <div className="inputs-dual-flex-row">
+              <div className="skeleton-input-node" />
+              <div className="skeleton-input-node" />
             </div>
           </div>
-
-          <div className="section-legend-header"><Award size={16}/> Clinical Competency & Core Domain</div>
-          
-          <div className="inputs-dual-flex-row">
-            <div className="profile-input-node">
-              <label>Specialization Structure</label>
-              <input type="text" name="specialization" required placeholder="e.g., General Medicine, Cardiology" value={formData.specialization} onChange={handleChange} />
-            </div>
-            <div className="profile-input-node">
-              <label>Qualification Standards</label>
-              <input type="text" name="qualification" required placeholder="e.g., MBBS, MD, FRCP" value={formData.qualification} onChange={handleChange} />
-            </div>
-          </div>
-
-          <div className="inputs-dual-flex-row">
-            <div className="profile-input-node">
-              <label><Briefcase size={12}/> Experience Commencement Date</label>
-              <input type="date" name="experience_start_date" required value={formData.experience_start_date} onChange={handleChange} />
-            </div>
-            <div className="profile-input-node">
-              <label style={{ gap: "2px" }}><span>₹</span> Base Standard Consultation Fee (INR)</label>
-              <input type="number" name="consultation_fee" required value={formData.consultation_fee} onChange={handleChange} />
-            </div>
+          <div className="form-card-column supplementary-inputs">
+            <div className="skeleton-legend" />
+            <div className="skeleton-textarea-node structural-height-short" />
+            <div className="skeleton-legend" />
+            <div className="skeleton-textarea-node structural-height-tall" />
+            <div className="skeleton-btn-node" />
           </div>
         </div>
+      ) : (
+        <form className="dr-profile-form-grid" onSubmit={handleSubmit}>
+          <div className="form-card-column main-inputs">
+            <div className="section-legend-header"><User size={16}/> Base System Accounts (Identity Data)</div>
+            
+            <div className="inputs-dual-flex-row">
+              <div className="profile-input-node">
+                <label>First Name</label>
+                <input type="text" value={formData.first_name} disabled className="disabled-field" />
+              </div>
+              <div className="profile-input-node">
+                <label>Last Name</label>
+                <input type="text" value={formData.last_name} disabled className="disabled-field" />
+              </div>
+            </div>
 
-        <div className="form-card-column supplementary-inputs">
-          <div className="section-legend-header"><MapPin size={16}/> Practice Facility Address</div>
-          <div className="profile-input-node">
-            <textarea name="clinic_address" required rows="3" placeholder="Enter explicit hospital or room office details..." value={formData.clinic_address} onChange={handleChange} />
+            <div className="inputs-dual-flex-row">
+              <div className="profile-input-node">
+                <label>Account Email</label>
+                <input type="email" value={email} disabled className="disabled-field" />
+              </div>
+              <div className="profile-input-node">
+                <label><Phone size={12}/> Contact Cell Number</label>
+                <input type="text" name="phone" required value={formData.phone} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div className="section-legend-header"><Award size={16}/> Clinical Competency & Core Domain</div>
+            
+            <div className="inputs-dual-flex-row">
+              <div className="profile-input-node">
+                <label>Specialization Structure</label>
+                <input type="text" name="specialization" required placeholder="e.g., General Medicine, Cardiology" value={formData.specialization} onChange={handleChange} />
+              </div>
+              <div className="profile-input-node">
+                <label>Qualification Standards</label>
+                <input type="text" name="qualification" required placeholder="e.g., MBBS, MD, FRCP" value={formData.qualification} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div className="inputs-dual-flex-row">
+              <div className="profile-input-node">
+                <label><Briefcase size={12}/> Experience Commencement Date</label>
+                <input type="date" name="experience_start_date" required value={formData.experience_start_date} onChange={handleChange} />
+              </div>
+              <div className="profile-input-node">
+                <label style={{ gap: "2px" }}><span>₹</span> Base Standard Consultation Fee (INR)</label>
+                <input type="number" name="consultation_fee" required value={formData.consultation_fee} onChange={handleChange} />
+              </div>
+            </div>
           </div>
 
-          <div className="section-legend-header"><FileText size={16}/> Practitioner Narrative Professional Bio</div>
-          <div className="profile-input-node">
-            <textarea name="bio" rows="6" placeholder="Draft summary definitions outlining background milestones, treatments profiles..." value={formData.bio} onChange={handleChange} />
+          <div className="form-card-column supplementary-inputs">
+            <div className="section-legend-header"><MapPin size={16}/> Practice Facility Address</div>
+            <div className="profile-input-node">
+              <textarea name="clinic_address" required rows="3" placeholder="Enter explicit hospital or room office details..." value={formData.clinic_address} onChange={handleChange} />
+            </div>
+
+            <div className="section-legend-header"><FileText size={16}/> Practitioner Narrative Professional Bio</div>
+            <div className="profile-input-node">
+              <textarea name="bio" rows="6" placeholder="Draft summary definitions outlining background milestones, treatments profiles..." value={formData.bio} onChange={handleChange} />
+            </div>
+
+            <button type="submit" className="profile-save-cta-btn" disabled={loading}>
+              <Save size={16} /> Save Profile Records
+            </button>
           </div>
-
-          <button type="submit" className="profile-save-cta-btn" disabled={loading}>
-            <Save size={16} /> Save Profile Records
-          </button>
-        </div>
-
-      </form>
+        </form>
+      )}
     </div>
   );
 }
