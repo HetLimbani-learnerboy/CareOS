@@ -66,6 +66,7 @@ export const findPublicDoctorProfile = async (email) => {
 
 export const findPatientAppointments = async (email) => {
   const patient = await resolvePatient(email);
+  
   const appointments = await Appointment.find({
     patient_id: patient._id,
     status: { $ne: 'cancelled' }
@@ -74,19 +75,32 @@ export const findPatientAppointments = async (email) => {
     .sort({ appointment_date: 1, time_slot: 1 })
     .lean();
 
-  return appointments
-    .filter((appointment) => appointment.doctor_id)
-    .map((appointment) => ({
-      id: String(appointment._id),
-      doctorName: `Dr. ${appointment.doctor_id.firstName} ${appointment.doctor_id.lastName}`.trim(),
-      doctorEmail: appointment.doctor_id.email,
-      specialization: appointment.specialization,
-      date: appointment.appointment_date,
-      time: appointment.time_slot,
-      status: appointment.status
-    }));
-};
+  const filteredAppointments = appointments.filter((app) => app.doctor_id);
 
+  const structuredAppointments = await Promise.all(
+    filteredAppointments.map(async (appointment) => {
+      const profile = await DoctorProfile.findOne({ doctor_id: appointment.doctor_id._id })
+        .select('clinic_address consultation_fee qualification')
+        .lean();
+
+      return {
+        id: String(appointment._id),
+        doctorName: `Dr. ${appointment.doctor_id.firstName} ${appointment.doctor_id.lastName}`.trim(),
+        doctorEmail: appointment.doctor_id.email,
+        specialization: appointment.specialization,
+        date: appointment.appointment_date,
+        time: appointment.time_slot,
+        status: appointment.status,
+        reason_for_visit: appointment.reason_for_visit || "",
+        qualification: profile?.qualification || "N/A",
+        consultation_fee: profile?.consultation_fee || 0,
+        clinic_address: profile?.clinic_address || "N/A"
+      };
+    })
+  );
+
+  return structuredAppointments;
+};
 export const cancelAppointment = async ({ patientEmail, appointmentId }) => {
   if (!mongoose.isValidObjectId(appointmentId)) {
     throw httpError(400, 'A valid appointment ID is required.');

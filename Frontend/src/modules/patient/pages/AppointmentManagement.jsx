@@ -1,11 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import axiosInstance from "axios";
 import { 
   Calendar as CalendarIcon, Clock, AlertCircle, 
   ChevronLeft, ChevronRight, CalendarPlus, FileText, Activity,
-  Award, MapPin
+  Award, MapPin, ChevronDown, ChevronUp, User, CreditCard
 } from "lucide-react";
 import "../style/AppointmentManagement.css";
+
+const isPastTimeSlot = (appointmentDate, timeSlotString) => {
+  const getFormattedDate = (date) => date.toISOString().split('T')[0];
+  const todayStr = getFormattedDate(new Date());
+
+  if (appointmentDate < todayStr) return true;
+  if (appointmentDate > todayStr) return false;
+
+  try {
+    const startTimeStr = timeSlotString.split('-')[0].trim();
+    const [hours, minutes] = startTimeStr.split(':').map(Number);
+
+    const currentTime = new Date();
+    const slotTime = new Date();
+    slotTime.setHours(hours, minutes, 0, 0);
+
+    return currentTime > slotTime;
+  } catch (err) {
+    return false; 
+  }
+};
 
 export default function AppointmentManagement() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -21,6 +43,7 @@ export default function AppointmentManagement() {
   const [editingAppointmentId, setEditingAppointmentId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [slotsLoading, setSlotsLoading] = useState(false);
+  const [expandedAptIds, setExpandedAptIds] = useState({});
 
   const [bookingForm, setBookingForm] = useState({
     specialization: "",
@@ -32,6 +55,9 @@ export default function AppointmentManagement() {
   });
 
   const specializationsList = ["General Medicine", "Physiotherapy", "Cardiology", "Neurology"];
+
+  const getFormattedDate = (date) => date.toISOString().split('T')[0];
+  const todayStr = getFormattedDate(new Date());
 
   useEffect(() => {
     const localUserString = localStorage.getItem("user") || sessionStorage.getItem("user");
@@ -49,7 +75,7 @@ export default function AppointmentManagement() {
     if (!patientData.email) return;
     try {
       setLoading(true);
-      const res = await axios.get(`${API_BASE_URL}/api/v1/patients/booked-ledger?email=${encodeURIComponent(patientData.email)}`);
+      const res = await axiosInstance.get(`${API_BASE_URL}/api/v1/patients/booked-ledger?email=${encodeURIComponent(patientData.email)}`);
       setAppointments(res.data.data || []);
     } catch (err) {
       console.error("Failed to query systemic booking records layout.", err);
@@ -69,7 +95,7 @@ export default function AppointmentManagement() {
     }
     const fetchDoctors = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/v1/patients/doctors-by-spec?specialization=${encodeURIComponent(bookingForm.specialization)}`);
+        const res = await axiosInstance.get(`${API_BASE_URL}/api/v1/patients/doctors-by-spec?specialization=${encodeURIComponent(bookingForm.specialization)}`);
         setDoctorsFromDb(res.data.data || []);
       } catch (err) {
         console.error("Failed to pull matching specialized clinicians.", err);
@@ -91,8 +117,8 @@ export default function AppointmentManagement() {
         const month = currentCalDate.getMonth() + 1;
 
         const [slotsRes, profileRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/v1/patients/doctor-slots-live?email=${encodeURIComponent(bookingForm.doctorEmail)}&year=${year}&month=${month}`),
-          axios.get(`${API_BASE_URL}/api/v1/patients/public-doctor-meta?email=${encodeURIComponent(bookingForm.doctorEmail)}`)
+          axiosInstance.get(`${API_BASE_URL}/api/v1/patients/doctor-slots-live?email=${encodeURIComponent(bookingForm.doctorEmail)}&year=${year}&month=${month}`),
+          axiosInstance.get(`${API_BASE_URL}/api/v1/patients/public-doctor-meta?email=${encodeURIComponent(bookingForm.doctorEmail)}`)
         ]);
 
         setDoctorAvailability(slotsRes.data.data || { defaultWeeklySlots: [], customDayOverrides: {}, activeBookings: [] });
@@ -107,13 +133,14 @@ export default function AppointmentManagement() {
     fetchDoctorMetadataAndSlots();
   }, [bookingForm.doctorEmail, currentCalDate, API_BASE_URL]);
 
-  const getFormattedDate = (date) => date.toISOString().split('T')[0];
-
   const getSlotsForDate = (dateStr) => {
     if (!dateStr || !doctorAvailability) return [];
-    const dateObj = new Date(dateStr);
-    const day = dateObj.getDay();
-    const isWeekend = (day === 0 || day === 6);
+    if (dateStr < todayStr) return [];
+    
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const dateObj = new Date(year, month - 1, day);
+    const dayOfWeek = dateObj.getDay();
+    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
 
     if (doctorAvailability.customDayOverrides?.[dateStr] !== undefined) {
       return doctorAvailability.customDayOverrides[dateStr];
@@ -128,13 +155,14 @@ export default function AppointmentManagement() {
 
   const handleDateSelect = (dateObj) => {
     const formatted = getFormattedDate(dateObj);
+    if (formatted < todayStr) return;
     setBookingForm(prev => ({ ...prev, selectedDate: formatted, selectedTime: "" }));
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE_URL}/api/v1/patients/book-request`, {
+      await axiosInstance.post(`${API_BASE_URL}/api/v1/patients/book-request`, {
         patientEmail: patientData.email,
         doctorEmail: bookingForm.doctorEmail,
         date: bookingForm.selectedDate,
@@ -154,12 +182,13 @@ export default function AppointmentManagement() {
   };
 
   const handleTriggerReschedule = (apt) => {
+    if (apt.status === "rejected" || apt.status === "cancelled" || isPastTimeSlot(apt.date, apt.time)) return;
     setEditingAppointmentId(apt.id);
     setBookingForm({
       specialization: apt.specialization || "General Medicine",
       doctorEmail: apt.doctorEmail,
-      selectedDate: apt.date,
-      selectedTime: apt.time,
+      selectedDate: apt.date >= todayStr ? apt.date : "",
+      selectedTime: apt.date >= todayStr ? apt.time : "",
       symptoms: "Requesting schedule adjustment baseline configuration.",
       additionalNotes: ""
     });
@@ -169,7 +198,7 @@ export default function AppointmentManagement() {
   const handleCancelAppointment = async (id) => {
     if (window.confirm("Are you sure you want to drop this medical timeline consultation reservation?")) {
       try {
-        await axios.post(`${API_BASE_URL}/api/v1/patients/book-request`, {
+        await axiosInstance.post(`${API_BASE_URL}/api/v1/patients/book-request`, {
           patientEmail: patientData.email,
           appointmentId: id,
           time: "", 
@@ -189,8 +218,130 @@ export default function AppointmentManagement() {
     return Math.abs(new Date(ageDifMs).getUTCFullYear() - 1970);
   };
 
+  const toggleAccordion = (id) => {
+    setExpandedAptIds(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const daysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), 1).getDay();
+
+  const getStatusLabel = (status, date, time) => {
+    if (isPastTimeSlot(date, time) && status === "confirmed") return "Concluded Session";
+    if (status === "confirmed") return "Active Schedule";
+    if (status === "rejected") return "Request Declined";
+    if (status === "cancelled") return "Cancelled Visit";
+    return "Awaiting Signoff";
+  };
+
+  const sortChronologically = (a, b) => {
+    if (a.date !== b.date) {
+      return a.date.localeCompare(b.date);
+    }
+    return a.time.localeCompare(b.time);
+  };
+
+  const categorizedLedgers = useMemo(() => {
+    const lists = { confirmed: [], pending: [], visited: [], cancelled: [] };
+
+    appointments.forEach((apt) => {
+      const isPast = isPastTimeSlot(apt.date, apt.time);
+      if (apt.status === "cancelled" || apt.status === "rejected") {
+        lists.cancelled.push(apt);
+      } else if (isPast && apt.status === "confirmed") {
+        lists.visited.push(apt);
+      } else if (apt.status === "confirmed") {
+        lists.confirmed.push(apt);
+      } else if (apt.status === "pending") {
+        lists.pending.push(apt);
+      }
+    });
+
+    lists.confirmed.sort(sortChronologically);
+    lists.pending.sort(sortChronologically);
+    lists.visited.sort(sortChronologically);
+    lists.cancelled.sort(sortChronologically);
+
+    return lists;
+  }, [appointments]);
+
+  const renderAppointmentCardList = (list) => {
+    return list.map((apt) => {
+      const isStatusLocked = apt.status === "rejected" || apt.status === "cancelled";
+      const isPastTimeline = isPastTimeSlot(apt.date, apt.time);
+      const isTotalLocked = isStatusLocked || isPastTimeline;
+      const isExpanded = !!expandedAptIds[apt.id];
+
+      return (
+        <div key={apt.id} className={`appointment-wrapper-node ${isTotalLocked ? 'card-state-locked' : ''} animate-slide-up`}>
+          <div className="appointment-matrix-card">
+            <div className="card-primary-details" onClick={() => toggleAccordion(apt.id)}>
+              <div className="details-interactive-header">
+                <span className={`status-pill ${isPastTimeline && apt.status === "confirmed" ? "concluded" : apt.status}`}>
+                  {getStatusLabel(apt.status, apt.date, apt.time)}
+                </span>
+                <button type="button" className="accordion-expand-toggle-btn">
+                  {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+              </div>
+              <h3>{apt.doctorName}</h3>
+              <p className="specialization-meta">{apt.specialization}</p>
+              <div className="meta-timeline-line">
+                <span><CalendarIcon size={14} /> {apt.date}</span>
+                <span><Clock size={14} /> {apt.time}</span>
+              </div>
+            </div>
+            <div className="card-operational-actions">
+              <button 
+                className="action-btn opt-reschedule" 
+                disabled={isTotalLocked}
+                onClick={() => handleTriggerReschedule(apt)}
+              >
+                Reschedule
+              </button>
+              <button 
+                className="action-btn opt-cancel" 
+                disabled={isTotalLocked}
+                onClick={() => handleCancelAppointment(apt.id)}
+              >
+                Cancel Visit
+              </button>
+            </div>
+          </div>
+
+          {isExpanded && (
+            <div className="appointment-dropdown-details-panel">
+              <div className="details-panel-grid">
+                <div className="panel-meta-node">
+                  <span className="meta-label"><User size={12} /> Clinical Category Structure</span>
+                  <p className="meta-value">{apt.specialization || "General Medicine"}</p>
+                </div>
+                <div className="panel-meta-node">
+                  <span className="meta-label"><CreditCard size={12} /> Communication Route Target</span>
+                  <p className="meta-value">{apt.doctorEmail || "N/A"}</p>
+                </div>
+                <div className="panel-meta-node">
+                  <span className="meta-label"><Award size={12} /> Professional Qualification</span>
+                  <p className="meta-value">{apt.qualification || "N/A"}</p>
+                </div>
+                <div className="panel-meta-node">
+                  <span className="meta-label">₹ Base Consultation Fee</span>
+                  <p className="meta-value currency">₹{apt.consultation_fee || 0}</p>
+                </div>
+                <div className="panel-meta-node full-width">
+                  <span className="meta-label"><MapPin size={12} /> Registered Practice Facility Address</span>
+                  <p className="meta-value">{apt.clinic_address || "N/A"}</p>
+                </div>
+                <div className="panel-meta-node full-width">
+                  <span className="meta-label"><FileText size={12} /> Documented Intake Presenting Symptoms</span>
+                  <p className="meta-value symptoms-block">{apt.reason_for_visit || "No symptoms documented."}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    });
+  };
 
   return (
     <div className="pt-apt-root animate-fade-in">
@@ -279,16 +430,18 @@ export default function AppointmentManagement() {
                         const isSlotTaken = doctorAvailability.activeBookings?.some(
                           b => b.date === bookingForm.selectedDate && b.time === slot
                         );
+                        const isPastSlot = isPastTimeSlot(bookingForm.selectedDate, slot);
+                        const isNodeDisabled = isSlotTaken || isPastSlot;
 
                         return (
                           <button 
                             type="button" 
-                            disabled={isSlotTaken}
+                            disabled={isNodeDisabled}
                             key={slot} 
-                            className={`slot-pill-node ${bookingForm.selectedTime === slot ? 'active' : ''} ${isSlotTaken ? 'booked' : ''}`}
-                            onClick={() => !isSlotTaken && setBookingForm(prev => ({ ...prev, selectedTime: slot }))}
+                            className={`slot-pill-node ${bookingForm.selectedTime === slot ? 'active' : ''} ${isSlotTaken ? 'booked' : ''} ${isPastSlot ? 'past-lockout' : ''}`}
+                            onClick={() => !isNodeDisabled && setBookingForm(prev => ({ ...prev, selectedTime: slot }))}
                           >
-                            {slot} {isSlotTaken && "(Booked)"}
+                            {slot} {isSlotTaken && "(Booked)"} {isPastSlot && "(Passed)"}
                           </button>
                         );
                       })
@@ -341,13 +494,18 @@ export default function AppointmentManagement() {
                     {Array.from({ length: daysInMonth(currentCalDate.getFullYear(), currentCalDate.getMonth()) }).map((_, i) => {
                       const day = i + 1;
                       const loopDate = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), day);
-                      const isSelected = getFormattedDate(loopDate) === bookingForm.selectedDate;
-                      const hasSlots = getSlotsForDate(getFormattedDate(loopDate)).length > 0;
+                      const loopDateStr = getFormattedDate(loopDate);
+                      
+                      const dayOfWeek = loopDate.getDay();
+                      const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+                      const isPast = loopDateStr < todayStr;
+                      const isSelected = loopDateStr === bookingForm.selectedDate;
+                      const hasSlots = getSlotsForDate(loopDateStr).length > 0 && !isPast && !isWeekend;
 
                       return (
                         <div 
                           key={day} 
-                          className={`cal-matrix-node ${isSelected ? 'active' : ''} ${hasSlots ? 'open-slots' : 'blocked-slots'}`}
+                          className={`cal-matrix-node ${isSelected ? 'active' : ''} ${hasSlots ? 'open-slots' : 'blocked-slots'} ${isPast ? 'historical-node' : ''} ${isWeekend ? 'holiday-node' : ''}`}
                           onClick={() => hasSlots && handleDateSelect(loopDate)}
                         >
                           {day}
@@ -392,29 +550,35 @@ export default function AppointmentManagement() {
               <div className="skeleton-ledger-card" />
             </>
           ) : appointments.length > 0 ? (
-            appointments.map((apt) => (
-              <div key={apt.id} className="appointment-matrix-card">
-                <div className="card-primary-details">
-                  <span className={`status-pill ${apt.status}`}>
-                    {apt.status === "confirmed" ? "Active Schedule" : "Awaiting Signoff"}
-                  </span>
-                  <h3>{apt.doctorName}</h3>
-                  <p className="specialization-meta">{apt.specialization}</p>
-                  <div className="meta-timeline-line">
-                    <span><CalendarIcon size={14} /> {apt.date}</span>
-                    <span><Clock size={14} /> {apt.time}</span>
-                  </div>
-                </div>
-                <div className="card-operational-actions">
-                  <button className="action-btn opt-reschedule" onClick={() => handleTriggerReschedule(apt)}>
-                    Reschedule
-                  </button>
-                  <button className="action-btn opt-cancel" onClick={() => handleCancelAppointment(apt.id)}>
-                    Cancel Visit
-                  </button>
+            <>
+              <div className="ledger-categorical-section">
+                <div className="section-category-title title-confirmed">Upcoming Confirmed Sessions ({categorizedLedgers.confirmed.length})</div>
+                <div className="section-category-nodes-stack">
+                  {categorizedLedgers.confirmed.length > 0 ? renderAppointmentCardList(categorizedLedgers.confirmed) : <p className="empty-sub-msg">No active confirmed appointments.</p>}
                 </div>
               </div>
-            ))
+
+              <div className="ledger-categorical-section">
+                <div className="section-category-title title-pending">Upcoming Awaiting Signoff ({categorizedLedgers.pending.length})</div>
+                <div className="section-category-nodes-stack">
+                  {categorizedLedgers.pending.length > 0 ? renderAppointmentCardList(categorizedLedgers.pending) : <p className="empty-sub-msg">No appointments awaiting signoff.</p>}
+                </div>
+              </div>
+
+              <div className="ledger-categorical-section">
+                <div className="section-category-title title-visited">Concluded / Visited Sessions ({categorizedLedgers.visited.length})</div>
+                <div className="section-category-nodes-stack">
+                  {categorizedLedgers.visited.length > 0 ? renderAppointmentCardList(categorizedLedgers.visited) : <p className="empty-sub-msg">No historical visited consultations tracked.</p>}
+                </div>
+              </div>
+
+              <div className="ledger-categorical-section">
+                <div className="section-category-title title-cancelled">Declined & Cancelled Logs ({categorizedLedgers.cancelled.length})</div>
+                <div className="section-category-nodes-stack">
+                  {categorizedLedgers.cancelled.length > 0 ? renderAppointmentCardList(categorizedLedgers.cancelled) : <p className="empty-sub-msg">No cancelled records log history found.</p>}
+                </div>
+              </div>
+            </>
           ) : (
             <div className="empty-roster-fallback">
               <AlertCircle size={24} />

@@ -27,6 +27,15 @@ export default function LoginPage() {
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
 
+  const DUMMY_CREDENTIALS = [
+    { label: "Patient", email: "patient@careos.com", password: "Temp1234!" },
+    { label: "Doctor", email: "doctor@careos.com", password: "Temp1234!" },
+    { label: "Nurse", email: "nurse@careos.com", password: "Temp1234!" },
+    { label: "Receptionist", email: "receptionist@careos.com", password: "Temp1234!" },
+    { label: "Laboratory Staff", email: "lab@careos.com", password: "Temp1234!" },
+    { label: "Pharmacy Staff", email: "pharmacy@careos.com", password: "Temp1234!" }
+  ];
+
   useEffect(() => {
     let interval = null;
     if (step === 2 && resendTimer > 0) {
@@ -45,6 +54,12 @@ export default function LoginPage() {
   const handleCaptchaChange = (token) => {
     setCaptchaToken(token);
     if (token) setMessage({ type: "", text: "" });
+  };
+
+  const handleAutofill = (dummyEmail, dummyPassword) => {
+    setEmail(dummyEmail);
+    setPassword(dummyPassword);
+    setMessage({ type: "", text: "" });
   };
 
   const handleLoginSubmit = async (e) => {
@@ -200,87 +215,105 @@ export default function LoginPage() {
         )}
 
         {step === 1 && (
-          <form className="login-form" onSubmit={handleLoginSubmit}>
-            <div className="form-fields-container">
-
-              <div className="form-field-group">
-                <label className="field-label">Email Address</label>
-                <div className="input-icon-wrapper">
-                  <Mail size={16} className="input-embedded-icon" />
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="input-element with-icon"
-                    placeholder="you@example.com"
-                  />
-                </div>
-              </div>
-
-              <div className="form-field-group">
-                <label className="field-label">Password</label>
-                <div className="password-input-wrapper">
-                  <Lock size={16} className="input-embedded-icon" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="input-element with-icon password-input"
-                    placeholder="••••••••"
-                  />
+          <>
+            <div className="autofill-panel">
+              <span className="autofill-title">Development Sandbox Profile Auto-fill:</span>
+              <div className="autofill-button-grid">
+                {DUMMY_CREDENTIALS.map((role) => (
                   <button
+                    key={role.label}
                     type="button"
-                    onClick={handleTogglePassword}
-                    className="password-toggle-btn"
-                    aria-label="Toggle password visibility"
+                    className="autofill-pill-btn"
+                    onClick={() => handleAutofill(role.email, role.password)}
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {role.label}
                   </button>
+                ))}
+              </div>
+            </div>
+
+            <form className="login-form" onSubmit={handleLoginSubmit}>
+              <div className="form-fields-container">
+
+                <div className="form-field-group">
+                  <label className="field-label">Email Address</label>
+                  <div className="input-icon-wrapper">
+                    <Mail size={16} className="input-embedded-icon" />
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="input-element with-icon"
+                      placeholder="you@example.com"
+                    />
+                  </div>
                 </div>
+
+                <div className="form-field-group">
+                  <label className="field-label">Password</label>
+                  <div className="password-input-wrapper">
+                    <Lock size={16} className="input-embedded-icon" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="input-element with-icon password-input"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleTogglePassword}
+                      className="password-toggle-btn"
+                      aria-label="Toggle password visibility"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
               </div>
 
-            </div>
+              <div className="login-options-row">
+                <label className="remember-me-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="remember-me-checkbox-input"
+                  />
+                  <span>Remember me</span>
+                </label>
 
-            <div className="login-options-row">
-              <label className="remember-me-checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="remember-me-checkbox-input"
-                />
-                <span>Remember me</span>
-              </label>
+                <button
+                  type="button"
+                  className="forgot-password-link"
+                  onClick={() => navigate('/forgot-password')}
+                >
+                  Forgot your password?
+                </button>
+              </div>
 
-              <button
-                type="button"
-                className="forgot-password-link"
-                onClick={() => navigate('/forgot-password')}
-              >
-                Forgot your password?
+              <div className="recaptcha-wrapper">
+                {siteKey ? (
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={siteKey}
+                    onChange={handleCaptchaChange}
+                  />
+                ) : (
+                  <div className="recaptcha-fallback">
+                    reCAPTCHA Site Key missing. Check your .env setup.
+                  </div>
+                )}
+              </div>
+
+              <button type="submit" disabled={loading} className="login-submit-btn">
+                {loading ? "Verifying Access..." : "Sign In"}
               </button>
-            </div>
-
-            <div className="recaptcha-wrapper">
-              {siteKey ? (
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey={siteKey}
-                  onChange={handleCaptchaChange}
-                />
-              ) : (
-                <div className="recaptcha-fallback">
-                  reCAPTCHA Site Key missing. Check your .env setup.
-                </div>
-              )}
-            </div>
-
-            <button type="submit" disabled={loading} className="login-submit-btn">
-              {loading ? "Verifying Access..." : "Sign In"}
-            </button>
-          </form>
+            </form>
+          </>
         )}
 
         {step === 2 && (
