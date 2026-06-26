@@ -19,8 +19,8 @@ export default function DoctorSidebar({ activeTab, setActiveTab, isOpen, setIsOp
   const menuItems = [
     { name: "Dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "Appointments Ledger", icon: <CalendarClock size={18} /> },
-    { name: "Patient Records File", icon: <Users size={18} /> },
     { name: "E-Prescriptions", icon: <FileText size={18} /> },
+    { name: "Patient Records File", icon: <Users size={18} /> },
     { name: "Shift Roster Schedule", icon: <Clock size={18} /> },
     { name: "Profile Management", icon: <UserCheck size={18} /> }
   ];
