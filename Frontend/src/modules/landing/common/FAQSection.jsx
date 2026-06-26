@@ -63,9 +63,6 @@ const FAQSection = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  /* ==========================================================================
-     THE FIX: DISPATCH DATA SECURELY TO YOUR OWN API BACKEND FOR PROXYING
-     ========================================================================== */
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -306,7 +303,6 @@ const FAQSection = () => {
 
               <div className="drawer-body">
                 
-                {/* Embedded Inline Runtime Error Alert Alert Box */}
                 {errorMessage && (
                   <div style={{ background: "#fef2f2", color: "#ef4444", padding: "10px", borderRadius: "6px", fontSize: "13px", marginBottom: "15px", border: "1px solid #fecaca" }}>
                     {errorMessage}

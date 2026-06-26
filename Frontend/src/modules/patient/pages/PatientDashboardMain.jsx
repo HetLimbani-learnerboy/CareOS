@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import PatientSidebar from "../components/PatientSidebar";
 import DashboardOverview from "./DashboardOverview";
 import AppointmentManagement from "./AppointmentManagement";
-import MedicalHistory from "./MedicalHistory";
-import PrescriptionHistory from "./PrescriptionHistory";
+import EprescriptionHistory from "./EprescriptionHistory";
 import LabReport from "./LabReport";
 import BillingHistory from "./BillingHistory";
 
@@ -26,10 +25,8 @@ export default function PatientDashboardMain() {
         return <DashboardOverview setActiveTab={setActiveTab} />;
       case "Appointment Management":
         return <AppointmentManagement />;
-      case "Medical History":
-        return <MedicalHistory />;
-      case "Prescription History":
-        return <PrescriptionHistory />;
+      case "E-Prescription History":
+        return <EprescriptionHistory />;
       case "Lab Report":
         return <LabReport />;
       case "Billing History":
