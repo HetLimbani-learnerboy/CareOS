@@ -38,7 +38,7 @@ export default function DoctorProfileManagement() {
         setLoading(true);
         const res = await axios.get(`${API_BASE_URL}/api/v1/doctors/profile?email=${encodeURIComponent(email)}`);
         const { user, profile } = res.data.data;
-        
+
         setFormData({
           first_name: user?.firstName || "",
           last_name: user?.lastName || "",
@@ -125,8 +125,8 @@ export default function DoctorProfileManagement() {
       ) : (
         <form className="dr-profile-form-grid" onSubmit={handleSubmit}>
           <div className="form-card-column main-inputs">
-            <div className="section-legend-header"><User size={16}/> Base System Accounts (Identity Data)</div>
-            
+            <div className="section-legend-header"><User size={16} /> Base System Accounts (Identity Data)</div>
+
             <div className="inputs-dual-flex-row">
               <div className="profile-input-node">
                 <label>First Name</label>
@@ -144,13 +144,13 @@ export default function DoctorProfileManagement() {
                 <input type="email" value={email} disabled className="disabled-field" />
               </div>
               <div className="profile-input-node">
-                <label><Phone size={12}/> Contact Cell Number</label>
+                <label><Phone size={12} /> Contact Cell Number</label>
                 <input type="text" name="phone" required value={formData.phone} onChange={handleChange} />
               </div>
             </div>
 
-            <div className="section-legend-header"><Award size={16}/> Clinical Competency & Core Domain</div>
-            
+            <div className="section-legend-header"><Award size={16} /> Clinical Competency & Core Domain</div>
+
             <div className="inputs-dual-flex-row">
               <div className="profile-input-node">
                 <label>Specialization Structure</label>
@@ -164,7 +164,7 @@ export default function DoctorProfileManagement() {
 
             <div className="inputs-dual-flex-row">
               <div className="profile-input-node">
-                <label><Briefcase size={12}/> Experience Commencement Date</label>
+                <label><Briefcase size={12} /> Experience Commencement Date</label>
                 <input type="date" name="experience_start_date" required value={formData.experience_start_date} onChange={handleChange} />
               </div>
               <div className="profile-input-node">
@@ -175,12 +175,12 @@ export default function DoctorProfileManagement() {
           </div>
 
           <div className="form-card-column supplementary-inputs">
-            <div className="section-legend-header"><MapPin size={16}/> Practice Facility Address</div>
+            <div className="section-legend-header"><MapPin size={16} /> Practice Facility Address</div>
             <div className="profile-input-node">
               <textarea name="clinic_address" required rows="3" placeholder="Enter explicit hospital or room office details..." value={formData.clinic_address} onChange={handleChange} />
             </div>
 
-            <div className="section-legend-header"><FileText size={16}/> Practitioner Narrative Professional Bio</div>
+            <div className="section-legend-header"><FileText size={16} /> Practitioner Narrative Professional Bio</div>
             <div className="profile-input-node">
               <textarea name="bio" rows="6" placeholder="Draft summary definitions outlining background milestones, treatments profiles..." value={formData.bio} onChange={handleChange} />
             </div>

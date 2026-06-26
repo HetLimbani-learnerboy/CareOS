@@ -20,8 +20,7 @@ export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsO
   const menuItems = [
     { name: "Dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "Appointment Management", icon: <CalendarClock size={18} /> },
-    { name: "Prescription History", icon: <Pill size={18} /> },
-    { name: "Medical History", icon: <FileClock size={18} /> },
+    { name: "E-Prescription History", icon: <Pill size={18} /> },
     { name: "Lab Report", icon: <FileSpreadsheet size={18} /> },
     { name: "Billing History", icon: <Receipt size={18} /> },
     { name: "Profile Management", icon: <UserCog size={18} /> },

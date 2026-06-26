@@ -339,10 +339,10 @@ export default function DoctorAppointmentManagement() {
           <div className="slot-editor-area">
             <div className="editor-header">
               <h4>Manage Slots for {selectedDate.toDateString()}</h4>
-              <button 
-                type="button" 
-                className="reset-btn" 
-                disabled={!!savingSlotName || isResetting || isSelectedDatePast} 
+              <button
+                type="button"
+                className="reset-btn"
+                disabled={!!savingSlotName || isResetting || isSelectedDatePast}
                 onClick={resetToDefault}
               >
                 {isResetting ? (
