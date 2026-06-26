@@ -3,6 +3,7 @@ import DoctorSidebar from "../components/DoctorSidebar";
 import DashboardOverview from "./DashboardOverview";
 import DoctorAppointmentManagement from "./DoctorAppointmentManagement";
 import DoctorProfileManagement from "./DoctorProfileManagement";
+import EPrescriptionConsole from "./EPrescriptionConsole";
 import "../../patient/style/PatientDashboard.css";
 
 export default function DoctorDashboardMain() {
@@ -21,10 +22,10 @@ export default function DoctorDashboardMain() {
         return <DashboardOverview />;
       case "Appointments Ledger":
         return <DoctorAppointmentManagement />;
-      case "Patient Records File":
-        return <div className="profile-loading">Electronic Health Records (EHR) Database</div>;
       case "E-Prescriptions":
-        return <div className="profile-loading">Prescription Authorization Routing Desk</div>;
+        return <EPrescriptionConsole/>;
+        case "Patient Records File":
+        return <div className="profile-loading">Electronic Health Records (EHR) Database</div>;
       case "Shift Roster Schedule":
         return <div className="profile-loading">Practitioner Availability Calendar</div>;
       case "Profile Management":
