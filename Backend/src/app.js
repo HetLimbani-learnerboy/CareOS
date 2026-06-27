@@ -47,15 +47,17 @@ const connectAndInitializeDb = async (req, res, next) => {
 
     if (mongoose.connection.readyState !== 1) {
       console.log("[Serverless Data Engine]: Connecting to MongoDB Atlas...");
-      await mongoose.connect(MONGO_URI);
+      
+      await mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: 5000, 
+        socketTimeoutMS: 45000,         
+      });
+      
       console.log(`[Serverless Data Engine]: Connected to -> ${mongoose.connection.name}`);
     }
 
     if (!isDbInitialized) {
-      console.log("[Serverless Data Engine]: Verifying schemas and indexes...");
-      await UserIdentity.init();
-      await OtpVerification.init();
-      await SystemCounter.init();
+      console.log("[Serverless Data Engine]: Verifying schema base counters...");
 
       await SystemCounter.findOneAndUpdate(
         { _id: "user_identity_id" },
@@ -83,14 +85,14 @@ const connectAndInitializeDb = async (req, res, next) => {
   }
 };
 
-app.use("/api/v1/auth", connectAndInitializeDb, authRoutes);
+app.use(connectAndInitializeDb);
 
+app.use("/api/v1/auth", authRoutes);
 app.use('/api/v1/patients', patientBookingRoutes);
 app.use('/api/v1/patients', patientRoutes);
 app.use('/api/v1/doctors', doctorAvailabilityRoutes);
 app.use('/api/v1/doctors', doctorProfileRoutes);
-app.use('/api/v1/doctors',doctorprescription)
-
+app.use('/api/v1/doctors', doctorprescription);
 
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({
@@ -118,7 +120,10 @@ if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
 
   const startLocalServer = async () => {
     try {
-      await mongoose.connect(MONGO_URI);
+      await mongoose.connect(MONGO_URI, {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      });
       console.log(`[Local Development]: MongoDB Connected -> ${mongoose.connection.name}`);
 
       app.listen(PORT, () => {
