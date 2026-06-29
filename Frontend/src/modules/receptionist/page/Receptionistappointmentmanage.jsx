@@ -286,7 +286,7 @@ export default function Receptionistappointmentmanage() {
         appointmentId: editingAppointmentId || undefined
       });
 
-      alert(editingAppointmentId ? "Appointment rescheduled successfully." : "Appointment request created successfully.");
+      alert(editingAppointmentId ? "Appointment rescheduled successfully. Notification email dispatched." : "Appointment request created successfully.");
       closeBookingForm();
       fetchPatientLedger();
     } catch (err) {
@@ -345,6 +345,7 @@ export default function Receptionistappointmentmanage() {
       await axios.patch(`${API_BASE_URL}/api/v1/receptionist/appointments/${id}/action`, {
         action: "cancel"
       });
+      alert("Appointment successfully cancelled.");
       fetchPatientLedger();
     } catch (err) {
       alert(err.response?.data?.message || "Failed to cancel appointment.");

@@ -13,7 +13,8 @@ import {
   ChevronUp,
   User,
   FileText,
-  Loader2
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 import '../style/DoctorAppointmentManagement.css';
 
@@ -74,6 +75,10 @@ export default function DoctorAppointmentManagement() {
   const [updatingRequestId, setUpdatingRequestId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [expandedItems, setExpandedItems] = useState({});
+
+  // Reschedule Interactive Mode States
+  const [rescheduleTarget, setRescheduleTarget] = useState(null);
+  const [isRescheduleBooking, setIsRescheduleBooking] = useState(false);
 
   const todayKey = useMemo(() => formatLocalDate(new Date()), []);
   const selectedDateKey = useMemo(() => formatLocalDate(selectedDate), [selectedDate]);
@@ -229,6 +234,50 @@ export default function DoctorAppointmentManagement() {
     }
   };
 
+  // Triggers rescheduling interface overlay focus
+  const handleInitiateReschedule = (item) => {
+    setRescheduleTarget(item);
+    const itemDate = new Date(item.date);
+    if (!isNaN(itemDate.getTime())) {
+      setSelectedDate(itemDate);
+      setCurrentDate(itemDate);
+    }
+  };
+
+  // Submits the reschedule tracking payload to the server pipeline
+  const handleConfirmReschedule = async (chosenSlot) => {
+    if (!rescheduleTarget || !doctorEmail) return;
+
+    const nameParts = String(rescheduleTarget.patient || '').trim().split(/\s+/);
+    const firstName = nameParts[0] || 'Patient';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    try {
+      setIsRescheduleBooking(true);
+      setErrorMessage('');
+
+      await axios.post(`${API_BASE_URL}/api/v1/receptionist/receptionist-book-request`, {
+        firstName: firstName,
+        lastName: lastName,
+        patientEmail: rescheduleTarget.patientEmail || '',
+        doctorEmail: doctorEmail,
+        specialization: rescheduleTarget.specialization || 'General Medicine',
+        date: selectedDateKey,
+        time: chosenSlot,
+        symptoms: rescheduleTarget.reason || 'Rescheduled by practitioner.',
+        appointmentId: rescheduleTarget.id
+      });
+
+      alert('Appointment rescheduled successfully. Notification email dispatched.');
+      setRescheduleTarget(null);
+      fetchDashboard();
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error, 'Failed to save the reschedule timeline data structure.'));
+    } finally {
+      setIsRescheduleBooking(false);
+    }
+  };
+
   const toggleExpandItem = (id) => {
     setExpandedItems((prev) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -280,6 +329,24 @@ export default function DoctorAppointmentManagement() {
         <div className="schedule-error" role="alert">
           <AlertCircle size={16} />
           <span>{errorMessage}</span>
+        </div>
+      )}
+
+      {rescheduleTarget && (
+        <div className="reschedule-context-banner bg-sky-50 border border-sky-200 text-sky-800 p-4 mb-4 rounded-xl flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <RefreshCw size={16} className="animate-spin text-sky-600" />
+            <span>
+              Rescheduling appointment for <strong>{rescheduleTarget.patient}</strong>. Please select a new timeline interval slot from the configuration manager below.
+            </span>
+          </div>
+          <button 
+            type="button" 
+            className="text-sky-600 hover:text-sky-800 font-semibold text-sm"
+            onClick={() => setRescheduleTarget(null)}
+          >
+            Cancel Reschedule
+          </button>
         </div>
       )}
 
@@ -338,20 +405,26 @@ export default function DoctorAppointmentManagement() {
 
           <div className="slot-editor-area">
             <div className="editor-header">
-              <h4>Manage Slots for {selectedDate.toDateString()}</h4>
-              <button
-                type="button"
-                className="reset-btn"
-                disabled={!!savingSlotName || isResetting || isSelectedDatePast}
-                onClick={resetToDefault}
-              >
-                {isResetting ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <Undo2 size={14} />
-                )}
-                <span>{isResetting ? 'Restoring...' : 'Use Default'}</span>
-              </button>
+              <h4>
+                {rescheduleTarget 
+                  ? `Assign New Slot for ${selectedDate.toDateString()}` 
+                  : `Manage Slots for ${selectedDate.toDateString()}`}
+              </h4>
+              {!rescheduleTarget && (
+                <button
+                  type="button"
+                  className="reset-btn"
+                  disabled={!!savingSlotName || isResetting || isSelectedDatePast}
+                  onClick={resetToDefault}
+                >
+                  {isResetting ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Undo2 size={14} />
+                  )}
+                  <span>{isResetting ? 'Restoring...' : 'Use Default'}</span>
+                </button>
+              )}
             </div>
             {loading ? (
               <div className="skeleton-slots-row" />
@@ -364,18 +437,28 @@ export default function DoctorAppointmentManagement() {
                   );
                   const isPast = isPastTimeSlot(selectedDateKey, slot);
                   const isCurrentSaving = savingSlotName === slot;
-                  const isNodeDisabled = isBooked || !!savingSlotName || isResetting || isPast;
+                  
+                  // Disable if booked, historical, or mutating
+                  const isNodeDisabled = rescheduleTarget 
+                    ? (!isActive || isBooked || isPast || isRescheduleBooking)
+                    : (isBooked || !!savingSlotName || isResetting || isPast);
 
                   return (
                     <button
                       type="button"
                       key={slot}
                       disabled={isNodeDisabled}
-                      className={`slot-pill ${isActive ? 'active' : ''} ${isBooked ? 'booked' : ''} ${isPast ? 'past-lockout' : ''} ${isCurrentSaving ? 'mutating-state' : ''}`}
-                      onClick={() => handleToggleSlot(slot)}
+                      className={`slot-pill ${isActive ? 'active' : ''} ${isBooked ? 'booked' : ''} ${isPast ? 'past-lockout' : ''} ${isCurrentSaving ? 'mutating-state' : ''} ${rescheduleTarget && !isNodeDisabled ? 'reschedule-executable-node' : ''}`}
+                      onClick={() => {
+                        if (rescheduleTarget) {
+                          handleConfirmReschedule(slot);
+                        } else {
+                          handleToggleSlot(slot);
+                        }
+                      }}
                     >
                       <span>{slot}</span>
-                      {isCurrentSaving ? (
+                      {isCurrentSaving || (rescheduleTarget && isRescheduleBooking) ? (
                         <Loader2 size={12} className="animate-spin" />
                       ) : isBooked ? (
                         <Clock size={12} />
@@ -445,6 +528,16 @@ export default function DoctorAppointmentManagement() {
                           <span className="meta-icon-label"><User size={12} /> Contact Email:</span>
                           <p className="meta-value-text">{request.patientEmail || 'N/A'}</p>
                         </div>
+                        <div className="mt-2 pt-2 border-t border-slate-100 flex justify-end">
+                          <button
+                            type="button"
+                            className="action-btn btn-resched inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
+                            onClick={() => handleInitiateReschedule(request)}
+                          >
+                            <RefreshCw size={12} />
+                            Reschedule Proposal
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -492,6 +585,16 @@ export default function DoctorAppointmentManagement() {
                           <div className="detail-meta-block">
                             <span className="meta-icon-label"><User size={12} /> Patient Email:</span>
                             <p className="meta-value-text">{appointment.patientEmail || 'N/A'}</p>
+                          </div>
+                          <div className="mt-2 pt-2 border-t border-slate-100 flex justify-end">
+                            <button
+                              type="button"
+                              className="action-btn btn-resched inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
+                              onClick={() => handleInitiateReschedule(appointment)}
+                            >
+                              <RefreshCw size={12} />
+                              Reschedule Session
+                            </button>
                           </div>
                         </div>
                       )}
