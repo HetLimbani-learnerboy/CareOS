@@ -76,7 +76,6 @@ export default function DoctorAppointmentManagement() {
   const [errorMessage, setErrorMessage] = useState('');
   const [expandedItems, setExpandedItems] = useState({});
 
-  // Reschedule Interactive Mode States
   const [rescheduleTarget, setRescheduleTarget] = useState(null);
   const [isRescheduleBooking, setIsRescheduleBooking] = useState(false);
 
@@ -234,7 +233,6 @@ export default function DoctorAppointmentManagement() {
     }
   };
 
-  // Triggers rescheduling interface overlay focus
   const handleInitiateReschedule = (item) => {
     setRescheduleTarget(item);
     const itemDate = new Date(item.date);
@@ -244,7 +242,6 @@ export default function DoctorAppointmentManagement() {
     }
   };
 
-  // Submits the reschedule tracking payload to the server pipeline
   const handleConfirmReschedule = async (chosenSlot) => {
     if (!rescheduleTarget || !doctorEmail) return;
 
@@ -340,8 +337,8 @@ export default function DoctorAppointmentManagement() {
               Rescheduling appointment for <strong>{rescheduleTarget.patient}</strong>. Please select a new timeline interval slot from the configuration manager below.
             </span>
           </div>
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="text-sky-600 hover:text-sky-800 font-semibold text-sm"
             onClick={() => setRescheduleTarget(null)}
           >
@@ -406,8 +403,8 @@ export default function DoctorAppointmentManagement() {
           <div className="slot-editor-area">
             <div className="editor-header">
               <h4>
-                {rescheduleTarget 
-                  ? `Assign New Slot for ${selectedDate.toDateString()}` 
+                {rescheduleTarget
+                  ? `Assign New Slot for ${selectedDate.toDateString()}`
                   : `Manage Slots for ${selectedDate.toDateString()}`}
               </h4>
               {!rescheduleTarget && (
@@ -437,9 +434,8 @@ export default function DoctorAppointmentManagement() {
                   );
                   const isPast = isPastTimeSlot(selectedDateKey, slot);
                   const isCurrentSaving = savingSlotName === slot;
-                  
-                  // Disable if booked, historical, or mutating
-                  const isNodeDisabled = rescheduleTarget 
+
+                  const isNodeDisabled = rescheduleTarget
                     ? (!isActive || isBooked || isPast || isRescheduleBooking)
                     : (isBooked || !!savingSlotName || isResetting || isPast);
 
