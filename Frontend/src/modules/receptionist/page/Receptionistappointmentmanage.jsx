@@ -90,7 +90,7 @@ const isPastTimeSlot = (appointmentDate, timeSlotString) => {
 };
 
 export default function Receptionistappointmentmanage() {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const [isBookingMode, setIsBookingMode] = useState(false);
   const [patientData, setPatientData] = useState(emptyPatientData);
@@ -243,8 +243,7 @@ export default function Receptionistappointmentmanage() {
       bookingForm.doctorEmail &&
       bookingForm.selectedDate &&
       bookingForm.selectedTime &&
-      bookingForm.symptoms.trim() &&
-      bookingForm.additionalNotes.trim()
+      bookingForm.symptoms.trim()
     );
   }, [patientData, bookingForm]);
 
@@ -274,10 +273,9 @@ export default function Receptionistappointmentmanage() {
     }
 
     try {
-      await axios.post(`${API_BASE_URL}/api/v1/patients/book-request`, {
-        patientFirstName: patientData.firstName.trim(),
-        patientLastName: patientData.lastName.trim(),
-        patientName: `${patientData.firstName.trim()} ${patientData.lastName.trim()}`.trim(),
+      await axios.post(`${API_BASE_URL}/api/v1/receptionist/receptionist-book-request`, {
+        firstName: patientData.firstName.trim(),
+        lastName: patientData.lastName.trim(),
         patientEmail: patientData.email.trim().toLowerCase(),
         doctorEmail: bookingForm.doctorEmail,
         specialization: bookingForm.specialization,
@@ -407,6 +405,8 @@ export default function Receptionistappointmentmanage() {
         patientEmail: apt.patientEmail || apt.patient?.email || "",
         doctorName: apt.doctorName || apt.doctor?.name || "Doctor",
         doctorEmail: apt.doctorEmail || apt.doctor?.email || "",
+        doctorQualification: apt.doctorqualification || "N/A",
+        specialization: apt.specialization || "General Medicine",
         reason: apt.reason || apt.symptoms || apt.reason_for_visit || ""
       };
 
@@ -447,7 +447,9 @@ export default function Receptionistappointmentmanage() {
           <button type="button" className="apt-card-main-row" onClick={() => toggleAccordion(appointmentId)}>
             <div className="card-primary-block">
               <strong>{apt.patientName}</strong>
-              <span className="spec-label">{apt.doctorName}</span>
+              <span className="spec-label">
+                {apt.doctorName} ({apt.specialization} — {apt.doctorQualification})
+              </span>
             </div>
 
             <div className="card-timing-block">
@@ -708,7 +710,6 @@ export default function Receptionistappointmentmanage() {
               <label>Additional Notes</label>
               <textarea
                 name="additionalNotes"
-                required
                 value={bookingForm.additionalNotes}
                 onChange={handleInputChange}
                 placeholder="Enter receptionist notes"
@@ -876,7 +877,7 @@ export default function Receptionistappointmentmanage() {
             </>
           ) : (
             <div className="empty-roster-fallback">
-      
+
             </div>
           )}
         </div>

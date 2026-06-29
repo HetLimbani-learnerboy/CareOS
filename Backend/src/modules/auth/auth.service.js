@@ -30,15 +30,50 @@ const generateAndSaveOtp = async (email, firstName) => {
 
 export const registerUser = async (userData) => {
   const existingUser = await UserIdentity.findOne({
-    $or: [{ email: userData.email }, { phone: userData.phone }]
+    $or: [{ email: userData.email.toLowerCase() }, { phone: userData.phone }]
   });
 
   if (existingUser) {
+    // 1. Verify if the email matches and the account is still unverified
+    if (existingUser.email === userData.email.toLowerCase() && !existingUser.is_verified) {
+      
+      // 2. Check if the password matches the known receptionist walk-in placeholder string
+      const isWalkInPlaceholder = existingUser.password 
+        ? await bcrypt.compare('WALK_IN_PLACEHOLDER_PASS', existingUser.password)
+        : true; // fallback if password field was completely null/empty
+
+      if (isWalkInPlaceholder) {
+        const { confirmPassword, password, ...cleanData } = userData;
+
+        // Hash the patient's new custom production password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Update placeholder account with real patient details
+        existingUser.firstName = cleanData.firstName.trim();
+        existingUser.lastName = (cleanData.lastName || '').trim();
+        existingUser.phone = cleanData.phone;
+        existingUser.countryCode = cleanData.countryCode || existingUser.countryCode;
+        existingUser.password = hashedPassword; // Overwrites the hashed placeholder
+
+        await existingUser.save();
+
+        // Generate and dispatch fresh onboarding verification OTP code
+        await generateAndSaveOtp(existingUser.email, existingUser.firstName);
+
+        const userObject = existingUser.toObject();
+        delete userObject.password;
+        return userObject;
+      }
+    }
+
+    // Otherwise, throw an identity conflict error block
     const error = new Error('Identity conflict: Email or phone number already registered');
     error.statusCode = 409;
     throw error;
   }
 
+  // --- Normal signup flow for brand new profiles ---
   const { confirmPassword, ...cleanData } = userData;
   const newUser = await UserIdentity.create(cleanData);
 
@@ -48,6 +83,7 @@ export const registerUser = async (userData) => {
   delete userObject.password;
   return userObject;
 };
+
 
 export const loginUser = async (email, password, rememberMe) => {
   const user = await UserIdentity.findOne({ email });
