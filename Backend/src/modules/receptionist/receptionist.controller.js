@@ -1,5 +1,21 @@
 import * as receptionistService from './receptionist.service.js';
 
+export const receptionistBookWalkInIntake = async (req, res, next) => {
+  try {
+    const appointment = await receptionistService.saveReceptionistWalkInBooking(req.body);
+    
+    return res.status(201).json({
+      status: 'success',
+      data: appointment
+    });
+  } catch (error) {
+    return res.status(error.statusCode || 400).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+};
+
 export const fetchReceptionistDashboardMetrics = async (req, res, next) => {
   try {
     const metrics = await receptionistService.getSystemDashboardMetrics();
@@ -36,7 +52,7 @@ export const fetchAllSystemAppointments = async (req, res, next) => {
 export const updateAppointmentStatusByReceptionist = async (req, res, next) => {
   try {
     const { appointmentId } = req.params;
-    const { action } = req.body; // Expects 'confirm' or 'reject'
+    const { action } = req.body;
 
     const updatedAppointment = await receptionistService.processAppointmentAction(appointmentId, action);
 

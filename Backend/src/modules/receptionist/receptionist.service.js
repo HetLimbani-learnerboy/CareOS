@@ -1,6 +1,8 @@
 import Appointment from '../patients/appointment.model.js';
-import Prescription from '../doctor/prescription.model.js'; // Assumed path relative to project structure
+import Prescription from '../doctor/prescription.model.js';
 import UserIdentity from '../auth/userIdentity.model.js';
+import DoctorProfile from '../doctor/doctorProfile.model.js';
+import { getDoctorSlotsForDate, resolveDoctorByEmail } from '../doctor/doctorAvailability.service.js';
 
 const httpError = (statusCode, message) => {
   const error = new Error(message);
@@ -8,15 +10,17 @@ const httpError = (statusCode, message) => {
   return error;
 };
 
+const normalizeEmail = (email) => String(email || '').trim().toLowerCase();
+
 export const getSystemDashboardMetrics = async () => {
   const allAppointments = await Appointment.find({}).lean();
   const allPrescriptionAptIds = await Prescription.distinct('appointmentId');
   const prescriptionSet = new Set(allPrescriptionAptIds.map(id => String(id)));
 
-  let confirmedCount = 0; // Upcoming Confirmed Sessions
-  let awaitingCount = 0;  // Upcoming Awaiting Signoff (Pending actions)
-  let concludedCount = 0; // Concluded / Visited Sessions (Has Prescription match)
-  let declinedCount = 0;  // Declined & Cancelled Logs
+  let confirmedCount = 0;
+  let awaitingCount = 0;
+  let concludedCount = 0;
+  let declinedCount = 0;
 
   for (const app of allAppointments) {
     const appStatus = String(app.status);
@@ -44,7 +48,6 @@ export const getSystemDashboardMetrics = async () => {
 export const getAllAppointmentsOverview = async (filterStatus, searchString) => {
   const query = {};
 
-  // Handle baseline collection level routing match logic
   if (filterStatus === 'concluded') {
     const concludedIds = await Prescription.distinct('appointmentId');
     query._id = { $in: concludedIds };
@@ -52,19 +55,16 @@ export const getAllAppointmentsOverview = async (filterStatus, searchString) => 
     query.status = { $in: ['rejected', 'cancelled'] };
   } else if (filterStatus === 'confirmed' || filterStatus === 'pending') {
     query.status = filterStatus;
-    // Ensure concluded items don't leak back down into pending/confirmed tabs
     const concludedIds = await Prescription.distinct('appointmentId');
     query._id = { $nin: concludedIds };
   }
 
-  // Populate references to build deep profile search conditions
   let appointments = await Appointment.find(query)
     .populate('patient_id', 'firstName lastName email')
     .populate('doctor_id', 'firstName lastName email')
     .sort({ appointment_date: 1, time_slot: 1 })
     .lean();
 
-  // Handle structural search parameters across fields
   if (searchString && searchString.trim() !== '') {
     const regex = new RegExp(searchString.trim(), 'i');
     appointments = appointments.filter(app => {
@@ -78,22 +78,40 @@ export const getAllAppointmentsOverview = async (filterStatus, searchString) => 
     });
   }
 
-  return appointments.map(app => ({
-    id: String(app._id),
-    patientName: `${app.patient_id?.firstName || 'Anonymous'} ${app.patient_id?.lastName || ''}`.trim(),
-    patientEmail: app.patient_id?.email || 'N/A',
-    doctorName: `Dr. ${app.doctor_id?.firstName || 'Unknown'} ${app.doctor_id?.lastName || ''}`.trim(),
-    doctorEmail: app.doctor_id?.email || 'N/A',
-    date: app.appointment_date,
-    time: app.time_slot,
-    status: app.status,
-    reason: app.reason_for_visit
-  }));
+  const doctorIds = [...new Set(appointments.map(app => app.doctor_id?._id).filter(Boolean))];
+  const profiles = await DoctorProfile.find({ doctor_id: { $in: doctorIds } }, 'doctor_id qualification specialization').lean();
+
+  const doctorMetaMap = {};
+  profiles.forEach(p => {
+    doctorMetaMap[String(p.doctor_id)] = {
+      qualification: p.qualification || 'N/A',
+      specialization: p.specialization 
+    };
+  });
+
+  return appointments.map(app => {
+    const doctorIdStr = app.doctor_id ? String(app.doctor_id._id) : null;
+    const meta = doctorIdStr ? doctorMetaMap[doctorIdStr] : null;
+
+    return {
+      id: String(app._id),
+      patientName: `${app.patient_id?.firstName || 'Anonymous'} ${app.patient_id?.lastName || ''}`.trim(),
+      patientEmail: app.patient_id?.email || 'N/A',
+      doctorName: `Dr. ${app.doctor_id?.firstName || 'Unknown'} ${app.doctor_id?.lastName || ''}`.trim(),
+      doctorEmail: app.doctor_id?.email || 'N/A',
+      doctorqualification: meta ? meta.qualification : 'N/A',
+      specialization: meta ? meta.specialization : 'N/A',
+      date: app.appointment_date,
+      time: app.time_slot,
+      status: app.status,
+      reason: app.reason_for_visit
+    };
+  });
 };
 
 export const processAppointmentAction = async (appointmentId, action) => {
   if (!/^[a-fA-F0-9]{24}$/.test(String(appointmentId))) {
-    throw httpError(400, 'Invalid appointment reference verification tracking identity.');
+    throw httpError(400, 'Invalid appointment reference identity.');
   }
 
   let targetStatus;
@@ -110,13 +128,63 @@ export const processAppointmentAction = async (appointmentId, action) => {
     throw httpError(404, 'Appointment target record file details missing.');
   }
 
-  // Double mutation block checks
   if (appointment.status === 'cancelled') {
-    throw httpError(400, 'Cannot process an administrative status update on a patient-cancelled session.');
+    throw httpError(400, 'Cannot process status changes on a patient-cancelled session.');
   }
 
   appointment.status = targetStatus;
   await appointment.save();
 
   return appointment;
+};
+
+export const saveReceptionistWalkInBooking = async (bookingData) => {
+  const { firstName, lastName, patientEmail, doctorEmail, date, time, symptoms } = bookingData;
+
+  if (!firstName || !patientEmail || !doctorEmail || !date || !time || !symptoms) {
+    throw httpError(400, 'Missing core elements. Patient names, email, doctor context, date, time, and symptoms are required.');
+  }
+
+  const normalizedPatientEmail = normalizeEmail(patientEmail);
+  const normalizedDoctorEmail = normalizeEmail(doctorEmail);
+
+  let patientUser = await UserIdentity.findOne({ email: normalizedPatientEmail, role: 'patient' });
+
+  if (!patientUser) {
+    patientUser = await UserIdentity.create({
+      firstName: firstName.trim(),
+      lastName: (lastName || '').trim(),
+      email: normalizedPatientEmail,
+      role: 'patient',
+    });
+  }
+
+  const doctorUser = await resolveDoctorByEmail(normalizedDoctorEmail);
+  const doctorProfile = await DoctorProfile.findOne({ doctor_id: doctorUser._id }).lean();
+  if (!doctorProfile) {
+    throw httpError(404, 'Doctor configuration profile structure mapping missing.');
+  }
+
+  const collision = await Appointment.exists({
+    doctor_id: doctorUser._id,
+    appointment_date: date,
+    time_slot: String(time).trim(),
+    status: { $in: ['pending', 'confirmed'] }
+  });
+
+  if (collision) {
+    throw httpError(409, 'Operational tracking conflict. This chosen interval is already reserved.');
+  }
+
+  const appointmentRecord = await Appointment.create({
+    patient_id: patientUser._id,
+    doctor_id: doctorUser._id,
+    specialization: doctorProfile.specialization,
+    reason_for_visit: String(symptoms).trim(),
+    appointment_date: date,
+    time_slot: String(time).trim(),
+    status: 'confirmed' 
+  });
+
+  return appointmentRecord;
 };
