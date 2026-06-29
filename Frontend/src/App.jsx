@@ -5,6 +5,7 @@ import PatientRegister from "./modules/auth/pages/PatientRegister";
 import LoginPage from "./modules/auth/pages/LoginPage";
 import PatientDashboardMain from "./modules/patient/pages/PatientDashboardMain";
 import DoctorDashboardMain from "./modules/doctor/pages/DoctorDashboardMain";
+import ReceptionistDashboardMain from "./modules/receptionist/page/DashboardOverview";
 import ForgotPassword from "./modules/auth/pages/ForgotPassword";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/patient-dashboard" element={<PatientDashboardMain/>}/>
         <Route path="/doctor-dashboard" element={<DoctorDashboardMain/>}/>
+        <Route path="/receptionist-dashboard" element={<ReceptionistDashboardMain/>}/>
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </div>
