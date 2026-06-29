@@ -2,6 +2,7 @@ import Appointment from '../patients/appointment.model.js';
 import Prescription from '../doctor/prescription.model.js';
 import UserIdentity from '../auth/userIdentity.model.js';
 import DoctorProfile from '../doctor/doctorProfile.model.js';
+import { sendRescheduleNotificationEmail, sendAppointmentStatusEmail } from '../../service/email.service.js';
 import { getDoctorSlotsForDate, resolveDoctorByEmail } from '../doctor/doctorAvailability.service.js';
 
 const httpError = (statusCode, message) => {
@@ -85,7 +86,7 @@ export const getAllAppointmentsOverview = async (filterStatus, searchString) => 
   profiles.forEach(p => {
     doctorMetaMap[String(p.doctor_id)] = {
       qualification: p.qualification || 'N/A',
-      specialization: p.specialization 
+      specialization: p.specialization || 'N/A'
     };
   });
 
@@ -119,8 +120,10 @@ export const processAppointmentAction = async (appointmentId, action) => {
     targetStatus = 'confirmed';
   } else if (action === 'reject') {
     targetStatus = 'rejected';
+  } else if (action === 'cancel') {
+    targetStatus = 'cancelled';
   } else {
-    throw httpError(400, "Invalid action processing demand. Expects 'confirm' or 'reject'.");
+    throw httpError(400, "Invalid action processing demand. Expects 'confirm', 'reject', or 'cancel'.");
   }
 
   const appointment = await Appointment.findById(appointmentId);
@@ -128,25 +131,91 @@ export const processAppointmentAction = async (appointmentId, action) => {
     throw httpError(404, 'Appointment target record file details missing.');
   }
 
-  if (appointment.status === 'cancelled') {
-    throw httpError(400, 'Cannot process status changes on a patient-cancelled session.');
+  if (appointment.status === 'cancelled' && action !== 'cancel') {
+    throw httpError(400, 'Cannot process status changes on an already cancelled session.');
   }
 
   appointment.status = targetStatus;
   await appointment.save();
 
+  await appointment.populate([
+    { path: 'patient_id', select: 'firstName lastName email' },
+    { path: 'doctor_id', select: 'firstName lastName' }
+  ]);
+
+  const patientEmail = appointment.patient_id?.email;
+  const patientFirst = appointment.patient_id?.firstName || 'Patient';
+  const doctorFullName = `${appointment.doctor_id?.firstName || 'Unknown'} ${appointment.doctor_id?.lastName || ''}`.trim();
+
+  if (patientEmail) {
+    sendAppointmentStatusEmail(patientEmail, patientFirst.trim(), doctorFullName, appointment.appointment_date, appointment.time_slot, targetStatus)
+      .catch(err => console.error('[Receptionist Action Notification Pipeline Exception]:', err.message));
+  }
+
   return appointment;
 };
 
 export const saveReceptionistWalkInBooking = async (bookingData) => {
-  const { firstName, lastName, patientEmail, doctorEmail, date, time, symptoms } = bookingData;
+  const { 
+    firstName, 
+    lastName, 
+    patientEmail, 
+    doctorEmail, 
+    date, 
+    time, 
+    symptoms,
+    appointmentId
+  } = bookingData;
+
+  const normalizedPatientEmail = normalizeEmail(patientEmail);
+  const normalizedDoctorEmail = normalizeEmail(doctorEmail);
+
+  const doctorUser = await resolveDoctorByEmail(normalizedDoctorEmail);
+  if (!doctorUser) {
+    throw httpError(404, 'Practitioner with the requested profile could not be located.');
+  }
+  const doctorFullName = `${doctorUser.firstName || 'Unknown'} ${doctorUser.lastName || ''}`.trim();
+
+  if (appointmentId) {
+    if (!/^[a-fA-F0-9]{24}$/.test(String(appointmentId))) {
+      throw httpError(400, 'Invalid appointment reference configuration identity.');
+    }
+
+    const appointment = await Appointment.findById(appointmentId).populate('patient_id', 'firstName lastName email');
+    if (!appointment) {
+      throw httpError(404, 'Appointment target record file details missing.');
+    }
+
+    const collision = await Appointment.exists({
+      _id: { $ne: appointmentId },
+      doctor_id: doctorUser._id,
+      appointment_date: date,
+      time_slot: String(time).trim(),
+      status: { $in: ['pending', 'confirmed'] }
+    });
+
+    if (collision) {
+      throw httpError(409, 'Operational tracking conflict. This chosen interval is already reserved.');
+    }
+
+    appointment.appointment_date = date;
+    appointment.time_slot = String(time).trim();
+    appointment.reason_for_visit = String(symptoms || appointment.reason_for_visit).trim();
+    appointment.status = 'confirmed'; 
+    await appointment.save();
+
+    const patientFirst = appointment.patient_id?.firstName || firstName || 'Patient';
+    const clientEmail = appointment.patient_id?.email || normalizedPatientEmail;
+
+    sendRescheduleNotificationEmail(clientEmail, patientFirst.trim(), doctorFullName, date, time)
+      .catch(err => console.error('[Notification Pipeline Exception]:', err.message));
+
+    return appointment;
+  }
 
   if (!firstName || !patientEmail || !doctorEmail || !date || !time || !symptoms) {
     throw httpError(400, 'Missing core elements. Patient names, email, doctor context, date, time, and symptoms are required.');
   }
-
-  const normalizedPatientEmail = normalizeEmail(patientEmail);
-  const normalizedDoctorEmail = normalizeEmail(doctorEmail);
 
   let patientUser = await UserIdentity.findOne({ email: normalizedPatientEmail, role: 'patient' });
 
@@ -156,10 +225,10 @@ export const saveReceptionistWalkInBooking = async (bookingData) => {
       lastName: (lastName || '').trim(),
       email: normalizedPatientEmail,
       role: 'patient',
+      password: 'WALK_IN_PLACEHOLDER_PASS'
     });
   }
 
-  const doctorUser = await resolveDoctorByEmail(normalizedDoctorEmail);
   const doctorProfile = await DoctorProfile.findOne({ doctor_id: doctorUser._id }).lean();
   if (!doctorProfile) {
     throw httpError(404, 'Doctor configuration profile structure mapping missing.');

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Appointment from '../patients/appointment.model.js';
+import { sendAppointmentStatusEmail } from '../../service/email.service.js';
 import { resolveDoctorByEmail } from './doctorAvailability.service.js';
 
 const httpError = (statusCode, message) => {
@@ -81,8 +82,28 @@ export const setAppointmentStatus = async ({
         if (collision) throw httpError(409, 'Another appointment already occupies this slot.');
     }
 
+    // Apply the status update cleanly
     appointment.status = status;
     await appointment.save();
-    await appointment.populate('patient_id', 'firstName lastName email');
+
+    // Populate metadata identities required for dispatching email parameters
+    await appointment.populate([
+        { path: 'patient_id', select: 'firstName lastName email' },
+        { path: 'doctor_id', select: 'firstName lastName' }
+    ]);
+
+    // Gather dispatch context variables securely
+    const patientEmail = appointment.patient_id?.email;
+    const patientFirstName = appointment.patient_id?.firstName || 'Patient';
+    const doctorFullName = `Dr. ${appointment.doctor_id?.firstName || 'Unknown'} ${appointment.doctor_id?.lastName || ''}`.trim();
+    const targetDate = appointment.appointment_date;
+    const targetTime = appointment.time_slot;
+
+    if (patientEmail) {
+        // Trigger non-blocking asynchronous email communication pipeline
+        sendAppointmentStatusEmail(patientEmail, patientFirstName, doctorFullName, targetDate, targetTime, status)
+            .catch(err => console.error('[Notification Status Pipeline Failure Exception]:', err.message));
+    }
+
     return mapAppointment(appointment);
 };
