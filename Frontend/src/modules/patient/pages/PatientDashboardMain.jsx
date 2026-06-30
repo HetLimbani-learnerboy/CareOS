@@ -3,8 +3,8 @@ import PatientSidebar from "../components/PatientSidebar";
 import DashboardOverview from "./DashboardOverview";
 import AppointmentManagement from "./AppointmentManagement";
 import EprescriptionHistory from "./EprescriptionHistory";
-import LabReport from "./LabReport";
 import BillingHistory from "./BillingHistory";
+import PatientLabHistory from "./PatientLabHistory";
 
 import ProfileManagement from "./ProfileManagement";
 import "../style/PatientDashboard.css";
@@ -28,7 +28,7 @@ export default function PatientDashboardMain() {
       case "E-Prescription History":
         return <EprescriptionHistory />;
       case "Lab Report":
-        return <LabReport />;
+        return <PatientLabHistory />;
       case "Billing History":
         return <BillingHistory />;
       case "Profile Management":
