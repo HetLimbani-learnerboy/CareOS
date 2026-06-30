@@ -325,7 +325,7 @@ export default function ActiveLabTasks({ onPipelineUpdated }) {
                                         </div>
 
                                         <div className="active-card-base">
-                                            <span className="active-dr-text">Dr: {task.doctorName || "Doctor"}</span>
+                                            <span className="active-dr-text">{task.doctorName || "Doctor"}</span>
 
                                             <button
                                                 onClick={() => handleAdvancePipeline(task.labHistoryId, task.currentPipelineStatus)}
