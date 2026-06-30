@@ -15,6 +15,7 @@ import patientBookingRoutes from './modules/patients/patientBooking.routes.js';
 import doctorProfileRoutes from './modules/doctor/doctorProfile.routes.js';
 import receptionistRoutes from './modules/receptionist/receptionist.routes.js';;
 import doctorprescription from './modules/doctor/doctor.routes.js'
+import labtechnicianroutes from './modules/lab_technician/labTechnician.routes.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -95,6 +96,8 @@ app.use('/api/v1/doctors', doctorAvailabilityRoutes);
 app.use('/api/v1/doctors', doctorProfileRoutes);
 app.use('/api/v1/doctors', doctorprescription);
 app.use('/api/v1/receptionist', receptionistRoutes);
+app.use('/api/v1/lab-technician', labtechnicianroutes);
+
 
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({

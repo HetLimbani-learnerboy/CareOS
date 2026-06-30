@@ -6,6 +6,7 @@ import LoginPage from "./modules/auth/pages/LoginPage";
 import PatientDashboardMain from "./modules/patient/pages/PatientDashboardMain";
 import DoctorDashboardMain from "./modules/doctor/pages/DoctorDashboardMain";
 import ReceptionistDashboardMain from "./modules/receptionist/page/DashboardOverview";
+import LabTechnicianDashboardMain from "./modules/lab_technician/page/LabTechnicianDashboardMain";
 import ForgotPassword from "./modules/auth/pages/ForgotPassword";
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/patient-dashboard" element={<PatientDashboardMain/>}/>
         <Route path="/doctor-dashboard" element={<DoctorDashboardMain/>}/>
         <Route path="/receptionist-dashboard" element={<ReceptionistDashboardMain/>}/>
+        <Route path="/lab_technician-dashboard" element={<LabTechnicianDashboardMain/>}/>
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </div>
