@@ -1,0 +1,657 @@
+.lab-eligible-container {
+    width: min(100%, 1320px);
+    margin: 0 auto;
+    padding: clamp(1rem, 3vw, 1.75rem);
+    box-sizing: border-box;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #0f172a;
+    animation: labFadeIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.lab-eligible-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.25rem;
+    border: 1px solid #dbeafe;
+    border-radius: 1.25rem;
+    padding: clamp(1rem, 2.4vw, 1.4rem);
+    margin-bottom: 1.25rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 48%, #ecfdf5 100%);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);
+}
+
+.lab-title-block {
+    min-width: 0;
+}
+
+.lab-eligible-title {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: clamp(1.2rem, 2.8vw, 1.55rem);
+    line-height: 1.2;
+    font-weight: 900;
+    color: #0f172a;
+    margin: 0;
+}
+
+.lab-eligible-subtitle {
+    font-size: clamp(0.85rem, 1.6vw, 0.95rem);
+    color: #64748b;
+    margin: 0.45rem 0 0;
+    line-height: 1.5;
+}
+
+.lab-toolbar-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.lab-search-box {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.95rem;
+    padding: 0.78rem 0.95rem;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+}
+
+.lab-search-box:focus-within {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12);
+    transform: translateY(-1px);
+}
+
+.lab-search-box input {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #0f172a;
+    font-size: 0.92rem;
+    font-family: inherit;
+}
+
+.lab-search-box input::placeholder {
+    color: #94a3b8;
+}
+
+.lab-count-chip {
+    flex-shrink: 0;
+    padding: 0.72rem 0.95rem;
+    border-radius: 99px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+    font-size: 0.82rem;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.lab-sync-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 2.55rem;
+    padding: 0.65rem 1rem;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.85rem;
+    font-weight: 850;
+    border-radius: 0.85rem;
+    cursor: pointer;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease, color 0.22s ease;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+}
+
+.lab-sync-btn:hover:not(:disabled) {
+    background: #f0f9ff;
+    border-color: #38bdf8;
+    color: #0284c7;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 26px rgba(2, 132, 199, 0.13);
+}
+
+.lab-sync-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.lab-error-alert {
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    border-radius: 0.95rem;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: #9f1239;
+    animation: labCardSlide 0.3s ease both;
+}
+
+.lab-error-text {
+    font-size: 0.9rem;
+    font-weight: 750;
+    line-height: 1.45;
+}
+
+.lab-loading-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+    gap: 0.7rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.lab-empty-state {
+    border: 2px dashed #bae6fd;
+    border-radius: 1.35rem;
+    padding: clamp(2rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem);
+    text-align: center;
+    color: #94a3b8;
+    max-width: 36rem;
+    margin: 2rem auto;
+    background: linear-gradient(135deg, #ffffff, #f0f9ff);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05);
+    animation: labCardSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.lab-empty-state h3 {
+    margin: 0.8rem 0 0.35rem;
+    color: #334155;
+    font-size: 1.15rem;
+    font-weight: 900;
+}
+
+.lab-empty-state p {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.lab-patients-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 1.25rem);
+}
+
+.lab-patient-card {
+    min-width: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1.25rem;
+    padding: clamp(1rem, 2vw, 1.25rem);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.055);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    animation: labCardSlide 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.lab-patient-card:hover {
+    transform: translateY(-4px);
+    border-color: #7dd3fc;
+    box-shadow: 0 20px 36px rgba(15, 23, 42, 0.09);
+}
+
+.lab-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 0.85rem;
+}
+
+.lab-patient-meta {
+    min-width: 0;
+}
+
+.lab-user-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.lab-patient-name {
+    font-weight: 850;
+    color: #1e293b;
+    font-size: 1rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.lab-patient-email {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    display: block;
+    margin-top: 0.2rem;
+    overflow-wrap: anywhere;
+}
+
+.lab-badge-available {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+    padding: 0.25rem 0.55rem;
+    border-radius: 0.6rem;
+}
+
+.lab-info-block {
+    margin-top: 0.95rem;
+}
+
+.lab-meta-label {
+    font-size: 0.68rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    display: block;
+}
+
+.lab-meta-value {
+    font-size: 0.9rem;
+    color: #334155;
+    margin: 0.22rem 0 0;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.lab-font-semibold,
+.font-semibold {
+    font-weight: 800;
+}
+
+.lab-panels-block {
+    margin-top: 1rem;
+}
+
+.lab-pill-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.45rem;
+}
+
+.lab-test-pill {
+    font-size: 0.76rem;
+    font-weight: 800;
+    background: #f0f9ff;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    padding: 0.32rem 0.65rem;
+    border-radius: 99px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.lab-muted-pill {
+    background: #f8fafc;
+    color: #64748b;
+    border-color: #e2e8f0;
+}
+
+.lab-card-footer {
+    border-top: 1px solid #f1f5f9;
+    margin-top: 1rem;
+    padding-top: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.lab-ref-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.76rem;
+    color: #94a3b8;
+    font-weight: 850;
+    white-space: nowrap;
+}
+
+.lab-claim-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    background: linear-gradient(135deg, #0284c7, #2563eb);
+    color: #ffffff;
+    border: none;
+    font-size: 0.82rem;
+    font-weight: 850;
+    padding: 0.58rem 0.95rem;
+    border-radius: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+    box-shadow: 0 10px 20px rgba(2, 132, 199, 0.18);
+    white-space: nowrap;
+}
+
+.lab-claim-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0369a1, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 26px rgba(37, 99, 235, 0.26);
+}
+
+.lab-claim-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.lab-icon-sky {
+    color: #0284c7;
+}
+
+.lab-icon-slate {
+    color: #64748b;
+}
+
+.lab-skeleton-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 310px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1.25rem;
+    padding: 1.25rem;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.055);
+}
+
+.lab-skeleton-card::after,
+.lab-skeleton-line::after,
+.lab-skeleton-pill::after,
+.lab-skeleton-test::after,
+.lab-skeleton-button::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+    animation: labShimmer 1.35s infinite;
+}
+
+.lab-skeleton-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 1rem;
+}
+
+.lab-skeleton-line,
+.lab-skeleton-pill,
+.lab-skeleton-test,
+.lab-skeleton-button {
+    position: relative;
+    overflow: hidden;
+    background: #e2e8f0;
+    border-radius: 0.65rem;
+}
+
+.lab-skeleton-name {
+    width: 150px;
+    height: 16px;
+}
+
+.lab-skeleton-email {
+    width: 190px;
+    max-width: 100%;
+    height: 12px;
+    margin-top: 0.55rem;
+}
+
+.lab-skeleton-pill {
+    width: 78px;
+    height: 24px;
+    border-radius: 99px;
+}
+
+.lab-skeleton-label {
+    width: 110px;
+    height: 10px;
+    margin-top: 1rem;
+}
+
+.lab-skeleton-wide {
+    width: 100%;
+    height: 18px;
+    margin-top: 0.45rem;
+}
+
+.lab-skeleton-mid {
+    width: 62%;
+    height: 18px;
+    margin-top: 0.45rem;
+}
+
+.lab-skeleton-pills-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 1rem;
+}
+
+.lab-skeleton-test {
+    width: 86px;
+    height: 28px;
+    border-radius: 99px;
+}
+
+.lab-skeleton-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.85rem;
+    border-top: 1px solid #f1f5f9;
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+}
+
+.lab-skeleton-ref {
+    width: 76px;
+    height: 12px;
+}
+
+.lab-skeleton-button {
+    width: 118px;
+    height: 36px;
+    border-radius: 0.8rem;
+}
+
+.lab-spin-anim {
+    animation: labSpin 1s linear infinite;
+}
+
+.lab-pulse-anim {
+    animation: labPulse 2s infinite ease-in-out;
+}
+
+.animate-slide-in-card {
+    animation: labCardSlide 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes labFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes labCardSlide {
+    from {
+        opacity: 0;
+        transform: scale(0.97) translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes labSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes labPulse {
+
+    0%,
+    100% {
+        opacity: 0.65;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.06);
+    }
+}
+
+@keyframes labShimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@media (max-width: 1180px) {
+    .lab-patients-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .lab-eligible-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .lab-sync-btn {
+        width: 100%;
+    }
+
+    .lab-toolbar-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .lab-count-chip {
+        width: fit-content;
+    }
+
+    .lab-patients-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .lab-card-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .lab-ref-code {
+        white-space: normal;
+    }
+
+    .lab-claim-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 460px) {
+    .lab-eligible-container {
+        padding: 0.85rem;
+    }
+
+    .lab-eligible-header {
+        border-radius: 1rem;
+    }
+
+    .lab-patient-card,
+    .lab-skeleton-card {
+        border-radius: 1rem;
+        padding: 1rem;
+    }
+
+    .lab-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .lab-badge-available {
+        align-self: flex-start;
+    }
+
+    .lab-skeleton-top {
+        flex-direction: column;
+    }
+
+    .lab-skeleton-email {
+        width: 100%;
+    }
+
+    .lab-skeleton-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .lab-skeleton-button {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .lab-eligible-container,
+    .lab-patient-card,
+    .lab-empty-state,
+    .lab-error-alert,
+    .lab-spin-anim,
+    .lab-pulse-anim,
+    .animate-slide-in-card,
+    .lab-skeleton-card::after,
+    .lab-skeleton-line::after,
+    .lab-skeleton-pill::after,
+    .lab-skeleton-test::after,
+    .lab-skeleton-button::after {
+        animation: none;
+    }
+
+    .lab-search-box,
+    .lab-sync-btn,
+    .lab-patient-card,
+    .lab-claim-btn {
+        transition: none;
+    }
+}
