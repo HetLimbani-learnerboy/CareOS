@@ -5,6 +5,7 @@ import DoctorAppointmentManagement from "./DoctorAppointmentManagement";
 import DoctorProfileManagement from "./DoctorProfileManagement";
 import EPrescriptionConsole from "./EPrescriptionConsole";
 import PatientRecord from "./PatientRecord";
+import DoctorLabReview from "./DoctorLabReviews";
 import "../../patient/style/PatientDashboard.css";
 
 export default function DoctorDashboardMain() {
@@ -27,8 +28,8 @@ export default function DoctorDashboardMain() {
         return <EPrescriptionConsole/>;
         case "Patient Records File":
         return <PatientRecord/>;
-      case "Shift Roster Schedule":
-        return <div className="profile-loading">Practitioner Availability Calendar</div>;
+      case "Patient Lab Report":
+        return <DoctorLabReview />;
       case "Profile Management":
         return <DoctorProfileManagement />;
       default:

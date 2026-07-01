@@ -233,7 +233,7 @@ export default function DoctorAppointmentManagement() {
     }
   };
 
-  const handleInitiateReschedule = (item) => {
+  const handleFocusRescheduleDate = (item) => {
     setRescheduleTarget(item);
     const itemDate = new Date(item.date);
     if (!isNaN(itemDate.getTime())) {
@@ -297,6 +297,11 @@ export default function DoctorAppointmentManagement() {
     currentDate.getMonth(),
     1
   ).getDay();
+
+  // Filter out any appointments that have already passed their time slot boundary
+  const filteredUpcomingAppointments = useMemo(() => {
+    return appointments.filter((appointment) => !isPastTimeSlot(appointment.date, appointment.time));
+  }, [appointments]);
 
   if (loading && !doctorEmail && !errorMessage) {
     return (
@@ -528,7 +533,7 @@ export default function DoctorAppointmentManagement() {
                           <button
                             type="button"
                             className="action-btn btn-resched inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
-                            onClick={() => handleInitiateReschedule(request)}
+                            onClick={() => handleFocusRescheduleDate(request)}
                           >
                             <RefreshCw size={12} />
                             Reschedule Proposal
@@ -557,7 +562,7 @@ export default function DoctorAppointmentManagement() {
                 </>
               ) : (
                 <>
-                  {appointments.filter((appointment) => appointment.date >= todayKey).map((appointment) => (
+                  {filteredUpcomingAppointments.map((appointment) => (
                     <div key={appointment.id} className="apt-item structural-item-container flex-direction-column">
                       <div className="item-primary-row" onClick={() => toggleExpandItem(appointment.id)}>
                         <div className="apt-time-badge">{appointment.time.split(' ')[0]}</div>
@@ -586,7 +591,7 @@ export default function DoctorAppointmentManagement() {
                             <button
                               type="button"
                               className="action-btn btn-resched inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors"
-                              onClick={() => handleInitiateReschedule(appointment)}
+                              onClick={() => handleFocusRescheduleDate(appointment)}
                             >
                               <RefreshCw size={12} />
                               Reschedule Session
@@ -596,8 +601,8 @@ export default function DoctorAppointmentManagement() {
                       )}
                     </div>
                   ))}
-                  {!appointments.some((appointment) => appointment.date >= todayKey) && (
-                    <p className="empty-msg">No confirmed appointments.</p>
+                  {filteredUpcomingAppointments.length === 0 && (
+                    <p className="empty-msg">No confirmed upcoming appointments.</p>
                   )}
                 </>
               )}

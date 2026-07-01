@@ -37,7 +37,7 @@ export default function ActiveLabTasks({ onPipelineUpdated }) {
 
         try {
             const userObj = storedUser ? JSON.parse(storedUser) : null;
-            return userObj?.email?.trim().toLowerCase() || "lab@careos.com";
+            return userObj?.email?.trim().toLowerCase();
         } catch {
             return "lab@careos.com";
         }
