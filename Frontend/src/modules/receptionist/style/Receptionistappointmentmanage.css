@@ -1182,3 +1182,44 @@
         transition: none;
     }
 }
+
+.doctor-selection-note {
+  display: block;
+  width: 100%;
+
+  margin: 1px 0 5px;
+  padding: 10px 14px;
+
+  background: #f8fbff;
+  border: 1px solid #dbeafe;
+  border-left: 4px solid #3b82f6;
+  border-radius: 8px;
+
+  color: #475569;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+
+  box-sizing: border-box;
+}
+
+.doctor-selection-note strong {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .doctor-selection-note {
+    font-size: 13px;
+    padding: 10px 12px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 480px) {
+  .doctor-selection-note {
+    font-size: 12px;
+    padding: 8px 10px;
+    margin: 1px 0 4px;
+  }
+}

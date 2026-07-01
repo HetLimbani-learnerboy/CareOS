@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { 
-  Calendar as CalendarIcon, Clock, AlertCircle, 
+import {
+  Calendar as CalendarIcon, Clock, AlertCircle,
   ChevronLeft, ChevronRight, CalendarPlus, FileText, Activity,
   Award, MapPin, ChevronDown, ChevronUp, User, CreditCard
 } from "lucide-react";
@@ -24,7 +24,7 @@ const isPastTimeSlot = (appointmentDate, timeSlotString) => {
 
     return currentTime > slotTime;
   } catch (err) {
-    return false; 
+    return false;
   }
 };
 
@@ -34,7 +34,7 @@ export default function AppointmentManagement() {
   const [isBookingMode, setIsBookingMode] = useState(false);
   const [patientData, setPatientData] = useState({ firstName: "", lastName: "", email: "" });
   const [currentCalDate, setCurrentCalDate] = useState(new Date());
-  
+
   const [doctorsFromDb, setDoctorsFromDb] = useState([]);
   const [doctorAvailability, setDoctorAvailability] = useState({ defaultWeeklySlots: [], customDayOverrides: {}, activeBookings: [] });
   const [selectedDoctorProfile, setSelectedDoctorProfile] = useState(null);
@@ -135,7 +135,7 @@ export default function AppointmentManagement() {
   const getSlotsForDate = (dateStr) => {
     if (!dateStr || !doctorAvailability) return [];
     if (dateStr < todayStr) return [];
-    
+
     if (doctorAvailability.customDayOverrides?.[dateStr] !== undefined) {
       return doctorAvailability.customDayOverrides[dateStr];
     }
@@ -201,8 +201,8 @@ export default function AppointmentManagement() {
         await axios.post(`${API_BASE_URL}/api/v1/patients/book-request`, {
           patientEmail: patientData.email,
           appointmentId: id,
-          time: "", 
-          date: "" 
+          time: "",
+          date: ""
         });
         fetchPatientLedger();
       } catch (err) {
@@ -291,15 +291,15 @@ export default function AppointmentManagement() {
               </div>
             </div>
             <div className="card-operational-actions">
-              <button 
-                className="action-btn opt-reschedule" 
+              <button
+                className="action-btn opt-reschedule"
                 disabled={isTotalLocked}
                 onClick={() => handleTriggerReschedule(apt)}
               >
                 Reschedule
               </button>
-              <button 
-                className="action-btn opt-cancel" 
+              <button
+                className="action-btn opt-cancel"
                 disabled={isTotalLocked}
                 onClick={() => handleCancelAppointment(apt.id)}
               >
@@ -381,10 +381,13 @@ export default function AppointmentManagement() {
 
             <div className="input-node">
               <label>Required Clinical Specialization</label>
-              <select 
-                name="specialization" 
-                required 
-                value={bookingForm.specialization} 
+              <label className="doctor-selection-note">
+                Please select <strong>General Medicine</strong> and then choose <strong>Dr. Rohan Joshi</strong>. Use this doctor account when testing the Doctor Portal features.
+              </label>
+              <select
+                name="specialization"
+                required
+                value={bookingForm.specialization}
                 onChange={(e) => {
                   setBookingForm(prev => ({
                     ...prev,
@@ -434,10 +437,10 @@ export default function AppointmentManagement() {
                         const isNodeDisabled = isSlotTaken || isPastSlot;
 
                         return (
-                          <button 
-                            type="button" 
+                          <button
+                            type="button"
                             disabled={isNodeDisabled}
-                            key={slot} 
+                            key={slot}
                             className={`slot-pill-node ${bookingForm.selectedTime === slot ? 'active' : ''} ${isSlotTaken ? 'booked' : ''} ${isPastSlot ? 'past-lockout' : ''}`}
                             onClick={() => !isNodeDisabled && setBookingForm(prev => ({ ...prev, selectedTime: slot }))}
                           >
@@ -483,9 +486,9 @@ export default function AppointmentManagement() {
               <div className="interactive-scheduling-stack">
                 <div className="calendar-widget-wrapper">
                   <div className="cal-navigation-row">
-                    <button type="button" onClick={() => setCurrentCalDate(new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() - 1, 1))}><ChevronLeft size={16}/></button>
+                    <button type="button" onClick={() => setCurrentCalDate(new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() - 1, 1))}><ChevronLeft size={16} /></button>
                     <span>{currentCalDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
-                    <button type="button" onClick={() => setCurrentCalDate(new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() + 1, 1))}><ChevronRight size={16}/></button>
+                    <button type="button" onClick={() => setCurrentCalDate(new Date(currentCalDate.getFullYear(), currentCalDate.getMonth() + 1, 1))}><ChevronRight size={16} /></button>
                   </div>
 
                   <div className="cal-matrix-grid">
@@ -495,18 +498,18 @@ export default function AppointmentManagement() {
                       const day = i + 1;
                       const loopDate = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), day);
                       const loopDateStr = getFormattedDate(loopDate);
-                      
+
                       const dayOfWeek = loopDate.getDay();
                       const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
                       const isPast = loopDateStr < todayStr;
                       const isSelected = loopDateStr === bookingForm.selectedDate;
                       const hasSlots = getSlotsForDate(loopDateStr).length > 0 && !isPast;
-                      
+
                       const isHoliday = isWeekend && (!doctorAvailability.customDayOverrides?.[loopDateStr] || doctorAvailability.customDayOverrides[loopDateStr].length === 0);
 
                       return (
-                        <div 
-                          key={day} 
+                        <div
+                          key={day}
                           className={`cal-matrix-node ${isSelected ? 'active' : ''} ${hasSlots ? 'open-slots' : 'blocked-slots'} ${isPast ? 'historical-node' : ''} ${isHoliday ? 'holiday-node' : ''}`}
                           onClick={() => hasSlots && handleDateSelect(loopDate)}
                         >
