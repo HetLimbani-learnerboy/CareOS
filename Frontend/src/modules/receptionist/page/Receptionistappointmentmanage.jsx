@@ -596,6 +596,9 @@ export default function Receptionistappointmentmanage() {
 
             <div className="input-node">
               <label>Required Clinical Specialization</label>
+              <label className="doctor-selection-note">
+                Please select <strong>General Medicine</strong> and then choose <strong>Dr. Rohan Joshi</strong>. Use this doctor account when testing the Doctor Portal features.
+              </label>
               <select
                 name="specialization"
                 required
