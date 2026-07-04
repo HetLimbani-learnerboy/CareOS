@@ -327,12 +327,12 @@ export default function EPrescriptionConsole() {
                                                 )}
                                             </div>
                                             <div className="input-field-block flex-grow-2">
-                                                <label>Dosing Strategy</label>
-                                                <input type="text" placeholder="e.g. 1 Capsule, 3x Daily" value={med.dosage} required onChange={(e) => handleMedicineChange(idx, "dosage", e.target.value)} />
+                                                <label>Dosage Strategy</label>
+                                                <input type="text" placeholder="e.g. 1 dosage daily for 5 days" value={med.dosage} onChange={(e) => handleMedicineChange(idx, "dosage", e.target.value)} />
                                             </div>
                                             <div className="input-field-block flex-grow-1">
-                                                <label>Days Scale</label>
-                                                <input type="number" placeholder="7" value={med.days} required onChange={(e) => handleMedicineChange(idx, "days", e.target.value)} />
+                                                <label>Dosage Ratio</label>
+                                                <input type="number" placeholder="e.g., 5" value={med.days} onChange={(e) => handleMedicineChange(idx, "days", e.target.value)} />
                                             </div>
                                             {prescriptionForm.medicines.length > 1 && (
                                                 <button type="button" className="row-remove-btn" onClick={() => removeMedicineRow(idx)}><Trash2 size={16} /></button>
