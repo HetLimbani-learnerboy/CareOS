@@ -646,23 +646,23 @@ export default function PatientRecord() {
                       </div>
 
                       <div className="pr-input-block flex-2">
-                        <label>Dosing Strategy</label>
+                        <label>Dosage Strategy</label>
                         <input
                           type="text"
                           value={med.dosage || ""}
                           required
-                          placeholder="e.g., 1 tablet daily"
+                          placeholder="e.g., 1 tablet daily for 5 days"
                           onChange={(e) => handleMedicineChange(idx, "dosage", e.target.value)}
                         />
                       </div>
 
                       <div className="pr-input-block flex-1">
-                        <label>Days</label>
+                        <label>Dosage Ratio</label>
                         <input
                           type="number"
                           value={med.days || ""}
                           required
-                          placeholder="5"
+                          placeholder="e.g., 5"
                           onChange={(e) => handleMedicineChange(idx, "days", e.target.value)}
                         />
                       </div>
