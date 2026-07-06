@@ -8,6 +8,11 @@ import {
   collectCashPayment, 
   cancelPharmacyInvoice
 } from "./pharmacist.controller.js";
+import {
+  fetchInventoryCatalog,
+  updateInventoryStockCount,
+  addNewMedicineToCatalog
+} from "./medicineInventory.controller.js";
 import protectRoute, { requireRole } from "../../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -37,9 +42,11 @@ router.post(
 );
 
 router.get("/pharmacy/billing/ledger", protectRoute, requirePharmacist, fetchPharmacyBillingLedger);
-
 router.patch("/pharmacy/billing/:invoiceId/pay-cash", protectRoute, requirePharmacist, collectCashPayment);
-
 router.patch("/pharmacy/billing/:invoiceId/void", protectRoute, requirePharmacist, cancelPharmacyInvoice);
+
+router.get("/pharmacy/inventory", protectRoute, requirePharmacist, fetchInventoryCatalog);
+router.patch("/pharmacy/inventory/:medicineId/quantity", protectRoute, requirePharmacist, updateInventoryStockCount);
+router.post("/pharmacy/inventory/add", protectRoute, requirePharmacist, addNewMedicineToCatalog);
 
 export default router;
