@@ -48,10 +48,6 @@ export default function ReceptionistSidebar({
     name: "Billing",
     icon: <Receipt size={18} />,
   },
-  {
-    name: "Profile Management",
-    icon: <UserCog size={18} />,
-  },
 ];
 
   const handleTabSelection = (tabName) => {

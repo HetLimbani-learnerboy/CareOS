@@ -230,7 +230,7 @@ export default function MedicineInventory() {
                                     {inventory.map((item) => {
                                         const isEditing = editingId === item._id;
                                         const isExpanded = expandedMedicineId === item._id;
-                                        const isLowStock = (item.quantity || 0) < 30;
+                                        const isLowStock = (item.quantity || 0) < 20;
 
                                         return (
                                             <React.Fragment key={item._id}>

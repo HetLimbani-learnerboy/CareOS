@@ -881,7 +881,12 @@ export default function Receptionistappointmentmanage() {
             </>
           ) : (
             <div className="empty-roster-fallback">
-
+              <FileText size={32} />
+              <p>No appointment records found.</p>
+              <button type="button" className="book-trigger-btn" onClick={openNewAppointmentForm}>
+                <CalendarPlus size={16} />
+                Create New Appointment
+              </button>
             </div>
           )}
         </div>
