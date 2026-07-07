@@ -36,7 +36,7 @@ export default function PrescriptionDispensing() {
 
         try {
             const userObj = storedUser ? JSON.parse(storedUser) : null;
-            return userObj?.email?.trim().toLowerCase() || "pharmacist@careos.com";
+            return userObj?.email?.trim().toLowerCase();
         } catch {
             return "pharmacist@careos.com";
         }

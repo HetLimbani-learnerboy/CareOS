@@ -1,16 +1,23 @@
 import express from 'express';
 import {
-  fetchReceptionistDashboardMetrics,
-  fetchAllSystemAppointments,
-  receptionistBookWalkInIntake,
-  updateAppointmentStatusByReceptionist
+    fetchReceptionistDashboardMetrics,
+    fetchAllSystemAppointments,
+    receptionistBookWalkInIntake,
+    updateAppointmentStatusByReceptionist
 } from './receptionist.controller.js';
+import { fetchAdmissionDashboard, createAdmissionRecord, completeDischargeCheckout } from "./admissionProcess.controller.js";
+import protectRoute, { requireRole } from "../../middleware/authMiddleware.js";
 
 const router = express.Router();
+const requireReceptionist = requireRole("receptionist");
 
-router.get('/metrics', fetchReceptionistDashboardMetrics);
-router.get('/appointments', fetchAllSystemAppointments);
-router.post('/receptionist-book-request', receptionistBookWalkInIntake);
-router.patch('/appointments/:appointmentId/action', updateAppointmentStatusByReceptionist);
+router.get('/metrics', protectRoute, requireReceptionist, fetchReceptionistDashboardMetrics);
+router.get('/appointments', protectRoute, requireReceptionist, fetchAllSystemAppointments);
+router.post('/receptionist-book-request', protectRoute, requireReceptionist, receptionistBookWalkInIntake);
+router.patch('/appointments/:appointmentId/action', protectRoute, requireReceptionist, updateAppointmentStatusByReceptionist);
+
+router.get("/admission/dashboard", protectRoute, requireReceptionist, fetchAdmissionDashboard);
+router.post("/admission/check-in", protectRoute, requireReceptionist, createAdmissionRecord);
+router.patch("/admission/:admissionId/discharge", protectRoute, requireReceptionist, completeDischargeCheckout);
 
 export default router;

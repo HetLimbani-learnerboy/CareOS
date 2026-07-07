@@ -4,7 +4,7 @@ import ReceptionistSidebar from "../components/ReceptionistSidebar";
 import DashboardOverview from "./DashboardOverview";
 import Receptionistappointmentmanage from "./Receptionistappointmentmanage";
 import ReceptionistHome from "./ReceptionistHome";
-// import AdmissionProcessing from "./AdmissionProcessing";
+import AdmissionProcessing from "./AdmissionProcessing";
 // import InsuranceVerification from "./InsuranceVerification";
 // import BillingManagement from "./BillingManagement";
 // import ProfileManagement from "./ProfileManagement";
@@ -22,30 +22,27 @@ export default function ReceptionistDashboardMain() {
   }, [activeTab]);
 
   const renderActivePage = () => {
-  switch (activeTab) {
+    switch (activeTab) {
 
-    case "Dashboard":
-      return <ReceptionistHome />;
+      case "Dashboard":
+        return <ReceptionistHome />;
 
-    case "Appointment Management":
-      return <Receptionistappointmentmanage />;
+      case "Appointment Management":
+        return <Receptionistappointmentmanage />;
 
-    // case "Admission Processing":
-    //   return <ReceptionistHome />;
+      case "Admission Processing":
+        return <AdmissionProcessing />;
 
-    // case "Insurance Verification":
-    //   return <ReceptionistHome />;
+      // case "Insurance Verification":
+      //   return <ReceptionistHome />;
 
-    // case "Billing":
-    //   return <ReceptionistHome />;
+      // case "Billing":
+      //   return <ReceptionistHome />;
 
-    // case "Profile Management":
-    //   return <ReceptionistHome />;
-
-    default:
-      return <ReceptionistHome />;
-  }
-};
+      default:
+        return <ReceptionistHome />;
+    }
+  };
 
   return (
     <div className="patient-portal-wrapper">
@@ -56,9 +53,8 @@ export default function ReceptionistDashboardMain() {
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         >
           <div
-            className={`hamburger-bar ${
-              isSidebarOpen ? "open" : ""
-            }`}
+            className={`hamburger-bar ${isSidebarOpen ? "open" : ""
+              }`}
           />
         </button>
 
@@ -68,11 +64,11 @@ export default function ReceptionistDashboardMain() {
       </header>
 
       <ReceptionistSidebar
-  activeTab={activeTab}
-  setActiveTab={setActiveTab}
-  isOpen={isSidebarOpen}
-  setIsOpen={setIsSidebarOpen}
-/>
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
+      />
 
       <main className="portal-workspace-canvas">
         <div className="workspace-animation-container animate-fade-in">
