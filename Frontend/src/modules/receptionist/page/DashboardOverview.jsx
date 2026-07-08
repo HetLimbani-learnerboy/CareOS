@@ -5,6 +5,7 @@ import DashboardOverview from "./DashboardOverview";
 import Receptionistappointmentmanage from "./Receptionistappointmentmanage";
 import ReceptionistHome from "./ReceptionistHome";
 import AdmissionProcessing from "./AdmissionProcessing";
+import ConsultingManager from "./ConsultingManager";
 // import InsuranceVerification from "./InsuranceVerification";
 // import BillingManagement from "./BillingManagement";
 // import ProfileManagement from "./ProfileManagement";
@@ -33,6 +34,8 @@ export default function ReceptionistDashboardMain() {
       case "Admission Processing":
         return <AdmissionProcessing />;
 
+      case "Consultation Requests":
+        return <ConsultingManager />;
       // case "Insurance Verification":
       //   return <ReceptionistHome />;
 
