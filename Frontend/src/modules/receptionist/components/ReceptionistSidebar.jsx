@@ -11,6 +11,7 @@ import {
   UserCog,
   LogOut,
   ChevronLeft,
+  FileText
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -41,8 +42,8 @@ export default function ReceptionistSidebar({
     icon: <ClipboardPlus size={18} />,
   },
   {
-    name: "Insurance Verification",
-    icon: <ShieldCheck size={18} />,
+    name: "Consultation Requests",
+    icon: <FileText size={18} />,
   },
   {
     name: "Billing",

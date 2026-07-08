@@ -1,0 +1,324 @@
+@keyframes cmFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes cmSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.cm-container {
+    padding: 1rem;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f8fafc;
+    min-height: 100vh;
+    box-sizing: border-box;
+    animation: cmFadeIn 0.35s ease-out forwards;
+}
+
+.cm-header {
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.cm-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.cm-header h2 svg {
+    color: #0284c7;
+    flex-shrink: 0;
+}
+
+.cm-header p {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0.35rem 0 0 0;
+    line-height: 1.4;
+}
+
+.cm-error {
+    background-color: #fff1f2;
+    border: 1px solid #fecdd3;
+    color: #9f1239;
+    padding: 0.85rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.cm-loading,
+.cm-empty {
+    padding: 6rem 1rem;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+}
+
+.cm-spin {
+    animation: cmSpin 1s linear infinite;
+}
+
+.cm-list-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.cm-card-node {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.85rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+.cm-card-node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+
+.cm-card-node.pending {
+    border-left: 4px solid #f97316;
+}
+
+.cm-card-node.resolved {
+    border-left: 4px solid #10b981;
+}
+
+.cm-card-node.archived {
+    border-left: 4px solid #64748b;
+    background-color: #fafafa;
+}
+
+.cm-card-header {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.85rem;
+    border-bottom: 1px dashed #f1f5f9;
+    padding-bottom: 0.85rem;
+}
+
+.cm-user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.cm-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    background-color: #f0fdf4;
+    color: #16a34a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cm-card-node.pending .cm-avatar {
+    background-color: #fff7ed;
+    color: #ea580c;
+}
+
+.cm-card-node.archived .cm-avatar {
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+.cm-user-info h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+    color: #0f172a;
+}
+
+.cm-user-info span {
+    font-size: 0.8rem;
+    color: #64748b;
+    display: block;
+    margin-top: 0.1rem;
+    word-break: break-all;
+}
+
+.cm-status-interactive-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.cm-inline-status-select {
+    padding: 0.45rem 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #334155;
+    background-color: #ffffff;
+    outline: none;
+    cursor: pointer;
+    width: 100%;
+    transition: border-color 0.15s ease;
+    box-sizing: border-box;
+}
+
+.cm-inline-status-select:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.08);
+}
+
+.cm-message-body h5 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin: 0 0 0.45rem 0;
+    letter-spacing: 0.03em;
+}
+
+.cm-message-body p {
+    font-size: 0.85rem;
+    color: #334155;
+    margin: 0;
+    line-height: 1.6;
+    background-color: #f8fafc;
+    padding: 1rem;
+    border-radius: 0.65rem;
+    border: 1px solid #e2e8f0;
+    box-sizing: border-box;
+}
+
+.cm-card-footer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding-top: 0.25rem;
+}
+
+.cm-time {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.cm-time svg {
+    flex-shrink: 0;
+}
+
+.cm-actions-group {
+    width: 100%;
+}
+
+.cm-btn-reply {
+    width: 100%;
+    border: none;
+    background-color: #0284c7;
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+    box-sizing: border-box;
+}
+
+.cm-btn-reply:hover {
+    background-color: #0369a1;
+}
+
+.cm-btn-reply:active {
+    transform: scale(0.98);
+}
+
+.cm-btn-reply svg {
+    flex-shrink: 0;
+}
+
+@media (min-width: 576px) {
+    .cm-container {
+        padding: 1.5rem;
+    }
+
+    .cm-card-header {
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .cm-status-interactive-wrapper {
+        width: auto;
+    }
+
+    .cm-inline-status-select {
+        width: 8.5rem;
+    }
+
+    .cm-card-footer {
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .cm-actions-group {
+        width: auto;
+    }
+
+    .cm-btn-reply {
+        width: auto;
+        padding: 0.5rem 1rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .cm-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .cm-header p {
+        font-size: 0.9 /rem;
+    }
+}
