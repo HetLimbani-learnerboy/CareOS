@@ -8,6 +8,7 @@ import DoctorDashboardMain from "./modules/doctor/pages/DoctorDashboardMain";
 import ReceptionistDashboardMain from "./modules/receptionist/page/DashboardOverview";
 import LabTechnicianDashboardMain from "./modules/lab_technician/page/LabTechnicianDashboardMain";
 import PharmasictDashboardMain from "./modules/pharmacist/pages/PharmasictDashboardMain";
+import NurseDashboardMain from './modules/nurse/pages/NurseDashboardMain'
 import ForgotPassword from "./modules/auth/pages/ForgotPassword";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Route path="/receptionist-dashboard" element={<ReceptionistDashboardMain/>}/>
         <Route path="/lab_technician-dashboard" element={<LabTechnicianDashboardMain/>}/>
         <Route path="/pharmacist-dashboard" element={<PharmasictDashboardMain/>}/>
+        <Route path="/nurse-dashboard" element={<NurseDashboardMain />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </div>

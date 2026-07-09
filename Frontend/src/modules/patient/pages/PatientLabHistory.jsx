@@ -105,7 +105,6 @@ export default function PatientLabHistory() {
             record.billingAmount ||
             record.reportData?.billingAmount ||
             record.billAmount ||
-            record.amount ||
             0
         );
     };

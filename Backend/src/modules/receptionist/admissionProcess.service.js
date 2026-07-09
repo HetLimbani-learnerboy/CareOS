@@ -15,38 +15,10 @@ export const seedWardBedsIfEmpty = async () => {
     if (count > 0) return;
 
     const bedsToCreate = [];
-
-    for (let i = 1; i <= 8; i++) {
-        bedsToCreate.push({
-            bedNumber: `GR-${100 + i}`,
-            roomType: "General Room",
-            status: "Available"
-        });
-    }
-
-    for (let i = 1; i <= 6; i++) {
-        bedsToCreate.push({
-            bedNumber: `SD-${200 + i}`,
-            roomType: "Semi-Deluxe Room",
-            status: "Available"
-        });
-    }
-
-    for (let i = 1; i <= 6; i++) {
-        bedsToCreate.push({
-            bedNumber: `DL-${300 + i}`,
-            roomType: "Deluxe Room",
-            status: "Available"
-        });
-    }
-
-    for (let i = 1; i <= 5; i++) {
-        bedsToCreate.push({
-            bedNumber: `ICU-${400 + i}`,
-            roomType: "ICU",
-            status: "Available"
-        });
-    }
+    for (let i = 1; i <= 8; i++) bedsToCreate.push({ bedNumber: `GR-${100 + i}`, roomType: "General Room", price: 1000, status: "Available" });
+    for (let i = 1; i <= 6; i++) bedsToCreate.push({ bedNumber: `SD-${200 + i}`, roomType: "Semi-Deluxe Room", price: 2000, status: "Available" });
+    for (let i = 1; i <= 6; i++) bedsToCreate.push({ bedNumber: `DL-${300 + i}`, roomType: "Deluxe Room", price: 3500, status: "Available" });
+    for (let i = 1; i <= 5; i++) bedsToCreate.push({ bedNumber: `ICU-${400 + i}`, roomType: "ICU", price: 5000, status: "Available" });
 
     await WardBed.insertMany(bedsToCreate);
 };
@@ -55,9 +27,7 @@ export const getAdmissionDashboardData = async () => {
     await seedWardBedsIfEmpty();
 
     const beds = await WardBed.find({}).sort({ bedNumber: 1 }).lean();
-    const activeAdmissionPrescriptionIds = await Admission.find({
-        status: "Admitted"
-    }).distinct("prescriptionId");
+    const activeAdmissionPrescriptionIds = await Admission.find({ status: "Admitted" }).distinct("prescriptionId");
 
     const rawPrescriptions = await Prescription.find({
         _id: { $nin: activeAdmissionPrescriptionIds }
@@ -93,21 +63,49 @@ export const getAdmissionDashboardData = async () => {
     });
 
     const currentAdmissions = await Admission.find({ status: "Admitted" })
+        .populate({
+            path: "nurseIds",
+            select: "_id firstName lastName email",
+            model: UserIdentity
+        })
+        .populate({
+            path: "prescriptionId",
+            select: "doctorName doctorEmail prescriptionName diagnosis result",
+            model: Prescription
+        })
         .sort({ admittedAt: -1 })
+        .lean();
+
+    const activeNurses = await UserIdentity.find({ role: "nurse" })
+        .select("_id firstName lastName email")
+        .sort({ firstName: 1 })
         .lean();
 
     return {
         beds,
         incomingQueue,
-        currentAdmissions
+        currentAdmissions,
+        nurses: activeNurses.map(n => ({
+            nurseId: String(n._id),
+            name: `${n.firstName || ""} ${n.lastName || ""}`.trim(),
+            email: n.email
+        }))
     };
 };
 
 export const processPatientAdmission = async (admissionData) => {
-    const { prescriptionId, patientId, patientName, patientEmail, roomType } = admissionData;
+    const { prescriptionId, patientId, patientName, patientEmail, roomType, nurseIds } = admissionData;
 
-    if (!prescriptionId || !patientName || !patientEmail || !roomType) {
+    if (!prescriptionId || !patientName || !patientEmail || !roomType || !nurseIds || !Array.isArray(nurseIds)) {
         throw httpError(400, "Required property variables missing from admission payload body parameters.");
+    }
+
+    if (nurseIds.length < 1) {
+        throw httpError(400, "At least one nurse must be assigned to the patient.");
+    }
+
+    if (nurseIds.length > 3) {
+        throw httpError(400, "A maximum of 3 nurses can be assigned to a patient.");
     }
 
     const session = await mongoose.startSession();
@@ -116,7 +114,16 @@ export const processPatientAdmission = async (admissionData) => {
     try {
         const availableBed = await WardBed.findOne({ roomType, status: "Available" }).session(session);
         if (!availableBed) {
-            throw httpError(422, `No vacant beds available under the select ${roomType} tier configuration layout.`);
+            throw httpError(422, `No vacant beds available under the selected ${roomType} room type.`);
+        }
+
+        const validNurses = await UserIdentity.find({
+            _id: { $in: nurseIds.map(id => mongoose.Types.ObjectId.createFromHexString(id)) },
+            role: "nurse"
+        }).session(session);
+
+        if (validNurses.length !== nurseIds.length) {
+            throw httpError(400, "One or more selected nurses are invalid.");
         }
 
         const checkInTime = new Date();
@@ -128,6 +135,7 @@ export const processPatientAdmission = async (admissionData) => {
             patientId: patientId ? mongoose.Types.ObjectId.createFromHexString(patientId) : new mongoose.Types.ObjectId(),
             patientName: String(patientName).trim(),
             patientEmail: String(patientEmail).toLowerCase().trim(),
+            nurseIds: nurseIds.map(id => mongoose.Types.ObjectId.createFromHexString(id)),
             bedId: availableBed._id,
             roomType,
             admittedAt: checkInTime,
