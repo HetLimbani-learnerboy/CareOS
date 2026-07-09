@@ -8,6 +8,7 @@ const wardBedSchema = new mongoose.Schema(
             enum: ["General Room", "Semi-Deluxe Room", "Deluxe Room", "ICU"],
             required: true
         },
+        price: { type: Number},
         status: { type: String, enum: ["Available", "Occupied"], default: "Available" },
         currentAdmissionId: { type: mongoose.Schema.Types.ObjectId, ref: "Admission" }
     },

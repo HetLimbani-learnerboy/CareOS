@@ -4,6 +4,21 @@ const admissionSchema = new mongoose.Schema(
     {
         prescriptionId: { type: mongoose.Schema.Types.ObjectId, ref: "Prescription", required: true },
         patientId: { type: mongoose.Schema.Types.ObjectId, ref: "UserIdentity", required: true },
+        nurseIds: {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "UserIdentity"
+                }
+            ],
+            validate: {
+                validator: (value) =>
+                    value.length >= 1 &&
+                    value.length <= 3,
+                message:
+                    "Patient must have between 1 and 3 assigned nurses."
+            }
+        },
         patientName: { type: String, required: true },
         patientEmail: { type: String, required: true, lowercase: true, trim: true },
         bedId: { type: mongoose.Schema.Types.ObjectId, ref: "WardBed", required: true },

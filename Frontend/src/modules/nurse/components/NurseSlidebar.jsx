@@ -1,41 +1,26 @@
-import React from "react";
+import react from "react";
 import {
   LayoutDashboard,
+  Users,
   FlaskConical,
-  Layers,
-  Receipt,
+  HeartPulse,
+  Bed,
   LogOut,
-  ChevronLeft,
+  ChevronLeft
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CareOSLogo from "../../../assets/CareOS-logo.png";
-import "../style/LabTechnicianSidebar.css";
+import "../../patient/style/PatientSlidebarStyle.css";
 
-export default function LabTechnicianSidebar({
-  activeTab,
-  setActiveTab,
-  isOpen,
-  setIsOpen,
-}) {
+export default function NurseSlidebar({ activeTab, setActiveTab, isOpen, setIsOpen }) {
   const navigate = useNavigate();
 
   const menuItems = [
-    {
-      name: "Dashboard",
-      icon: <LayoutDashboard size={18} />,
-    },
-    {
-      name: "Test Request Management",
-      icon: <FlaskConical size={18} />,
-    },
-    {
-      name: "Sample Processing",
-      icon: <Layers size={18} />,
-    },
-    {
-      name: "Billing History",
-      icon: <Receipt size={18} />,
-    },
+    { name: "Dashboard", icon: <LayoutDashboard size={18} /> },
+    { name: "Ward Management", icon: <Bed size={18} /> },
+    { name: "Patient Monitoring", icon: <HeartPulse size={18} /> },
+    { name: "Patient Records File", icon: <Users size={18} /> },
+    { name: "Patient Lab Report", icon: <FlaskConical size={18} /> },
   ];
 
   const handleTabSelection = (tabName) => {
@@ -44,7 +29,7 @@ export default function LabTechnicianSidebar({
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("labTechActiveTab");
+    localStorage.removeItem("nurseActiveTab");
     localStorage.removeItem("user");
     localStorage.removeItem("authToken");
     sessionStorage.clear();
@@ -53,8 +38,8 @@ export default function LabTechnicianSidebar({
 
   return (
     <>
-      <div
-        className={`sidebar-overlay ${isOpen ? "sidebar-overlay-show" : ""}`}
+      <div 
+        className={`sidebar-overlay ${isOpen ? "sidebar-overlay-show" : ""}`} 
         onClick={() => setIsOpen(false)}
       />
 
@@ -62,21 +47,18 @@ export default function LabTechnicianSidebar({
         <div className="sidebar-identity-block">
           <div className="sidebar-branding-wrapper">
             <div className="sidebar-logo-wrapper">
-              <img
-                src={CareOSLogo}
-                alt="CareOS Logo"
-                className="sidebar-branding-logo-img"
-              />
+              <img src={CareOSLogo} alt="CareOS Logo" className="sidebar-branding-logo-img" />
             </div>
             <div className="sidebar-branding-text">
               <h3>CareOS</h3>
-              <p>Lab Technician Portal</p>
+              <p>Nurse Portal</p>
             </div>
           </div>
 
-          <button
-            className="sidebar-close-drawer-trigger"
+          <button 
+            className="sidebar-close-drawer-trigger" 
             onClick={() => setIsOpen(false)}
+            aria-label="Collapse Navigation Menu"
           >
             <ChevronLeft size={16} />
           </button>
