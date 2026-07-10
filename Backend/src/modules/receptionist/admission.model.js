@@ -25,7 +25,15 @@ const admissionSchema = new mongoose.Schema(
         roomType: { type: String, required: true },
         admittedAt: { type: Date, default: Date.now },
         dischargeEligibleAt: { type: Date, required: true },
-        status: { type: String, enum: ["Admitted", "Discharged"], default: "Admitted" }
+        status: { type: String, enum: ["Admitted", "Discharged"], default: "Admitted" },
+        vitalsHistory: [
+            {
+                bloodPressure: { type: String, required: true },
+                heartRate: { type: Number, required: true },
+                temperature: { type: Number, required: true },
+                recordedAt: { type: Date, default: Date.now }
+            }
+        ]
     },
     { timestamps: true }
 );

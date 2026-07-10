@@ -36,7 +36,7 @@ export default function PharmacyBillingPOS() {
             const userObj = storedUser ? JSON.parse(storedUser) : null;
             return userObj?.email?.trim().toLowerCase();
         } catch {
-            return "pharmacist@careos.com";
+            return "";
         }
     }, []);
 
