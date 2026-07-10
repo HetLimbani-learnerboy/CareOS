@@ -241,7 +241,6 @@ export default function AdmissionProcessing() {
                     </div>
                 </div>
 
-                {/* RIGHT PANEL: Master Active Occupants Ledger with Accordion Dropdown functionality */}
                 <div className="adm-panel-card">
                     <div className="panel-title-strip"><Layers size={16} /> <span>Active Ward Occupants Ledger ({activeAdmissions.length})</span></div>
                     <div className="panel-scroll-box">
@@ -291,6 +290,8 @@ export default function AdmissionProcessing() {
                                                                         <span className="adm-drawer-lbl"><Stethoscope size={11} /> Attending Doctor</span>
                                                                         <p className="adm-drawer-val">{adm.prescriptionId?.doctorName || "N/A"}</p>
                                                                         <span style={{ fontSize: "0.7rem", color: "#94a3b8" }}>{adm.prescriptionId?.doctorEmail || ""}</span>
+                                                                        <span className="control-lbl-pos">Patient Diagnosis</span>
+                                                                        <p className="adm-drawer-val">{adm.prescriptionId?.diagnosis || "N/A"}</p>
                                                                     </div>
                                                                     <div>
                                                                         <span className="adm-drawer-lbl"><Users size={11} /> Care Team (Nurses)</span>
@@ -301,6 +302,7 @@ export default function AdmissionProcessing() {
                                                                                 </p>
                                                                             )) || <p style={{ margin: 0, fontSize: "0.75rem", color: "#94a3b8" }}>No staff mapped</p>}
                                                                         </div>
+
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -457,7 +459,6 @@ export default function AdmissionProcessing() {
                                     </span>
                                 </div>
 
-                                {/* ATTACHED INSPECTION ELEMENT: Referring Admitting Doctor Infrastructure Metrics */}
                                 <div className="clinical-line-node" style={{ gridColumn: "span 2" }}>
                                     <span className="control-lbl-pos"><Stethoscope size={11} /> Referring Admitting Doctor</span>
                                     <p className="clinical-val-text" style={{ fontSize: "0.85rem", color: "#1e293b" }}>
@@ -466,6 +467,12 @@ export default function AdmissionProcessing() {
                                     <span style={{ fontSize: "0.7rem", color: "#64748b", display: "block" }}>
                                         {selectedBedPatient.prescriptionId?.doctorEmail || ""}
                                     </span>
+                                    <span className="control-lbl-pos">Patient Diagnosis</span>
+                                    <p
+                                        className="clinical-val-text"
+                                        style={{ fontSize: "0.85rem", color: "#1e293b" }}>
+                                        {selectedBedPatient.prescriptionId?.diagnosis || "N/A"}
+                                    </p>
                                 </div>
                             </div>
 

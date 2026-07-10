@@ -361,7 +361,7 @@ export default function DoctorLabReviews() {
                                             onClick={(event) => handleDownloadBillPdf(item, event)}
                                         >
                                             <Download size={14} />
-                                            <span>Bill PDF</span>
+                                            <span>Download Report</span>
                                         </button>
 
                                         <span className={`doc-pipeline-badge ${getStatusBadgeStyle(item.status)}`}>
@@ -459,14 +459,7 @@ export default function DoctorLabReviews() {
                                                 <div className="doc-completed-results-pane">
                                                     <div className="doc-results-pane-head-row">
                                                         <h4 className="doc-results-pane-head-title">Laboratory Metrics & Signed Findings</h4>
-                                                        <button
-                                                            type="button"
-                                                            className="doc-download-bill-btn result-download"
-                                                            onClick={(event) => handleDownloadBillPdf(item, event)}
-                                                        >
-                                                            <Download size={14} />
-                                                            <span>Download Bill</span>
-                                                        </button>
+
                                                     </div>
                                                     <div className="doc-results-content-split">
                                                         <div className="doc-result-data-box border-emerald">
