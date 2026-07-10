@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import NurseSlidebar from "../components/NurseSlidebar";
+import NurseWardManagement from "./NurseWardManagement";
 
 // Local Page Imports (Create placeholder structures or real panels here)
 function DashboardView() {
@@ -26,7 +27,7 @@ export default function NurseDashboardMain() {
       case "Dashboard":
         return <DashboardView />;
       case "Ward Management":
-        return <DashboardView />; // Swap with real <WardManagement /> when ready
+        return <NurseWardManagement />; // Swap with real <WardManagement /> when ready
       case "Patient Monitoring":
         return <DashboardView />; // Swap with real <PatientMonitoring /> when ready
       case "Patient Records File":
