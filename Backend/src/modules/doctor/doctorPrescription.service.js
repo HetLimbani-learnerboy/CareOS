@@ -41,7 +41,6 @@ export const savePatientEPrescription = async (prescriptionData) => {
         throw httpError(400, 'Missing mandatory properties. Appointment ID, Patient Email, Doctor Email, and Result are required.');
     }
 
-    // Double creation safeguard evaluation verification check
     const duplicateCheck = await Prescription.findOne({ appointmentId }).lean();
     if (duplicateCheck) {
         throw httpError(409, 'An electronic medical prescription record profile stands tracked for this scheduled visit already.');
@@ -129,8 +128,6 @@ export const getDoctorPatientRoster = async (doctorEmail) => {
         .sort((a, b) => (a.lastVisitDate < b.lastVisitDate ? 1 : -1));
 };
 
-// 2. Full clinical history for one patient, scoped to this doctor only.
-//    Excludes 'rejected' and 'cancelled' appointment statuses from the timeline.
 export const getPatientHistoryForDoctor = async (doctorEmail, patientEmail) => {
     const doctor = await resolveDoctorByEmail(doctorEmail);
     const normalizedPatientEmail = normalizeEmail(patientEmail);
@@ -146,7 +143,6 @@ export const getPatientHistoryForDoctor = async (doctorEmail, patientEmail) => {
         Appointment.find({
             doctor_id: doctor._id,
             patient_id: patient._id,
-            // CRITICAL FIX: Only fetch valid appointments. Exclude 'rejected' and 'cancelled'
             status: { $nin: ['rejected', 'cancelled'] }
         })
             .sort({ appointment_date: -1 })
