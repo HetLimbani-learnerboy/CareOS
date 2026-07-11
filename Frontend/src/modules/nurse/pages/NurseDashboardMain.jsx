@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import NurseSlidebar from "../components/NurseSlidebar";
 import NurseWardManagement from "./NurseWardManagement";
+import PatientRecord from './PatientRecord'
+import NurseLabReviews from './NurseLabReviews';
 
-// Local Page Imports (Create placeholder structures or real panels here)
 function DashboardView() {
   return (
     <div style={{ padding: "1rem" }}>
@@ -27,13 +28,13 @@ export default function NurseDashboardMain() {
       case "Dashboard":
         return <DashboardView />;
       case "Ward Management":
-        return <NurseWardManagement />; // Swap with real <WardManagement /> when ready
+        return <NurseWardManagement />;
       case "Patient Monitoring":
-        return <DashboardView />; // Swap with real <PatientMonitoring /> when ready
+        return <DashboardView />;
       case "Patient Records File":
-        return <DashboardView />; // Swap with real <PatientRecords /> when ready
+        return <PatientRecord />;
       case "Patient Lab Report":
-        return <DashboardView />; // Swap with real <LabReports /> when ready
+        return <NurseLabReviews />;
       default:
         return <DashboardView />;
     }
