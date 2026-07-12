@@ -6,6 +6,7 @@ import DoctorProfileManagement from "./DoctorProfileManagement";
 import EPrescriptionConsole from "./EPrescriptionConsole";
 import PatientRecord from "./PatientRecord";
 import DoctorLabReview from "./DoctorLabReviews";
+import AdmissionProcessing from './AdmissionProcessing';
 import "../../patient/style/PatientDashboard.css";
 
 export default function DoctorDashboardMain() {
@@ -25,11 +26,15 @@ export default function DoctorDashboardMain() {
       case "Appointments Ledger":
         return <DoctorAppointmentManagement />;
       case "E-Prescriptions":
-        return <EPrescriptionConsole/>;
-        case "Patient Records File":
-        return <PatientRecord/>;
+        return <EPrescriptionConsole />;
+      case "Patient Records File":
+        return <PatientRecord />;
       case "Patient Lab Report":
         return <DoctorLabReview />;
+      case "Treatment Plan":
+        return <AdmissionProcessing />;
+      case "Ward Review":
+        return <AdmissionProcessing />;
       case "Profile Management":
         return <DoctorProfileManagement />;
       default:

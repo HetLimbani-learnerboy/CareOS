@@ -7,22 +7,65 @@ import {
 } from './receptionist.controller.js';
 import { fetchAdmissionDashboard, createAdmissionRecord, completeDischargeCheckout } from "./admissionProcess.controller.js";
 import { submitNewConsultRequest, fetchAllRequestsForDesk, updateConsultationStatus } from "./consultation.controller.js";
-import protectRoute, { requireRole } from "../../middleware/authMiddleware.js";
+import protectRoute from "../../middleware/authMiddleware.js";
 
 const router = express.Router();
-const requireReceptionist = requireRole("receptionist");
 
-router.get('/metrics', protectRoute, requireReceptionist, fetchReceptionistDashboardMetrics);
-router.get('/appointments', protectRoute, requireReceptionist, fetchAllSystemAppointments);
-router.post('/receptionist-book-request', protectRoute, requireReceptionist, receptionistBookWalkInIntake);
-router.patch('/appointments/:appointmentId/action', protectRoute, requireReceptionist, updateAppointmentStatusByReceptionist);
+export const requireRole = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({
+                status: "fail",
+                message: "Unauthorized"
+            });
+        }
 
-router.get("/admission/dashboard", protectRoute, requireReceptionist, fetchAdmissionDashboard);
-router.post("/admission/check-in", protectRoute, requireReceptionist, createAdmissionRecord);
-router.patch("/admission/:admissionId/discharge", protectRoute, requireReceptionist, completeDischargeCheckout);
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({
+                status: "fail",
+                message: "Access denied"
+            });
+        }
 
-router.post("/consultation/request", submitNewConsultRequest);
-router.get("/consultation/list", protectRoute, requireRole("receptionist"), fetchAllRequestsForDesk);
-router.patch("/consultation/:id/status", protectRoute, requireRole("receptionist"), updateConsultationStatus);
+        next();
+    };
+};
+
+router.get(
+    '/metrics',
+    protectRoute,
+    requireRole('receptionist', 'doctor'),
+    fetchReceptionistDashboardMetrics
+);
+
+router.get(
+    '/appointments',
+    protectRoute,
+    requireRole('receptionist', 'doctor'),
+    fetchAllSystemAppointments
+);
+
+router.post(
+    '/receptionist-book-request',
+    protectRoute,
+    requireRole('receptionist', 'doctor'),
+    receptionistBookWalkInIntake
+);
+
+router.patch(
+    '/appointments/:appointmentId/action',
+    protectRoute,
+    requireRole('receptionist', 'doctor'),
+    updateAppointmentStatusByReceptionist
+);
+
+
+router.get("/admission/dashboard", protectRoute, requireRole("receptionist", "doctor"), fetchAdmissionDashboard);
+router.post("/admission/check-in", protectRoute, requireRole("receptionist", "doctor"), createAdmissionRecord);
+router.patch("/admission/:admissionId/discharge", protectRoute, requireRole("receptionist", "doctor"), completeDischargeCheckout);
+
+router.post("/consultation/request", protectRoute, requireRole("receptionist", "doctor"), submitNewConsultRequest);
+router.get("/consultation/list", protectRoute, requireRole("receptionist", "doctor"), fetchAllRequestsForDesk);
+router.patch("/consultation/:id/status", protectRoute, requireRole("receptionist", "doctor"), updateConsultationStatus);
 
 export default router;
