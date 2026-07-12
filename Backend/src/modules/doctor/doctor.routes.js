@@ -14,6 +14,7 @@ import protectRoute, { requireRole } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 const requireDoctor = requireRole('doctor');
+const requireNurse = requireRole('nurse');
 
 router.get('/catalogs', fetchCatalogs);
 router.post('/e-prescription', createPrescription);
@@ -24,6 +25,5 @@ router.get('/patients/history', fetchPatientHistory);
 router.patch('/e-prescription/:prescriptionId', updatePrescription);
 router.delete('/e-prescription/:prescriptionId', deletePrescription);
 router.get('/lab-reviews', protectRoute, requireDoctor, fetchDoctorLabReviews);
-
 
 export default router;

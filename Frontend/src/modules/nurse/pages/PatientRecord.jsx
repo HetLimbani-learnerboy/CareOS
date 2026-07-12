@@ -59,7 +59,7 @@ const isPastAppointmentTime = (appointmentDate, appointmentTime) => {
 export default function PatientRecord() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const [doctorEmail, setDoctorEmail] = useState("");
+  const [nurseEmail, setNurseEmail] = useState("");
   const [doctorSpec, setDoctorSpec] = useState("");
 
   const [patientRoster, setPatientRoster] = useState([]);
@@ -89,24 +89,27 @@ export default function PatientRecord() {
         const user = JSON.parse(storedUser);
 
         if (user?.email) {
-          setDoctorEmail(user.email.trim().toLowerCase());
+          setNurseEmail(user.email.trim().toLowerCase());
           setDoctorSpec(user.specialization || "General Medicine");
         }
       } catch {
-        setMessage({ type: "error", text: "Invalid doctor login session." });
+        setMessage({ type: "error", text: "Invalid nurse login session." });
       }
     }
   }, []);
 
   useEffect(() => {
-    if (!doctorEmail || !doctorSpec) return;
+    if (!nurseEmail || !doctorSpec) return;
 
     const fetchCatalogs = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/v1/doctors/catalogs`, {
+        const res = await axios.get(`${API_BASE_URL}/api/v1/nurse/catalogs`, {
           params: {
             specialization: doctorSpec,
-            doctorEmail
+            nurseEmail: nurseEmail
+          },
+          headers: {
+            "x-user-email": nurseEmail
           }
         });
 
@@ -118,16 +121,17 @@ export default function PatientRecord() {
     };
 
     fetchCatalogs();
-  }, [doctorEmail, doctorSpec, API_BASE_URL]);
+  }, [nurseEmail, doctorSpec, API_BASE_URL]);
 
   const fetchRoster = async () => {
-    if (!doctorEmail) return;
+    if (!nurseEmail) return;
 
     try {
       setRosterLoading(true);
 
-      const res = await axios.get(`${API_BASE_URL}/api/v1/doctors/patients`, {
-        params: { doctorEmail }
+      const res = await axios.get(`${API_BASE_URL}/api/v1/nurse/patients`, {
+        params: { nurseEmail },
+        headers: { "x-user-email": nurseEmail }
       });
 
       const list = res.data?.data || [];
@@ -145,21 +149,22 @@ export default function PatientRecord() {
 
   useEffect(() => {
     fetchRoster();
-  }, [doctorEmail]);
+  }, [nurseEmail]);
 
   const fetchHistory = async (patientEmail) => {
-    if (!doctorEmail || !patientEmail) return;
+    if (!nurseEmail || !patientEmail) return;
 
     try {
       setHistoryLoading(true);
       setSelectedRecord(null);
       setIsCreatingNew(false);
 
-      const res = await axios.get(`${API_BASE_URL}/api/v1/doctors/patients/history`, {
+      const res = await axios.get(`${API_BASE_URL}/api/v1/nurse/patients/history`, {
         params: {
-          doctorEmail,
+          nurseEmail,
           patientEmail
-        }
+        },
+        headers: { "x-user-email": nurseEmail }
       });
 
       setHistoryData(res.data?.data || null);
@@ -175,7 +180,7 @@ export default function PatientRecord() {
     if (selectedPatientEmail) {
       fetchHistory(selectedPatientEmail);
     }
-  }, [selectedPatientEmail, doctorEmail]);
+  }, [selectedPatientEmail, nurseEmail]);
 
   const handlePatientDropdownChange = (e) => {
     setSelectedPatientEmail(e.target.value);
@@ -331,7 +336,6 @@ export default function PatientRecord() {
       const payload = {
         appointmentId: selectedRecord.appointmentId,
         patientEmail: selectedRecord.patientEmail,
-        doctorEmail,
         prescriptionName: selectedRecord.prescriptionName,
         diagnosis: selectedRecord.diagnosis,
         notes: selectedRecord.notes,
@@ -341,7 +345,9 @@ export default function PatientRecord() {
       };
 
       if (isCreatingNew) {
-        const res = await axios.post(`${API_BASE_URL}/api/v1/doctors/e-prescription`, payload);
+        const res = await axios.post(`${API_BASE_URL}/api/v1/nurse/e-prescription`, payload, {
+          headers: { "x-user-email": nurseEmail }
+        });
         const created = res.data?.data;
 
         setMessage({ type: "success", text: "Prescription initialized and signed successfully." });
@@ -364,8 +370,9 @@ export default function PatientRecord() {
         });
       } else {
         const res = await axios.patch(
-          `${API_BASE_URL}/api/v1/doctors/e-prescription/${selectedRecord._id}`,
-          payload
+          `${API_BASE_URL}/api/v1/nurse/e-prescription/${selectedRecord._id}`,
+          payload,
+          { headers: { "x-user-email": nurseEmail } }
         );
 
         const updated = res.data?.data;
@@ -403,9 +410,10 @@ export default function PatientRecord() {
       setMessage({ type: "", text: "" });
 
       await axios.delete(
-        `${API_BASE_URL}/api/v1/doctors/e-prescription/${selectedRecord._id}`,
+        `${API_BASE_URL}/api/v1/nurse/e-prescription/${selectedRecord._id}`,
         {
-          params: { doctorEmail }
+          params: { nurseEmail },
+          headers: { "x-user-email": nurseEmail }
         }
       );
 
