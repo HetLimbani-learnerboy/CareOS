@@ -38,8 +38,8 @@ export default function NurseSlidebar({ activeTab, setActiveTab, isOpen, setIsOp
 
   return (
     <>
-      <div 
-        className={`sidebar-overlay ${isOpen ? "sidebar-overlay-show" : ""}`} 
+      <div
+        className={`sidebar-overlay ${isOpen ? "sidebar-overlay-show" : ""}`}
         onClick={() => setIsOpen(false)}
       />
 
@@ -55,8 +55,8 @@ export default function NurseSlidebar({ activeTab, setActiveTab, isOpen, setIsOp
             </div>
           </div>
 
-          <button 
-            className="sidebar-close-drawer-trigger" 
+          <button
+            className="sidebar-close-drawer-trigger"
             onClick={() => setIsOpen(false)}
             aria-label="Collapse Navigation Menu"
           >
