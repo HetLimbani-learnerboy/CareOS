@@ -88,3 +88,41 @@ export const registerNewStockMedicine = async (medicineData) => {
 
     return await newMedicineItem.save();
 };
+
+export const updateMedicineDetails = async (
+    medicineId,
+    medicineData
+) => {
+
+    const updatedMedicine =
+        await MedicineCatalog.findByIdAndUpdate(
+            medicineId,
+            {
+                $set: {
+                    medicine_name: medicineData.medicine_name,
+                    company: medicineData.company,
+                    category: medicineData.category,
+                    composition: medicineData.composition,
+                    price: Number(medicineData.price),
+                    quantity: Number(medicineData.quantity),
+                    manufacture_date: medicineData.manufacture_date,
+                    expiry_date: medicineData.expiry_date,
+                    medicine_usecase: medicineData.medicine_usecase,
+                    specialization: medicineData.specialization
+                }
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+
+    if (!updatedMedicine) {
+        throw httpError(
+            404,
+            "Medicine not found."
+        );
+    }
+
+    return updatedMedicine;
+};

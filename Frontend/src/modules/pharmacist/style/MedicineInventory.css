@@ -592,6 +592,125 @@
     color: #334155;
 }
 
+.edit-action-btn-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.85rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+    animation: fadeSlideUp 0.4s ease;
+}
+
+.update-blue-btn {
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.9rem 1.4rem;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+}
+
+.update-blue-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.35);
+}
+
+.update-blue-btn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.update-blue-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.inv-btn-cancel-edit {
+    min-width: 140px;
+    padding: 0.9rem 1.4rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.inv-btn-cancel-edit:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+    transform: translateY(-2px);
+}
+
+.inv-btn-cancel-edit:active {
+    transform: scale(0.98);
+}
+
+.inv-loop-spin {
+    animation: spinLoader 0.8s linear infinite;
+}
+
+@keyframes spinLoader {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .edit-action-btn-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .update-blue-btn,
+    .inv-btn-cancel-edit {
+        width: 100%;
+        min-width: unset;
+    }
+}
+
+@media (max-width: 480px) {
+    .edit-action-btn-group {
+        gap: 0.7rem;
+        margin-top: 1rem;
+    }
+
+    .update-blue-btn,
+    .inv-btn-cancel-edit {
+        padding: 0.85rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 10px;
+    }
+}
+
 @media (min-width: 480px) {
     .inv-container {
         padding: 1.5rem;
