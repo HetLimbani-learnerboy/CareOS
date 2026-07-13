@@ -161,3 +161,20 @@ export const cancelPharmacyInvoice = async (req, res) => {
         });
     }
 };
+
+export const fetchPharmacistDashboardState = async (req, res) => {
+    try {
+        const { search } = req.query;
+        const aggregateData = await pharmacistService.getPharmacistDashboardMetricsAndInventory(search);
+
+        return res.status(200).json({
+            status: "success",
+            data: aggregateData
+        });
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            status: "error",
+            message: error.message || "Failed to consolidate dashboard telemetry data."
+        });
+    }
+};

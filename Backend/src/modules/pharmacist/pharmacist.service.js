@@ -544,3 +544,49 @@ export const voidPharmacyInvoice = async (invoiceId, pharmacistEmail) => {
     await invoice.save();
     return invoice;
 };
+
+export const getPharmacistDashboardMetricsAndInventory = async (searchQuery = "") => {
+    const invoices = await PharmacyInvoice.find({}).lean();
+
+    let pendingAmount = 0;
+    let completedAmount = 0;
+
+    invoices.forEach(inv => {
+        if (inv.paymentStatus === "Pending") {
+            pendingAmount += (inv.totalAmount || 0);
+        } else if (inv.paymentStatus === "Paid") {
+            completedAmount += (inv.totalAmount || 0);
+        }
+    });
+
+    const inventoryQuery = {};
+    if (searchQuery.trim()) {
+        const escapedSearch = String(searchQuery).trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const textRegex = new RegExp(escapedSearch, "i");
+
+        if (/^\d+$/.test(searchQuery.trim())) {
+            inventoryQuery.$or = [
+                { barcode: searchQuery.trim() },
+                { medicine_name: { $regex: textRegex } }
+            ];
+        } else {
+            inventoryQuery.$or = [
+                { medicine_name: { $regex: textRegex } },
+                { composition: { $regex: textRegex } },
+                { company: { $regex: textRegex } }
+            ];
+        }
+    }
+
+    const lowToHighInventory = await MedicineCatalog.find(inventoryQuery)
+        .sort({ quantity: 1, medicine_name: 1 })
+        .lean();
+
+    return {
+        metrics: {
+            pendingAmount,
+            completedAmount
+        },
+        inventory: lowToHighInventory
+    };
+};
