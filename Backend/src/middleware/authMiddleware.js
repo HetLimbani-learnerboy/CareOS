@@ -2,12 +2,11 @@ import UserIdentity from '../modules/auth/userIdentity.model.js';
 
 const protectRoute = async (req, res, next) => {
   try {
-    // Look cleanly across custom specialized headers, parameters, and bodies
-    const rawEmail = 
+    const rawEmail =
       req.headers?.['x-doctor-email'] ||
       req.headers?.['x-patient-email'] ||
-      req.headers?.['x-user-email'] || 
-      req.query?.email || 
+      req.headers?.['x-user-email'] ||
+      req.query?.email ||
       req.query?.doctorEmail ||
       req.query?.patientEmail ||
       req.body?.doctorEmail ||
@@ -23,7 +22,7 @@ const protectRoute = async (req, res, next) => {
 
     const clientEmail = rawEmail.toLowerCase().trim();
     const currentUser = await UserIdentity.findOne({ email: clientEmail }).lean();
-    
+
     if (!currentUser) {
       return res.status(401).json({
         status: 'fail',
@@ -31,7 +30,6 @@ const protectRoute = async (req, res, next) => {
       });
     }
 
-    // Explicitly bind the unified database parameters to the ongoing request object context
     req.user = {
       id: currentUser._id,
       email: currentUser.email,
@@ -66,7 +64,6 @@ export const requireRole = (requiredRole) => {
   };
 };
 
-// Legacy static shorthand references to maintain compatibility with your existing routes code
 export const requireDoctor = requireRole('doctor');
 export const requirePatient = requireRole('patient');
 

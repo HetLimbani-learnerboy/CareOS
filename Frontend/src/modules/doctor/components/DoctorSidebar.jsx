@@ -24,8 +24,8 @@ export default function DoctorSidebar({ activeTab, setActiveTab, isOpen, setIsOp
     { name: "E-Prescriptions", icon: <FileText size={18} /> },
     { name: "Patient Records File", icon: <Users size={18} /> },
     { name: "Patient Lab Report", icon: <FlaskConical size={18} /> },
-    { name: "Treatment Plan", icon: <HeartPulse size={18} /> },
     { name: "Ward Review", icon: <Bed size={18} /> },
+    { name: "Treatment Plan", icon: <HeartPulse size={18} /> },
     { name: "Profile Management", icon: <UserCheck size={18} /> }
   ];
 
@@ -44,8 +44,8 @@ export default function DoctorSidebar({ activeTab, setActiveTab, isOpen, setIsOp
 
   return (
     <>
-      <div 
-        className={`sidebar-overlay ${isOpen ? "sidebar-overlay-show" : ""}`} 
+      <div
+        className={`sidebar-overlay ${isOpen ? "sidebar-overlay-show" : ""}`}
         onClick={() => setIsOpen(false)}
       />
 
@@ -61,8 +61,8 @@ export default function DoctorSidebar({ activeTab, setActiveTab, isOpen, setIsOp
             </div>
           </div>
 
-          <button 
-            className="sidebar-close-drawer-trigger" 
+          <button
+            className="sidebar-close-drawer-trigger"
             onClick={() => setIsOpen(false)}
             aria-label="Collapse Navigation Menu"
           >

@@ -7,6 +7,7 @@ import EPrescriptionConsole from "./EPrescriptionConsole";
 import PatientRecord from "./PatientRecord";
 import DoctorLabReview from "./DoctorLabReviews";
 import AdmissionProcessing from './AdmissionProcessing';
+import DoctorTreatmentWorkflow from './DoctorTreatmentWorkflow';
 import "../../patient/style/PatientDashboard.css";
 
 export default function DoctorDashboardMain() {
@@ -32,7 +33,7 @@ export default function DoctorDashboardMain() {
       case "Patient Lab Report":
         return <DoctorLabReview />;
       case "Treatment Plan":
-        return <AdmissionProcessing />;
+        return <DoctorTreatmentWorkflow />;
       case "Ward Review":
         return <AdmissionProcessing />;
       case "Profile Management":
