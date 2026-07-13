@@ -11,7 +11,8 @@ import {
 import {
   fetchInventoryCatalog,
   updateInventoryStockCount,
-  addNewMedicineToCatalog
+  addNewMedicineToCatalog,
+    updateMedicineCatalog
 } from "./medicineInventory.controller.js";
 import protectRoute, { requireRole } from "../../middleware/authMiddleware.js";
 
@@ -48,5 +49,9 @@ router.patch("/pharmacy/billing/:invoiceId/void", protectRoute, requirePharmacis
 router.get("/pharmacy/inventory", protectRoute, requirePharmacist, fetchInventoryCatalog);
 router.patch("/pharmacy/inventory/:medicineId/quantity", protectRoute, requirePharmacist, updateInventoryStockCount);
 router.post("/pharmacy/inventory/add", protectRoute, requirePharmacist, addNewMedicineToCatalog);
+router.patch(
+    "/pharmacy/inventory/:medicineId",
+    updateMedicineCatalog
+);
 
 export default router;

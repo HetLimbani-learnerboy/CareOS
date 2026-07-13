@@ -56,3 +56,27 @@ export const addNewMedicineToCatalog = async (req, res) => {
         });
     }
 };
+
+export const updateMedicineCatalog = async (req, res) => {
+    try {
+        const { medicineId } = req.params;
+
+        const updatedMedicine =
+            await pharmacistService.updateMedicineDetails(
+                medicineId,
+                req.body
+            );
+
+        return res.status(200).json({
+            status: "success",
+            message: "Medicine details updated successfully.",
+            data: updatedMedicine
+        });
+
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            status: "error",
+            message: error.message
+        });
+    }
+};
