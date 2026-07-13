@@ -4,15 +4,16 @@ import {
   searchAlternativesByComposition,
   searchAlternativesByUsecase,
   processFlexibleDispenseCheckout,
-  fetchPharmacyBillingLedger, 
-  collectCashPayment, 
+  fetchPharmacyBillingLedger,
+  collectCashPayment,
+  fetchPharmacistDashboardState,
   cancelPharmacyInvoice
 } from "./pharmacist.controller.js";
 import {
   fetchInventoryCatalog,
   updateInventoryStockCount,
   addNewMedicineToCatalog,
-    updateMedicineCatalog
+  updateMedicineCatalog
 } from "./medicineInventory.controller.js";
 import protectRoute, { requireRole } from "../../middleware/authMiddleware.js";
 
@@ -49,9 +50,7 @@ router.patch("/pharmacy/billing/:invoiceId/void", protectRoute, requirePharmacis
 router.get("/pharmacy/inventory", protectRoute, requirePharmacist, fetchInventoryCatalog);
 router.patch("/pharmacy/inventory/:medicineId/quantity", protectRoute, requirePharmacist, updateInventoryStockCount);
 router.post("/pharmacy/inventory/add", protectRoute, requirePharmacist, addNewMedicineToCatalog);
-router.patch(
-    "/pharmacy/inventory/:medicineId",
-    updateMedicineCatalog
-);
+router.patch("/pharmacy/inventory/:medicineId", protectRoute, requirePharmacist, updateMedicineCatalog);
+router.get("/pharmacy/dashboard/summary", protectRoute, requirePharmacist, fetchPharmacistDashboardState);
 
 export default router;

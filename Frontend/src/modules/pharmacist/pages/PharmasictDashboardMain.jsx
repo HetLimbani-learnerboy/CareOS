@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import PharmacistSidebar from "../components/PharmacistSidebar";
 
 // Assuming these are your actual Pharmacist page components—replace with your actual filenames
-import PharmacistHome from "./PharmacistHome";
+import PharmacistHome from "./PharmacistDashboard";
 import PrescriptionDispensing from "./PrescriptionDispensing";
 import MedicineInventory from "./MedicineInventory";
 import PharmacyBillingPOS from "./PharmacyBillingPOS";
