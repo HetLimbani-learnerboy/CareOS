@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { 
-  Users, Calendar, Clock, UserCheck, BellRing, Check, X, 
+import {
+  Users, Calendar, Clock, UserCheck, BellRing, Check, X,
   ArrowUpRight, ShieldAlert, FileHeart, Stethoscope
 } from "lucide-react";
 
 export default function DashboardOverview() {
-  // Mock dataset structured exactly like your product specifications
   const [appointmentRequests, setAppointmentRequests] = useState([
     { id: "REQ-01", patient: "Het Limbani", reason: "Hypertension Routine Review", time: "Requested for 10:30 AM", date: "2026-06-24" },
     { id: "REQ-02", patient: "Sarah Jenkins", reason: "Chronic Migraine Assessment", time: "Requested for 02:15 PM", date: "2026-06-24" }
@@ -23,7 +22,7 @@ export default function DashboardOverview() {
 
   return (
     <div className="dashboard-overview-canvas">
-      
+
       <div className="dashboard-welcome-banner">
         <h1>Clinical Control Center</h1>
         <p>Monitor your active medical workflows, patient triage priorities, and appointment request streams.</p>
@@ -66,13 +65,13 @@ export default function DashboardOverview() {
       </div>
 
       <div className="dashboard-split-grid-row">
-        
+
         {/* Triage Workspace Grid Module */}
         <div className="clinical-asymmetry-card">
           <div className="card-header-row">
             <div className="title-tag"><Stethoscope size={18} /> Current Live Triage Queue</div>
           </div>
-          
+
           <div className="list-ledger-container">
             <div className="ledger-item-row" style={{ background: "linear-gradient(135deg, #fffbeb 0%, #ffffff 100%)", borderColor: "#fde68a" }}>
               <div>
@@ -102,7 +101,7 @@ export default function DashboardOverview() {
           <div className="card-header-row">
             <div className="title-tag"><Calendar size={18} /> Incoming Booking Proposals</div>
           </div>
-          
+
           <div className="appointment-schedule-container" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
             {appointmentRequests.length > 0 ? (
               appointmentRequests.map((req) => (
@@ -113,16 +112,16 @@ export default function DashboardOverview() {
                       <p style={{ margin: "4px 0", fontSize: "0.85rem", color: "#475569" }}>{req.reason}</p>
                       <span style={{ fontSize: "0.8rem", color: "#0284c7", fontWeight: "600" }}>{req.date} · {req.time}</span>
                     </div>
-                    
+
                     <div style={{ display: "flex", gap: "6px" }}>
-                      <button 
+                      <button
                         onClick={() => handleRequestAction(req.id, "Rejected")}
                         style={{ padding: "6px", borderRadius: "8px", border: "1px solid #fecaca", background: "#fef2f2", color: "#ef4444", cursor: "pointer" }}
                         title="Reject Request"
                       >
                         <X size={14} />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleRequestAction(req.id, "Approved")}
                         style={{ padding: "6px", borderRadius: "8px", border: "1px solid #bbf7d0", background: "#f0fdf4", color: "#16a34a", cursor: "pointer" }}
                         title="Approve Request"

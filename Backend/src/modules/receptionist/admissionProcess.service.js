@@ -27,10 +27,20 @@ export const getAdmissionDashboardData = async () => {
     await seedWardBedsIfEmpty();
 
     const beds = await WardBed.find({}).sort({ bedNumber: 1 }).lean();
+
     const activeAdmissionPrescriptionIds = await Admission.find({ status: "Admitted" }).distinct("prescriptionId");
 
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
     const rawPrescriptions = await Prescription.find({
-        _id: { $nin: activeAdmissionPrescriptionIds }
+        _id: { $nin: activeAdmissionPrescriptionIds },
+        $or: [
+            { updated_at: { $gte: sevenDaysAgo } },
+            { updatedAt: { $gte: sevenDaysAgo } },
+            { created_at: { $gte: sevenDaysAgo } },
+            { createdAt: { $gte: sevenDaysAgo } }
+        ]
     }).sort({ createdAt: -1, created_at: -1 }).lean();
 
     const emails = rawPrescriptions
@@ -59,6 +69,7 @@ export const getAdmissionDashboardData = async () => {
             diagnosis: pres.diagnosis || "N/A",
             prescriptionName: pres.prescriptionName || "Standard Pack",
             resultSummary: pres.result || "N/A",
+            updatedAt: pres.updated_at || pres.updatedAt || pres.created_at || pres.createdAt
         };
     });
 

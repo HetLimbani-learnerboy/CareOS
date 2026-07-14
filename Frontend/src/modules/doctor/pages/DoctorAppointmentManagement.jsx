@@ -298,7 +298,6 @@ export default function DoctorAppointmentManagement() {
     1
   ).getDay();
 
-  // Filter out any appointments that have already passed their time slot boundary
   const filteredUpcomingAppointments = useMemo(() => {
     return appointments.filter((appointment) => !isPastTimeSlot(appointment.date, appointment.time));
   }, [appointments]);

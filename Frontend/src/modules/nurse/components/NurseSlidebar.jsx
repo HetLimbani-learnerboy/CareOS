@@ -16,7 +16,6 @@ export default function NurseSlidebar({ activeTab, setActiveTab, isOpen, setIsOp
   const navigate = useNavigate();
 
   const menuItems = [
-    { name: "Dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "Ward Management", icon: <Bed size={18} /> },
     { name: "Patient Monitoring", icon: <HeartPulse size={18} /> },
     { name: "Patient Records File", icon: <Users size={18} /> },

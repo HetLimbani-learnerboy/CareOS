@@ -3,7 +3,7 @@ import axios from "axios";
 import {
     Bed, UserPlus, Users, LogOut, CheckCircle, ShieldAlert, Loader2,
     Layers, Calendar, Mail, XCircle, ChevronDown, ChevronUp, Stethoscope,
-    FileText, User, Clock, Activity, ShieldCheck
+    FileText, User, Clock, Activity, ShieldCheck, Search, X
 } from "lucide-react";
 import "../style/AdmissionProcessing.css";
 
@@ -24,6 +24,7 @@ export default function AdmissionProcessing() {
     const [selectedNurseIds, setSelectedNurseIds] = useState([]);
     const [submitting, setSubmitting] = useState(false);
     const [selectedBedPatient, setSelectedBedPatient] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const userEmail = useMemo(() => {
         const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
@@ -39,6 +40,16 @@ export default function AdmissionProcessing() {
         "Content-Type": "application/json",
         "x-user-email": userEmail
     }), [userEmail]);
+
+    const filteredQueue = queue.filter(item => {
+        const query = searchTerm.toLowerCase();
+        return (
+            (item.patientName || "").toLowerCase().includes(query) ||
+            (item.patientEmail || "").toLowerCase().includes(query) ||
+            (item.diagnosis || "").toLowerCase().includes(query) ||
+            (item.doctorName || "").toLowerCase().includes(query)
+        );
+    });
 
     const fetchDashboard = async () => {
         try {
@@ -179,20 +190,56 @@ export default function AdmissionProcessing() {
             </div>
 
             <div className="adm-dashboard-grid-layout">
-                <div className="adm-panel-card">
-                    <div className="panel-title-strip"><UserPlus size={16} /> <span>Awaiting Ward Placement ({queue.length})</span></div>
+                <div className="adm-panel-card animate-fade-in">
+                    <div className="panel-title-strip">
+                        <div className="panel-title-left">
+                            <UserPlus size={16} />
+                            <span>Awaiting Ward Placement ({filteredQueue.length})</span>
+                        </div>
+
+                        <div className="adm-search-container">
+                            <div className="adm-search-wrapper">
+                                <Search size={14} className="adm-search-icon" />
+                                <input
+                                    type="text"
+                                    className="adm-search-input"
+                                    placeholder="Search by name, email, diagnosis..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                                {searchTerm && (
+                                    <button
+                                        type="button"
+                                        className="adm-search-clear-btn"
+                                        onClick={() => setSearchTerm("")}
+                                    >
+                                        <X size={12} />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="panel-scroll-box">
                         {loading ? (
-                            <div className="adm-loading-box"><Loader2 className="adm-spin" /></div>
-                        ) : queue.length === 0 ? (
-                            <div className="adm-empty-txt">No outstanding medical referrals registered today.</div>
+                            <div className="adm-loading-box">
+                                <Loader2 className="adm-spin" size={24} />
+                            </div>
+                        ) : filteredQueue.length === 0 ? (
+                            <div className="adm-empty-txt">
+                                {searchTerm ? "No matching referrals found." : "No outstanding medical referrals registered today."}
+                            </div>
                         ) : (
                             <table className="adm-data-table">
                                 <thead>
-                                    <tr><th>Patient Profile</th><th>Indication</th><th>Action</th></tr>
+                                    <tr>
+                                        <th>Patient Profile</th>
+                                        <th>Indication</th>
+                                        <th>Action</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                    {queue.map((item) => {
+                                    {filteredQueue.map((item) => {
                                         const isExpanded = expandedQueueId === item.prescriptionId;
                                         return (
                                             <React.Fragment key={item.prescriptionId}>
@@ -202,11 +249,17 @@ export default function AdmissionProcessing() {
                                                             {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                                                             <strong>{item.patientName || "Patient"}</strong>
                                                         </div>
-                                                        <span className="sub-meta" style={{ paddingLeft: "1.15rem" }}><Mail size={10} /> {item.patientEmail}</span>
+                                                        <span className="sub-meta" style={{ paddingLeft: "1.15rem" }}>
+                                                            <Mail size={10} /> {item.patientEmail}
+                                                        </span>
                                                     </td>
                                                     <td><span className="diag-tag">{item.diagnosis || "N/A"}</span></td>
                                                     <td>
-                                                        <button type="button" onClick={(e) => handleOpenAdmissionForm(e, item)} className="btn-assign-room">
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => handleOpenAdmissionForm(e, item)}
+                                                            className="btn-assign-room"
+                                                        >
                                                             Assign Room
                                                         </button>
                                                     </td>
@@ -240,7 +293,6 @@ export default function AdmissionProcessing() {
                         )}
                     </div>
                 </div>
-
                 <div className="adm-panel-card">
                     <div className="panel-title-strip"><Layers size={16} /> <span>Active Ward Occupants Ledger ({activeAdmissions.length})</span></div>
                     <div className="panel-scroll-box">
