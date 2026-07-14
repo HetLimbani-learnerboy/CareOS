@@ -69,7 +69,6 @@ export const findPatientAppointments = async (email) => {
 
   const appointments = await Appointment.find({
     patient_id: patient._id,
-    status: { $ne: 'cancelled' }
   })
     .populate('doctor_id', 'firstName lastName email')
     .sort({ appointment_date: 1, time_slot: 1 })
