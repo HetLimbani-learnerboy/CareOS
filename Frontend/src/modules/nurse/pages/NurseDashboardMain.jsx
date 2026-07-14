@@ -3,6 +3,7 @@ import NurseSlidebar from "../components/NurseSlidebar";
 import NurseWardManagement from "./NurseWardManagement";
 import PatientRecord from './PatientRecord'
 import NurseLabReviews from './NurseLabReviews';
+import NurseTreatmentWorkflow from './NurseTreatmentWorkflow';
 
 function DashboardView() {
   return (
@@ -30,7 +31,7 @@ export default function NurseDashboardMain() {
       case "Ward Management":
         return <NurseWardManagement />;
       case "Patient Monitoring":
-        return <DashboardView />;
+        return <NurseTreatmentWorkflow />;
       case "Patient Records File":
         return <PatientRecord />;
       case "Patient Lab Report":
@@ -53,7 +54,6 @@ export default function NurseDashboardMain() {
         <span className="mobile-navbar-brand">CareOS Nurse Portal</span>
       </header>
 
-      {/* FIX 1: Swapped out broken ReceptionistSidebar with your imported NurseSlidebar */}
       <NurseSlidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -61,7 +61,6 @@ export default function NurseDashboardMain() {
         setIsOpen={setIsSidebarOpen}
       />
 
-      {/* FIX 2: Dynamic workflow viewer canvas area */}
       <main className="portal-workspace-canvas">
         <div className="workspace-animation-container animate-fade-in">
           {renderActivePage()}

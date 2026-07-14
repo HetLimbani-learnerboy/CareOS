@@ -1,6 +1,7 @@
 import { MedicineCatalog, LabReportCatalog } from '../doctor/catalog.model.js';
 import Prescription from '../doctor/prescription.model.js';
 import Admission from '../receptionist/admission.model.js';
+import Appointment from '../patients/appointment.model.js';
 import UserIdentity from '../auth/userIdentity.model.js';
 
 const httpError = (statusCode, message) => {
@@ -133,32 +134,69 @@ export const getPatientHistoryForNurse = async (nurseEmail, patientEmail) => {
         .sort({ admittedAt: -1 })
         .lean();
 
-    const prescriptionIds = admissions.map(a => a.prescriptionId).filter(Boolean);
+    if (!admissions || admissions.length === 0) {
+        throw httpError(403, 'Access denied. You do not have any assignments for this patient.');
+    }
 
     const prescriptions = await Prescription.find({
-        _id: { $in: prescriptionIds }
+        patientEmail: normalizedPatientEmail
     })
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1, created_at: -1 })
         .lean();
 
-    const prescriptionsMap = new Map(prescriptions.map(p => [String(p._id), p]));
+    const appointmentIds = prescriptions
+        .map(p => p.appointmentId)
+        .filter(Boolean);
 
-    const timeline = admissions.map(adm => ({
-        appointmentId: String(adm._id),
-        date: adm.admittedAt,
-        time: "Inpatient Ward Session",
-        reason: `${adm.roomType} Placement`,
-        status: adm.status,
-        prescription: prescriptionsMap.get(String(adm.prescriptionId)) || null
-    }));
+    const appointments = await Appointment.find({
+        _id: { $in: appointmentIds },
+        status: { $nin: ['Cancelled', 'Rejected', 'cancelled', 'rejected'] }
+    }).lean();
+
+    const appointmentMap = new Map(
+        appointments.map(a => [String(a._id), a])
+    );
+
+    const timeline = prescriptions
+        .map((prescription) => {
+            const appointmentIdStr = String(prescription.appointmentId || "");
+            const appointment = appointmentMap.get(appointmentIdStr);
+
+            if (prescription.appointmentId && !appointment) {
+                return null;
+            }
+
+            return {
+                appointmentId: prescription.appointmentId,
+                date:
+                    appointment?.appointment_date ||
+                    prescription.createdAt ||
+                    prescription.created_at,
+                time:
+                    appointment?.time_slot ||
+                    "Prescription Record",
+                reason:
+                    appointment?.reason_for_visit ||
+                    prescription.diagnosis ||
+                    "Clinical Record",
+                status:
+                    appointment?.status ||
+                    "completed",
+                prescription
+            };
+        })
+        .filter(Boolean);
+
+    if (timeline.length === 0) {
+        throw httpError(403, 'Access denied. No active or valid appointments found for this patient under your care.');
+    }
 
     return {
         patient: {
             name: admissions[0]?.patientName || "Identified Ward Patient",
             email: normalizedPatientEmail
         },
-        timeline,
-        prescriptions
+        timeline
     };
 };
 
@@ -210,7 +248,6 @@ export const deletePrescriptionForNurse = async (prescriptionId, nurseEmail) => 
 
     await Prescription.findByIdAndDelete(prescriptionId);
 
-    // Clear out tracking reference variables inside the corresponding admission tracker
     await Admission.updateMany({ prescriptionId }, { $unset: { prescriptionId: "" } });
 
     return { deleted: true, prescriptionId };

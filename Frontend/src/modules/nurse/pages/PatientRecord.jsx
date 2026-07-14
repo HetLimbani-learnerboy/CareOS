@@ -161,7 +161,6 @@ export default function PatientRecord() {
 
       const res = await axios.get(`${API_BASE_URL}/api/v1/nurse/patients/history`, {
         params: {
-          nurseEmail,
           patientEmail
         },
         headers: { "x-user-email": nurseEmail }
@@ -439,10 +438,21 @@ export default function PatientRecord() {
   if (rosterLoading && !patientRoster.length) {
     return (
       <div className="pr-console-root">
-        <div className="pr-skeleton-title" />
+        <div className="pr-skeleton-item pr-skel-header-title" />
+        <div className="pr-skeleton-item pr-skel-header-subtitle" />
         <div className="pr-split-workspace">
-          <div className="pr-skeleton-card" style={{ height: "400px" }} />
-          <div className="pr-skeleton-card" style={{ height: "400px" }} />
+          <div className="pr-patients-sidebar-card">
+            <div className="pr-skeleton-item pr-skel-search" />
+            <div className="pr-skeleton-item pr-skel-node" />
+            <div className="pr-skeleton-item pr-skel-node" />
+            <div className="pr-skeleton-item pr-skel-node" />
+          </div>
+          <div className="pr-form-canvas-card">
+            <div className="pr-skeleton-item pr-skel-form-strip" />
+            <div className="pr-skeleton-item pr-skel-form-field" />
+            <div className="pr-skeleton-item pr-skel-form-field" />
+            <div className="pr-skeleton-item pr-skel-form-area" />
+          </div>
         </div>
       </div>
     );
@@ -501,7 +511,11 @@ export default function PatientRecord() {
           </div>
 
           {historyLoading ? (
-            <div className="pr-skeleton-card" style={{ height: "200px" }} />
+            <div className="pr-sidebar-loading-stack">
+              <div className="pr-skeleton-item pr-skel-node" />
+              <div className="pr-skeleton-item pr-skel-node" />
+              <div className="pr-skeleton-item pr-skel-node" />
+            </div>
           ) : (
             <div className="pr-patients-nodes-stack">
               {filteredTimeline.length > 0 ? (
@@ -554,7 +568,14 @@ export default function PatientRecord() {
         </div>
 
         <div className="pr-form-canvas-card">
-          {!selectedRecord ? (
+          {historyLoading ? (
+            <div className="pr-form-loading-stack">
+              <div className="pr-skeleton-item pr-skel-form-strip" />
+              <div className="pr-skeleton-item pr-skel-form-field" />
+              <div className="pr-skeleton-item pr-skel-form-field" />
+              <div className="pr-skeleton-item pr-skel-form-area" />
+            </div>
+          ) : !selectedRecord ? (
             <div className="pr-placeholder-overlay">
               <Clipboard size={44} />
               <h3>No Selected Record File</h3>
