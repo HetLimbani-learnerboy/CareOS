@@ -26,8 +26,6 @@ export default function NurseDashboardMain() {
 
   const renderActivePage = () => {
     switch (activeTab) {
-      case "Dashboard":
-        return <DashboardView />;
       case "Ward Management":
         return <NurseWardManagement />;
       case "Patient Monitoring":
@@ -37,7 +35,7 @@ export default function NurseDashboardMain() {
       case "Patient Lab Report":
         return <NurseLabReviews />;
       default:
-        return <DashboardView />;
+        return <NurseWardManagement />;
     }
   };
 
