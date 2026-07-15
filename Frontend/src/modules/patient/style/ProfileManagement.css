@@ -3,7 +3,8 @@
   margin: 2rem auto;
   padding: 0 1.5rem;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #0f172a;
 }
 
 .profile-form-wrapper {
@@ -21,17 +22,20 @@
   align-items: center;
   gap: 2rem;
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+  position: relative;
+  overflow: hidden;
 }
 
 .avatar-uploader-container {
   position: relative;
   width: 100px;
   height: 100px;
+  flex-shrink: 0;
 }
 
 .avatar-circle-img {
-  width: 100px;
-  height: 100px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid #0ea5e9;
@@ -39,8 +43,8 @@
 }
 
 .avatar-fallback-initials {
-  width: 100px;
-  height: 100px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   background: #334155;
   color: #38bdf8;
@@ -70,26 +74,33 @@
   align-items: center;
   gap: 4px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .avatar-edit-overlay:hover {
   background-color: #0369a1;
 }
 
+.avatar-edit-overlay:active {
+  transform: translateX(-50%) scale(0.95);
+}
+
 .hero-meta-details h2 {
   margin: 0;
   font-size: 1.75rem;
-  letter-spacing: -0.02em;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
 .hero-subtext-email {
-  margin: 4px 0 12px 0;
+  margin: 6px 0 12px 0;
   color: #94a3b8;
   font-size: 0.95rem;
 }
 
 .hero-age-badge {
+  display: inline-block;
   background: rgba(14, 165, 233, 0.15);
   color: #38bdf8;
   border: 1px solid rgba(14, 165, 233, 0.3);
@@ -110,7 +121,7 @@
 
 .profile-form-section:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 20px -8px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 12px 20px -8px rgba(15, 23, 42, 0.05);
 }
 
 .section-title-header {
@@ -127,11 +138,18 @@
 }
 
 .nested-sub-label-heading {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #64748b;
-  margin: 0 0 10px 0;
+  margin: 1.5rem 0 0.75rem 0;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px dashed #edf2f7;
+}
+
+.profile-form-section .nested-sub-label-heading:first-of-type {
+  margin-top: 0;
 }
 
 .form-grid-layout {
@@ -147,7 +165,7 @@
 .input-field-block {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
 .input-field-block label {
@@ -161,16 +179,11 @@
   color: #0284c7;
 }
 
-.input-field-block:focus-within .section-title-header {
-  color: #0284c7;
-}
-
 .req-asterisk {
   color: #ef4444;
   margin-left: 2px;
 }
 
-.input-element,
 .input-field-block input,
 .input-field-block select {
   width: 100%;
@@ -212,10 +225,11 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
-.input-icon-group input {
-  padding-left: 2.25rem;
+.input-field-block .input-icon-group input {
+  padding-left: 2.5rem;
 }
 
 .inner-icon {
@@ -224,10 +238,35 @@
   color: #94a3b8;
   pointer-events: none;
   transition: color 0.2s ease;
+  z-index: 2;
 }
 
 .input-icon-group:focus-within .inner-icon {
   color: #0284c7;
+}
+
+.profile-alert {
+  padding: 0.85rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-sizing: border-box;
+  animation: slideDownAlert 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.profile-alert.success-style {
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.profile-alert.error-style {
+  background-color: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  animation: slideDownAlert 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+    shakeAlert 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
 .profile-save-action-btn {
@@ -245,6 +284,7 @@
   gap: 8px;
   box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .profile-save-action-btn:hover:not(:disabled) {
@@ -258,34 +298,11 @@
 }
 
 .profile-save-action-btn:disabled {
-  background-color: #94a3b8;
+  background-color: #cbd5e1;
+  color: #94a3b8;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
-}
-
-.profile-alert {
-  padding: 0.85rem 1.25rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.profile-alert.success-style {
-  background-color: #f0fdf4;
-  color: #16a34a;
-  border: 1px solid #bbf7d0;
-}
-
-.profile-alert.error-style {
-  background-color: #fef2f2;
-  color: #ef4444;
-  border: 1px solid #fecaca;
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .skeleton-hero-card,
@@ -313,25 +330,55 @@
   height: 68px;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+.animate-fade-in {
+  animation: fadeInFrame 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes slideDownFade {
+@keyframes fadeInFrame {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(4px);
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes slideDownAlert {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes shakeAlert {
+
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
   }
 }
 
@@ -348,12 +395,14 @@
 @media (max-width: 768px) {
   .form-grid-layout {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .profile-hero-card {
     flex-direction: column;
     text-align: center;
     padding: 2rem 1.5rem;
+    gap: 1.25rem;
   }
 
   .full-width-grid {
@@ -369,5 +418,14 @@
 
   .profile-form-section {
     padding: 1.25rem;
+  }
+
+  .hero-meta-details h2 {
+    font-size: 1.5rem;
+  }
+
+  .avatar-uploader-container {
+    width: 90px;
+    height: 90px;
   }
 }

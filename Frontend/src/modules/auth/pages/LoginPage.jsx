@@ -33,7 +33,6 @@ export default function LoginPage() {
     { label: "Pharmacy Staff", email: "pharmacy@careos.com", password: "Temp1234!" }
   ];
 
-  // Check for existing valid session on mount — skip login if token present
   useEffect(() => {
     const token = localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
     const user = localStorage.getItem("user") || sessionStorage.getItem("user");
@@ -43,7 +42,6 @@ export default function LoginPage() {
         const role = parsed?.role;
         if (role) redirectByRole(role);
       } catch {
-        // Corrupted storage — clear and stay on login
         localStorage.clear();
         sessionStorage.clear();
       }
@@ -110,7 +108,6 @@ export default function LoginPage() {
       storage.setItem("authToken", authToken);
       storage.setItem("user", JSON.stringify(userObj));
 
-      // Clear the other storage to avoid stale data
       const otherStorage = rememberMe ? sessionStorage : localStorage;
       otherStorage.removeItem("authToken");
       otherStorage.removeItem("user");
@@ -157,7 +154,6 @@ export default function LoginPage() {
     try {
       setLoading(true);
       setMessage({ type: "", text: "" });
-      // Use dedicated resend endpoint — no captcha needed
       await axios.post(`${API_BASE_URL}/api/v1/auth/resend-otp`, { email });
       setMessage({ type: "success", text: "A fresh verification code has been dispatched." });
       setResendTimer(30);
