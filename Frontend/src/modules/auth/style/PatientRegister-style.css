@@ -60,7 +60,6 @@
 .register-brand-header {
   display: flex;
   flex-direction: column;
-
   text-align: center;
   margin-bottom: 2rem;
   margin-top: 2rem;
@@ -121,6 +120,41 @@
   margin-right: auto;
 }
 
+.register-error-banner {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fee2e2;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.05);
+  animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@media (max-width: 375px) {
+  .register-error-banner {
+    font-size: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .register-error-banner {
+    font-size: 0.9rem;
+    padding: 1rem 1.5rem;
+  }
+}
+
 .register-form,
 .register-otp-form {
   display: block;
@@ -129,7 +163,7 @@
 
 .register-form>*+*,
 .register-otp-form>*+* {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
 }
 
 .register-grid-2col {
@@ -142,6 +176,7 @@
 @media (min-width: 640px) {
   .register-grid-2col {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
   }
 }
 
@@ -277,7 +312,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-top: 1rem;
+  margin-top: 1.25rem;
 }
 
 .register-rules-header {
@@ -345,7 +380,7 @@
   cursor: pointer;
   background: linear-gradient(to right, #0284c7, #2563eb);
   color: #ffffff;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -356,6 +391,7 @@
 
 .register-submit-btn:hover:not(:disabled) {
   background: linear-gradient(to right, #0369a1, #1d4ed8);
+  box-shadow: 0 6px 10px -1px rgba(2, 132, 199, 0.25);
 }
 
 .register-submit-btn:active:not(:disabled) {
@@ -377,18 +413,13 @@
   animation: registerSpin 1s linear infinite;
 }
 
-@keyframes registerSpin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .register-otp-banner {
   background-color: rgba(240, 249, 255, 0.5);
   border: 1px solid #e0f2fe;
   border-radius: 1rem;
   padding: 1rem;
   text-align: center;
+  margin-bottom: 1.25rem;
 }
 
 .register-otp-banner-text {
@@ -396,15 +427,6 @@
   font-size: 0.75rem;
   line-height: 1.625;
   margin: 0;
-}
-
-.register-otp-hardcode {
-  font-weight: 700;
-  color: #0f172a;
-  background-color: rgba(224, 242, 254, 0.8);
-  padding: 0.125rem 0.5rem;
-  border-radius: 0.25rem;
-  border: 1px solid #bae6fd;
 }
 
 .register-otp-label {
@@ -429,8 +451,8 @@
 }
 
 .register-otp-input {
-  width: 2.75rem;
-  height: 3.25rem;
+  width: 2.5rem;
+  height: 3rem;
   text-align: center;
   font-size: 1.25rem;
   font-weight: 700;
@@ -455,19 +477,48 @@
   box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
 }
 
-.register-otp-input.error {
-  border-color: #f43f5e;
-  background-color: rgba(254, 242, 242, 0.3);
-  color: #e11d48;
-  box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.1);
+.register-resend-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 0;
 }
 
-.register-otp-error-text {
-  font-size: 0.75rem;
+.register-resend-timer {
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+.register-resend-timer span {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.register-resend-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: #e11d48;
-  text-align: center;
-  margin: 0.5rem 0 0 0;
+  color: #2563eb;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.register-resend-btn:hover:not(:disabled) {
+  color: #1d4ed8;
+  background-color: #f1f5f9;
+}
+
+.register-resend-btn:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
 }
 
 .register-otp-actions {
@@ -518,7 +569,7 @@
   cursor: pointer;
   background: linear-gradient(to right, #059669, #0d9488);
   color: #ffffff;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -535,6 +586,7 @@
 
 .register-otp-submit-btn:hover:not(:disabled) {
   background: linear-gradient(to right, #047857, #0f766e);
+  box-shadow: 0 6px 10px -1px rgba(13, 148, 136, 0.25);
 }
 
 .register-otp-submit-btn:active:not(:disabled) {
@@ -546,48 +598,14 @@
   cursor: not-allowed;
 }
 
-.bg-red-500 {
-  background-color: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fee2e2;
-  padding: 0.85rem 1.25rem;
-  margin-bottom: 1.25rem;
-  border-radius: 0.625rem;
-  text-align: center;
-  font-weight: 500;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  will-change: transform, opacity;
-}
-
-@media (max-width: 375px) {
-  .bg-red-500 {
-    font-size: 0.75rem;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    border-radius: 0.5rem;
+@keyframes registerSpin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (min-width: 640px) and (max-width: 768px) {
-  .bg-red-500 {
-    font-size: 0.875rem;
-    padding: 1rem 1.5rem;
-    max-width: 100%;
-  }
-}
-
-@media (min-width: 1200px) {
-  .bg-red-500 {
-    font-size: 0.9rem;
-    padding: 1rem 1.75rem;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.04);
-  }
+.register-spin {
+  animation: registerSpin 1s linear infinite;
 }
 
 @keyframes slideDownFade {

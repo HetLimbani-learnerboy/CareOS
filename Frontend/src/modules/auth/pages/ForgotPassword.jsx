@@ -8,7 +8,6 @@ export default function ForgotPassword() {
     const navigate = useNavigate();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-    // Flow State Controller: 1 = Email, 2 = OTP, 3 = New Password
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState("");
     const [otp, setOtp] = useState("");
@@ -107,7 +106,6 @@ export default function ForgotPassword() {
         }
     };
 
-    // Commit Passed Secure Credentials Down to Database
     const handlePasswordReset = async (e) => {
         e.preventDefault();
         const allRulesPassed =

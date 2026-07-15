@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-
+import { dropStrayOtpIndex } from "./utils/dropStrayIndex.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import SystemCounter from "./modules/auth/counter.model.js";
 import UserIdentity from "./modules/auth/userIdentity.model.js";
@@ -59,6 +59,7 @@ const connectAndInitializeDb = async (req, res, next) => {
 
       console.log(`[Serverless Data Engine]: Connected to -> ${mongoose.connection.name}`);
     }
+    await dropStrayOtpIndex();
 
     if (!isDbInitialized) {
       console.log("[Serverless Data Engine]: Verifying schema base counters...");
