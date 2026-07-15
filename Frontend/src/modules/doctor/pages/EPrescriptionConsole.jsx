@@ -57,11 +57,17 @@ export default function EPrescriptionConsole() {
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+
         if (storedUser) {
-            const user = JSON.parse(storedUser);
-            if (user?.email) {
-                setDoctorEmail(user.email.trim().toLowerCase());
-                setDoctorSpec(user.specialization || "General Medicine");
+            try {
+                const user = JSON.parse(storedUser);
+
+                if (user?.email) {
+                    setDoctorEmail(user.email.trim().toLowerCase());
+                    setDoctorSpec(user.specialization || "General Medicine");
+                }
+            } catch {
+                setMessage({ type: "error", text: "Invalid doctor login session." });
             }
         }
     }, []);

@@ -62,14 +62,14 @@ export default function MedicineInventory() {
         medicine_usecase: "",
         specialization: "General Medicine"
     });
-    
+
     const [formSubmitting, setFormSubmitting] = useState(false);
 
     const fetchInventory = async (searchVal = "") => {
         try {
             setLoading(true);
             setError("");
-            const storedUser = localStorage.getItem("user");
+            const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
             const userObj = storedUser ? JSON.parse(storedUser) : null;
 
             const url = searchVal.trim()
@@ -119,7 +119,7 @@ export default function MedicineInventory() {
         e.preventDefault();
         try {
             setFormSubmitting(true);
-            const storedUser = localStorage.getItem("user");
+            const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
             const userObj = storedUser ? JSON.parse(storedUser) : null;
 
             const res = await axios.patch(
@@ -163,9 +163,8 @@ export default function MedicineInventory() {
         try {
             setFormSubmitting(true);
             setError("");
-            const storedUser = localStorage.getItem("user");
+            const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
             const userObj = storedUser ? JSON.parse(storedUser) : null;
-
             const res = await axios.post(
                 `${API_BASE_URL}/api/v1/pharmacist/pharmacy/inventory/add`,
                 formData,
@@ -288,9 +287,9 @@ export default function MedicineInventory() {
                                                         </span>
                                                     </td>
                                                     <td className="text-right">
-                                                        <button 
-                                                            onClick={(e) => handleStartEdit(e, item)} 
-                                                            className="inv-btn-trigger-edit" 
+                                                        <button
+                                                            onClick={(e) => handleStartEdit(e, item)}
+                                                            className="inv-btn-trigger-edit"
                                                             title="Edit Medicine Details"
                                                             disabled={isBeingEdited}
                                                         >

@@ -27,12 +27,11 @@ export default function NurseTreatmentWorkflow() {
     const loadNurseAssignedQueue = async () => {
         try {
             setLoadingGrid(true);
-            const storedUser = localStorage.getItem("user");
+            const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
             const userObj = storedUser ? JSON.parse(storedUser) : null;
 
             const res = await axios.get(`${API_BASE_URL}/api/v1/nurse/inpatient-queue`, {
                 headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
                     "x-user-email": userObj?.email
                 }
             });
@@ -84,7 +83,7 @@ export default function NurseTreatmentWorkflow() {
 
         try {
             setFormSubmitting(true);
-            const storedUser = localStorage.getItem("user");
+            const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
             const userObj = storedUser ? JSON.parse(storedUser) : null;
 
             const payload = {
@@ -102,7 +101,6 @@ export default function NurseTreatmentWorkflow() {
 
             const res = await axios.post(`${API_BASE_URL}/api/v1/nurse/inpatient/treatment-plan`, payload, {
                 headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
                     "x-user-email": userObj?.email
                 }
             });
@@ -124,12 +122,11 @@ export default function NurseTreatmentWorkflow() {
 
         try {
             setActionSubmitting(true);
-            const storedUser = localStorage.getItem("user");
+            const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
             const userObj = storedUser ? JSON.parse(storedUser) : null;
 
             const res = await axios.patch(`${API_BASE_URL}/api/v1/nurse/treatment-plan/${planId}/administer`, {}, {
                 headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
                     "x-user-email": userObj?.email
                 }
             });
@@ -438,4 +435,4 @@ export default function NurseTreatmentWorkflow() {
             </div>
         </div>
     );
-}
+}  

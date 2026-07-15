@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react"; // Added useMemo import
 import axios from "axios";
 import { Mail, User, Clock, FileText, Send, CheckCircle, AlertCircle, Loader2, MessageSquare, RefreshCw } from "lucide-react";
 import "../style/ConsultingManager.css";
@@ -11,22 +11,21 @@ export default function ConsultingManager() {
     const [error, setError] = useState("");
     const [updatingId, setUpdatingId] = useState(null);
 
-    const getUserData = () => {
-        const storedUser = localStorage.getItem("user");
-        if (!storedUser) return "";
+    const userEmail = useMemo(() => {
+        const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
         try {
-            const userObj = JSON.parse(storedUser);
-            return userObj?.email?.trim().toLowerCase();
+            const userObj = storedUser ? JSON.parse(storedUser) : null;
+            return userObj?.email?.trim().toLowerCase() || "";
         } catch {
             return "";
         }
-    };
+    }, []);
 
     const fetchConsultations = async () => {
         try {
             setLoading(true);
             const res = await axios.get(`${API_BASE_URL}/api/v1/receptionist/consultation/list`, {
-                headers: { "x-user-email": getUserData() }
+                headers: { "x-user-email": userEmail }
             });
             if (res.data?.status === "success") {
                 setRequests(res.data.data || []);
@@ -45,7 +44,7 @@ export default function ConsultingManager() {
             const res = await axios.patch(
                 `${API_BASE_URL}/api/v1/receptionist/consultation/${id}/status`,
                 { status: newStatus },
-                { headers: { "x-user-email": getUserData() } }
+                { headers: { "x-user-email": userEmail } }
             );
             if (res.data?.status === "success") {
                 setRequests((prev) =>
@@ -60,8 +59,10 @@ export default function ConsultingManager() {
     };
 
     useEffect(() => {
-        fetchConsultations();
-    }, []);
+        if (userEmail) {
+            fetchConsultations();
+        }
+    }, [userEmail]);
 
     return (
         <div className="cm-container">

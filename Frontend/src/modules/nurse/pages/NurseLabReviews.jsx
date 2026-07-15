@@ -25,15 +25,20 @@ export default function NurseLabReviews() {
     const [searchTerm, setSearchTerm] = useState('');
     const [expandedId, setExpandedId] = useState(null);
 
-    const getNurseEmail = () => {
-        try {
-            const user = localStorage.getItem("user");
-            if (!user) return "";
-            return JSON.parse(user).email;
-        } catch (e) {
-            return "";
-        }
-    };
+  const getNurseEmail = () => {
+    try {
+        const user =
+            localStorage.getItem("user") ||
+            sessionStorage.getItem("user");
+
+        const userObj = user ? JSON.parse(user) : null;
+
+        return userObj?.email || "";
+    } catch (error) {
+        console.error("Failed to get nurse email:", error);
+        return "";
+    }
+};
 
     const nurseEmail = getNurseEmail();
 

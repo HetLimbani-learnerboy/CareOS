@@ -24,15 +24,23 @@ export default function DoctorTreatmentWorkflow() {
     const [items, setItems] = useState([
         { itemType: "Dosage", itemName: "", dosageConfiguration: "", unitPrice: "", quantity: 1 }
     ]);
+    const token =
+        localStorage.getItem("authToken") ||
+        sessionStorage.getItem("authToken");
+
+
 
     const loadActiveInpatientsStream = async () => {
         try {
             setLoadingGrid(true);
-            const storedUser = localStorage.getItem("user");
+            const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
             const userObj = storedUser ? JSON.parse(storedUser) : null;
 
             const res = await axios.get(`${API_BASE_URL}/api/v1/doctors/inpatient/treatment-queue`, {
-                headers: { "Authorization": `Bearer ${localStorage.getItem("token")}`, "x-user-email": userObj?.email }
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-user-email": userObj?.email
+                }
             });
             if (res.data?.status === "success") {
                 const patientsData = res.data.data || [];
@@ -104,7 +112,7 @@ export default function DoctorTreatmentWorkflow() {
 
         try {
             setFormSubmitting(true);
-            const storedUser = localStorage.getItem("user");
+            const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
             const userObj = storedUser ? JSON.parse(storedUser) : null;
 
             const payload = {
@@ -123,11 +131,17 @@ export default function DoctorTreatmentWorkflow() {
             let res;
             if (selectedPlanMode === "new") {
                 res = await axios.post(`${API_BASE_URL}/api/v1/doctors/inpatient/treatment-plan`, payload, {
-                    headers: { "Authorization": `Bearer ${localStorage.getItem("token")}`, "x-user-email": userObj?.email }
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "x-user-email": userObj?.email
+                    }
                 });
             } else {
                 res = await axios.put(`${API_BASE_URL}/api/v1/doctors/inpatient/treatment-plan/${selectedPlanMode}`, payload, {
-                    headers: { "Authorization": `Bearer ${localStorage.getItem("token")}`, "x-user-email": userObj?.email }
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "x-user-email": userObj?.email
+                    }
                 });
             }
 

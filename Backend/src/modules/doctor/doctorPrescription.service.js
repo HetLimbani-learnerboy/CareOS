@@ -41,7 +41,11 @@ export const savePatientEPrescription = async (prescriptionData) => {
         throw httpError(400, 'Missing mandatory properties. Appointment ID, Patient Email, Doctor Email, and Result are required.');
     }
 
+    console.log("Appointment ID:", appointmentId);
+
     const duplicateCheck = await Prescription.findOne({ appointmentId }).lean();
+
+    console.log("Duplicate:", duplicateCheck);
     if (duplicateCheck) {
         throw httpError(409, 'An electronic medical prescription record profile stands tracked for this scheduled visit already.');
     }

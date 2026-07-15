@@ -32,7 +32,7 @@ export default function PharmacistDashboard() {
     const syncDashboardState = async (searchVal = "") => {
         try {
             setLoadingGrid(true);
-            const storedUser = localStorage.getItem("user");
+            const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
             const userObj = storedUser ? JSON.parse(storedUser) : null;
             const headers = { "x-user-email": userObj?.email };
 
@@ -68,7 +68,7 @@ export default function PharmacistDashboard() {
 
         try {
             setActionRunningId(invoiceId);
-            const storedUser = localStorage.getItem("user");
+            const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
             const userObj = storedUser ? JSON.parse(storedUser) : null;
 
             const targetEndpoint = actionType === "pay-cash" ? "pay-cash" : "void";
