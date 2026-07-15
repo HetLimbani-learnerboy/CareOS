@@ -82,7 +82,13 @@ export default function Receptionistappointmentmanage() {
   const [doctorAvailability, setDoctorAvailability] = useState({ defaultWeeklySlots: [], customDayOverrides: {}, activeBookings: [] });
   const [selectedDoctorProfile, setSelectedDoctorProfile] = useState(null);
   const [appointments, setAppointments] = useState([]);
-  const [email, setEmail] = useState(JSON.parse(localStorage.getItem("user") || "{}").email || "");
+  const storedUser =
+    localStorage.getItem("user") ||
+    sessionStorage.getItem("user");
+
+  const [email, setEmail] = useState(
+    JSON.parse(storedUser || "{}").email || ""
+  );
   const [editingAppointmentId, setEditingAppointmentId] = useState(null);
   const [isRescheduleMode, setIsRescheduleMode] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -115,6 +121,7 @@ export default function Receptionistappointmentmanage() {
   };
 
   const fetchPatientLedger = async () => {
+
     try {
       setLoading(true);
       const res = await axios.get(`${API_BASE_URL}/api/v1/receptionist/appointments`, {

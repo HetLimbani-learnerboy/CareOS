@@ -30,9 +30,9 @@ export default function AdmissionProcessing() {
         const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
         try {
             const userObj = storedUser ? JSON.parse(storedUser) : null;
-            return userObj?.email?.trim().toLowerCase() || "receptionist@careos.com";
+            return userObj?.email?.trim().toLowerCase();
         } catch {
-            return "receptionist@careos.com";
+            return "";
         }
     }, []);
 

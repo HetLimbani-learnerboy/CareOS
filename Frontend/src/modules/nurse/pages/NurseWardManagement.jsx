@@ -34,11 +34,12 @@ export default function NurseWardManagement() {
 
     const getNurseEmail = () => {
         try {
-            const user = localStorage.getItem("user");
-            if (!user) return "nurse@careos.co";
-            return JSON.parse(user).email || "nurse@careos.co";
+            const user = localStorage.getItem("user") || sessionStorage.getItem("user");
+            const userObj = user ? JSON.parse(user) : null;
+            if (!user) return;
+            return JSON.parse(user).email;
         } catch (e) {
-            return "nurse@careos.co";
+            return;
         }
     };
 
