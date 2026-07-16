@@ -6,10 +6,8 @@ import Receptionistappointmentmanage from "./Receptionistappointmentmanage";
 import ReceptionistHome from "./ReceptionistHome";
 import AdmissionProcessing from "./AdmissionProcessing";
 import ConsultingManager from "./ConsultingManager";
-// import InsuranceVerification from "./InsuranceVerification";
-// import BillingManagement from "./BillingManagement";
-// import ProfileManagement from "./ProfileManagement";
-
+import BillingConsole from "./BillingConsole";
+import BillingHistoryDashboard from "./BillingHistoryDashboard";
 
 export default function ReceptionistDashboardMain() {
   const [activeTab, setActiveTab] = useState(
@@ -36,11 +34,12 @@ export default function ReceptionistDashboardMain() {
 
       case "Consultation Requests":
         return <ConsultingManager />;
-      // case "Insurance Verification":
-      //   return <ReceptionistHome />;
 
-      // case "Billing":
-      //   return <ReceptionistHome />;
+      case "Billing":
+        return <BillingConsole />;
+        
+      case "Billing History":
+        return <BillingHistoryDashboard/>
 
       default:
         return <ReceptionistHome />;

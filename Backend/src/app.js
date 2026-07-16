@@ -17,7 +17,7 @@ import doctorprescription from './modules/doctor/doctor.routes.js';
 import labtechnicianroutes from './modules/lab_technician/labTechnician.routes.js';
 import pharmacistroutes from './modules/pharmacist/pharmacist.routes.js';
 import nurseroutes from './modules/nurse/nurseWard.routes.js';
-import nurselabroutes from './modules/nurse/nurseLab.routes.js'
+import nurselabroutes from './modules/nurse/nurseLab.routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

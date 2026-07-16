@@ -11,7 +11,9 @@ import {
   UserCog,
   LogOut,
   ChevronLeft,
-  FileText
+  CreditCard,
+  FileText,
+  History
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -29,27 +31,32 @@ export default function ReceptionistSidebar({
   const navigate = useNavigate();
 
   const menuItems = [
-  {
-    name: "Dashboard",
-    icon: <LayoutDashboard size={18} />,
-  },
-  {
-    name: "Appointment Management",
-    icon: <CalendarClock size={18} />,
-  },
-  {
-    name: "Admission Processing",
-    icon: <ClipboardPlus size={18} />,
-  },
-  {
-    name: "Consultation Requests",
-    icon: <FileText size={18} />,
-  },
-  {
-    name: "Billing",
-    icon: <Receipt size={18} />,
-  },
-];
+    {
+      name: "Dashboard",
+      icon: <LayoutDashboard size={18} />,
+    },
+    {
+      name: "Appointment Management",
+      icon: <CalendarClock size={18} />,
+    },
+    {
+      name: "Admission Processing",
+      icon: <ClipboardPlus size={18} />,
+    },
+    {
+      name: "Consultation Requests",
+      icon: <FileText size={18} />,
+    },
+    {
+      name: "Billing",
+      icon: <CreditCard size={18} />,
+    },
+    {
+      name: "Billing History",
+      icon: <History size={18} />,
+    },
+
+  ];
 
   const handleTabSelection = (tabName) => {
     setActiveTab(tabName);
@@ -72,16 +79,14 @@ export default function ReceptionistSidebar({
   return (
     <>
       <div
-        className={`sidebar-overlay ${
-          isOpen ? "sidebar-overlay-show" : ""
-        }`}
+        className={`sidebar-overlay ${isOpen ? "sidebar-overlay-show" : ""
+          }`}
         onClick={() => setIsOpen(false)}
       />
 
       <aside
-        className={`portal-sidebar-container ${
-          isOpen ? "sidebar-drawer-open" : ""
-        }`}
+        className={`portal-sidebar-container ${isOpen ? "sidebar-drawer-open" : ""
+          }`}
       >
         {/* Logo */}
 
@@ -127,10 +132,9 @@ export default function ReceptionistSidebar({
                 key={item.name}
                 className={`
                   sidebar-nav-item
-                  ${
-                    isTabActive
-                      ? "nav-item-active"
-                      : ""
+                  ${isTabActive
+                    ? "nav-item-active"
+                    : ""
                   }
                 `}
                 onClick={() =>
@@ -150,7 +154,7 @@ export default function ReceptionistSidebar({
 
         </nav>
 
-  
+
         <div className="sidebar-profile-footer">
 
           <button
