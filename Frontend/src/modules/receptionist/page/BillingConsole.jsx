@@ -189,7 +189,7 @@ export default function BillingConsole() {
         <div className="bl-dashboard-root pr-fade-in">
             <div className="bl-dashboard-header">
                 <div>
-                    <h1>Receptionist Revenue Operations</h1>
+                    <h1>Revenue Operations</h1>
                     <p>Retrieve completed consult slots, aggregate institutional costs, verify coverage parameters, and finalize accounts.</p>
                 </div>
                 <button className="bl-sync-btn" onClick={fetchVisitedQueue} disabled={loadingQueue}>
