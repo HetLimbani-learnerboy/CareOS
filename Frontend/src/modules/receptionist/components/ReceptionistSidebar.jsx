@@ -32,10 +32,6 @@ export default function ReceptionistSidebar({
 
   const menuItems = [
     {
-      name: "Dashboard",
-      icon: <LayoutDashboard size={18} />,
-    },
-    {
       name: "Appointment Management",
       icon: <CalendarClock size={18} />,
     },

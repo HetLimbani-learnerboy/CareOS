@@ -291,7 +291,7 @@ export default function BillingHistoryDashboard() {
         <div className="hd-dashboard-root pr-fade-in">
             <div className="hd-dashboard-header">
                 <div>
-                    <h1>Hospital Master Revenue Ledger</h1>
+                    <h1>Revenue Ledger</h1>
                     <p>Audit, expand itemized details, and process financial ledger balances across categorical lifecycle conditions.</p>
                 </div>
                 <button className="hd-sync-btn" onClick={fetchBillingHistory} disabled={loading}>

@@ -23,9 +23,6 @@ export default function ReceptionistDashboardMain() {
   const renderActivePage = () => {
     switch (activeTab) {
 
-      case "Dashboard":
-        return <ReceptionistHome />;
-
       case "Appointment Management":
         return <Receptionistappointmentmanage />;
 
@@ -37,12 +34,12 @@ export default function ReceptionistDashboardMain() {
 
       case "Billing":
         return <BillingConsole />;
-        
+
       case "Billing History":
         return <BillingHistoryDashboard/>
 
       default:
-        return <ReceptionistHome />;
+        return <Receptionistappointmentmanage />;
     }
   };
 
