@@ -4,6 +4,7 @@ import PharmacistHome from "./PharmacistDashboard";
 import PrescriptionDispensing from "./PrescriptionDispensing";
 import MedicineInventory from "./MedicineInventory";
 import PharmacyBillingPOS from "./PharmacyBillingPOS";
+import CareOSAssistantPage from "../../common/CareOSAssistantPage";
 
 export default function PharmasictDashboardMain() {
     const [activeTab, setActiveTab] = useState(
@@ -29,6 +30,9 @@ export default function PharmasictDashboardMain() {
 
             case "Billing & POS":
                 return <PharmacyBillingPOS />;
+
+            case "AI Assistant":
+                return <CareOSAssistantPage />;
 
             default:
                 return <PharmacistHome />;

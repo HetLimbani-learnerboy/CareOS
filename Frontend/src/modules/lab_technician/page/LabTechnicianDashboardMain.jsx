@@ -4,6 +4,7 @@ import LabTechnicianHome from "./LabTechnicianHome";
 import EligiblePatients from "./EligiblePatients";
 import ActiveLabTasks from "./ActiveLabTasks";
 import LabBillingHistory from "./LabBillingHistory";
+import CareOSAssistantPage from "../../common/CareOSAssistantPage";
 
 export default function LabTechnicianDashboardMain() {
   const [activeTab, setActiveTab] = useState(
@@ -29,6 +30,9 @@ export default function LabTechnicianDashboardMain() {
 
       case "Billing History":
         return <LabBillingHistory />;
+
+      case "AI Assistant":
+        return <CareOSAssistantPage />
 
       default:
         return <LabTechnicianHome />;

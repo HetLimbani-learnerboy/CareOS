@@ -18,6 +18,7 @@ import labtechnicianroutes from './modules/lab_technician/labTechnician.routes.j
 import pharmacistroutes from './modules/pharmacist/pharmacist.routes.js';
 import nurseroutes from './modules/nurse/nurseWard.routes.js';
 import nurselabroutes from './modules/nurse/nurseLab.routes.js';
+import aiRoutes from './utils/ai.routes.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,7 +36,7 @@ if (!MONGO_URI) {
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
@@ -102,6 +103,7 @@ app.use('/api/v1/lab-technician', labtechnicianroutes);
 app.use('/api/v1/pharmacist', pharmacistroutes);
 app.use('/api/v1/nurse', nurseroutes);
 app.use('/api/v1/nurse', nurselabroutes);
+app.use("/api/v1/ai", aiRoutes);
 
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({
