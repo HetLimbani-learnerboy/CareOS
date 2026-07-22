@@ -4,6 +4,7 @@ import NurseWardManagement from "./NurseWardManagement";
 import PatientRecord from './PatientRecord'
 import NurseLabReviews from './NurseLabReviews';
 import NurseTreatmentWorkflow from './NurseTreatmentWorkflow';
+import CareOSAssistantPage from "../../common/CareOSAssistantPage";
 
 function DashboardView() {
   return (
@@ -34,6 +35,8 @@ export default function NurseDashboardMain() {
         return <PatientRecord />;
       case "Patient Lab Report":
         return <NurseLabReviews />;
+      case "AI Assistant":
+        return <CareOSAssistantPage />
       default:
         return <NurseWardManagement />;
     }

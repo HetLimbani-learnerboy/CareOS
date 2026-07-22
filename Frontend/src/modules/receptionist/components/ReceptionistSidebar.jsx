@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   CreditCard,
   FileText,
-  History
+  History,
+  Bot
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -50,6 +51,10 @@ export default function ReceptionistSidebar({
     {
       name: "Billing History",
       icon: <History size={18} />,
+    },
+    {
+      name: "AI Assistant",
+      icon: <Bot size={18} />,
     },
 
   ];

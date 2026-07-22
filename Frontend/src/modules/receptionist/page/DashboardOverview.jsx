@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ReceptionistSidebar from "../components/ReceptionistSidebar";
-
+import CareOSAssistantPage from "../../common/CareOSAssistantPage";
 import DashboardOverview from "./DashboardOverview";
 import Receptionistappointmentmanage from "./Receptionistappointmentmanage";
 import ReceptionistHome from "./ReceptionistHome";
@@ -36,7 +36,10 @@ export default function ReceptionistDashboardMain() {
         return <BillingConsole />;
 
       case "Billing History":
-        return <BillingHistoryDashboard/>
+        return <BillingHistoryDashboard />
+
+      case "AI Assistant":
+        return <CareOSAssistantPage />
 
       default:
         return <Receptionistappointmentmanage />;

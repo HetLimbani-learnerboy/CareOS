@@ -8,6 +8,7 @@ import PatientRecord from "./PatientRecord";
 import DoctorLabReview from "./DoctorLabReviews";
 import AdmissionProcessing from './AdmissionProcessing';
 import DoctorTreatmentWorkflow from './DoctorTreatmentWorkflow';
+import CareOSAssistantPage from "../../common/CareOSAssistantPage";
 import "../../patient/style/PatientDashboard.css";
 
 export default function DoctorDashboardMain() {
@@ -36,6 +37,8 @@ export default function DoctorDashboardMain() {
         return <DoctorTreatmentWorkflow />;
       case "Ward Review":
         return <AdmissionProcessing />;
+      case "AI Assistant":
+        return <CareOSAssistantPage />
       case "Profile Management":
         return <DoctorProfileManagement />;
       default:

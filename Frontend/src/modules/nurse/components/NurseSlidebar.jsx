@@ -6,7 +6,8 @@ import {
   HeartPulse,
   Bed,
   LogOut,
-  ChevronLeft
+  ChevronLeft,
+  Bot
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CareOSLogo from "../../../assets/CareOS-logo.png";
@@ -20,6 +21,10 @@ export default function NurseSlidebar({ activeTab, setActiveTab, isOpen, setIsOp
     { name: "Patient Monitoring", icon: <HeartPulse size={18} /> },
     { name: "Patient Records File", icon: <Users size={18} /> },
     { name: "Patient Lab Report", icon: <FlaskConical size={18} /> },
+    {
+      name: "AI Assistant",
+      icon: <Bot size={18} />,
+    },
   ];
 
   const handleTabSelection = (tabName) => {

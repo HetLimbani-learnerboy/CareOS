@@ -6,6 +6,7 @@ import {
   Receipt,
   LogOut,
   ChevronLeft,
+  Bot,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CareOSLogo from "../../../assets/CareOS-logo.png";
@@ -35,6 +36,10 @@ export default function PharmacistSidebar({
     {
       name: "Billing & POS",
       icon: <Receipt size={18} />,
+    },
+        {
+      name: "AI Assistant",
+      icon: <Bot size={18} />,
     },
   ];
 

@@ -9,7 +9,8 @@ import {
   Bed,
   UserCheck,
   LogOut,
-  ChevronLeft
+  ChevronLeft,
+  Bot
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CareOSLogo from "../../../assets/CareOS-logo.png";
@@ -26,6 +27,10 @@ export default function DoctorSidebar({ activeTab, setActiveTab, isOpen, setIsOp
     { name: "Patient Lab Report", icon: <FlaskConical size={18} /> },
     { name: "Ward Review", icon: <Bed size={18} /> },
     { name: "Treatment Plan", icon: <HeartPulse size={18} /> },
+    {
+      name: "AI Assistant",
+      icon: <Bot size={18} />,
+    },
     { name: "Profile Management", icon: <UserCheck size={18} /> }
   ];
 
