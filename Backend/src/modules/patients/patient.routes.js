@@ -34,16 +34,3 @@ router.get("/billing-history", fetchPatientHistoricalBilling);
 router.post("/invoice/:invoiceId/pay", executePatientCheckout);
 
 export default router;
-
-
-
-
-
-
-
-
-
-
-
-
-
