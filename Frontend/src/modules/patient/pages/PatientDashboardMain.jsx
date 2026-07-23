@@ -5,6 +5,7 @@ import AppointmentManagement from "./AppointmentManagement";
 import EprescriptionHistory from "./EprescriptionHistory";
 import BillingHistory from "./BillingHistory";
 import PatientLabHistory from "./PatientLabHistory";
+import CareOSAssistantPage from "../../common/CareOSAssistantPage";
 
 import ProfileManagement from "./ProfileManagement";
 import "../style/PatientDashboard.css";
@@ -33,6 +34,8 @@ export default function PatientDashboardMain() {
         return <BillingHistory />;
       case "Profile Management":
         return <ProfileManagement />;
+        case "AI Assistant":
+          return <CareOSAssistantPage/>;
       default:
         return <DashboardOverview setActiveTab={setActiveTab} />;
     }
