@@ -8,7 +8,8 @@ import {
   Receipt,
   UserCog,
   LogOut,
-  ChevronLeft
+  ChevronLeft,
+  Bot
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CareOSLogo from '../../../assets/CareOS-logo.png';
@@ -23,6 +24,10 @@ export default function PatientSidebar({ activeTab, setActiveTab, isOpen, setIsO
     { name: "E-Prescription History", icon: <Pill size={18} /> },
     { name: "Lab Report", icon: <FileSpreadsheet size={18} /> },
     { name: "Billing History", icon: <Receipt size={18} /> },
+    {
+      name: "AI Assistant",
+      icon: <Bot size={18} />,
+    },
     { name: "Profile Management", icon: <UserCog size={18} /> },
   ];
 
