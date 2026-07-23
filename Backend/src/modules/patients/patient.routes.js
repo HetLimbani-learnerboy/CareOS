@@ -14,6 +14,10 @@ import {
     fetchPatientPrescriptionHistory,
     fetchSinglePrescriptionDetails
 } from './patientPrescription.controller.js';
+import {
+    fetchPatientHistoricalBilling,
+    executePatientCheckout
+} from "./patientBilling.controller.js";
 
 const router = Router();
 const requirePatient = requireRole('patient');
@@ -26,6 +30,8 @@ router.get('/prescriptions/:prescriptionId', fetchSinglePrescriptionDetails);
 router.get('/my-reports', protectRoute, requirePatient, fetchPatientLabReports);
 router.get('/profile', getProfileDashboardData);
 router.put('/profile', handleProfileUpdateForm);
+router.get("/billing-history", fetchPatientHistoricalBilling);
+router.post("/invoice/:invoiceId/pay", executePatientCheckout);
 
 export default router;
 
