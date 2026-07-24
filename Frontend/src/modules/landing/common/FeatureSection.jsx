@@ -4,10 +4,10 @@ import {
   Calendar,
   Pill,
   FlaskConical,
-  CreditCard,
-  BarChart3,
-  Bot, 
-  Ambulance
+  Bot,
+  ShieldCheck,
+  Building2,
+  ClipboardList
 } from 'lucide-react';
 
 import { motion } from "framer-motion";
@@ -16,65 +16,65 @@ const features = [
   {
     title: "Patient Management",
     icon: Users,
-    desc: "Manage patient profiles, medical history, prescriptions, reports, and treatment records.",
+    desc: "Manage patient profiles, clinical snapshots, medical history, allergies, vitals logs, and treatment records.",
     color: "from-blue-500 to-cyan-500",
     bgColor: "bg-blue-50",
   },
   {
-    title: "Doctor & Staff Management",
+    title: "Doctor Management",
     icon: UserRound,
-    desc: "Handle doctors, nurses, receptionists, schedules, attendance, and department assignments.",
+    desc: "Handle doctor specializations, clinical profiles, consultation fees, and weekly availability schedules.",
     color: "from-purple-500 to-pink-500",
     bgColor: "bg-purple-50",
   },
   {
-    title: "Appointment & Queue System",
+    title: "Appointment Management",
     icon: Calendar,
-    desc: "Online appointment booking, token generation, queue tracking, and scheduling.",
+    desc: "Online appointment booking, rescheduling, live slot tracking, cancellation, and automated email notifications.",
     color: "from-green-500 to-emerald-500",
     bgColor: "bg-green-50",
   },
   {
+    title: "Authentication & Security",
+    icon: ShieldCheck,
+    desc: "Secure user authentication with OTP verification, role-based access control, and Google reCAPTCHA protection.",
+    color: "from-emerald-500 to-teal-500",
+    bgColor: "bg-emerald-50",
+  },
+  {
     title: "Pharmacy Management",
     icon: Pill,
-    desc: "Medicine inventory, stock alerts, prescriptions, billing, and supplier management.",
+    desc: "Medicine inventory, stock alerts, prescription fulfillment, billing, and supplier tracking.",
     color: "from-orange-500 to-red-500",
     bgColor: "bg-orange-50",
   },
   {
     title: "Laboratory & Diagnostics",
     icon: FlaskConical,
-    desc: "Manage lab tests, diagnostic reports, radiology records, and report delivery.",
+    desc: "Manage lab test requests, diagnostic reports, pathology records, and report delivery workflows.",
     color: "from-rose-500 to-pink-500",
     bgColor: "bg-rose-50",
   },
   {
-    title: "Billing & Insurance",
-    icon: CreditCard,
-    desc: "Generate invoices, process payments, insurance claims, and financial reports.",
+    title: "Ward & Bed Management",
+    icon: Building2,
+    desc: "Handle patient admissions, room assignments, bed allocations, discharges, and active treatment plans.",
+    color: "from-red-500 to-orange-500",
+    bgColor: "bg-red-50",
+  },
+  {
+    title: "Receptionist Consultation Desk",
+    icon: ClipboardList,
+    desc: "Manage incoming consultation requests, front-desk scheduling, and receptionist billing oversight.",
     color: "from-indigo-500 to-blue-500",
     bgColor: "bg-indigo-50",
   },
   {
-    title: "Hospital Analytics",
-    icon: BarChart3,
-    desc: "Track revenue, occupancy, patient flow, staff performance, and operational KPIs.",
-    color: "from-cyan-500 to-sky-500",
-    bgColor: "bg-cyan-50",
-  },
-  {
     title: "AI-Powered Clinical Decision Support",
-    icon: Bot, // Fixed here
+    icon: Bot,
     desc: "AI-driven insights for diagnosis, treatment recommendations, risk predictions, and personalized care plans.",
     color: "from-teal-500 to-green-500",
     bgColor: "bg-teal-50",
-  },
-  {
-    title: "Emergency & Admissions",
-    icon: Ambulance,
-    desc: "Manage emergency cases, admissions, bed allocation, discharge, and transfers.",
-    color: "from-red-500 to-orange-500",
-    bgColor: "bg-red-50",
   },
 ];
 
@@ -272,7 +272,7 @@ const FeatureSection = () => {
                     flex
                     flex-col
                     overflow-hidden
-                  `} > 
+                  `} >
                   <div
                     className="
                       absolute
@@ -310,11 +310,11 @@ const FeatureSection = () => {
                     <Icon size={30} />
                   </motion.div>
 
-                  <h3 className="text-2xl font-bold text-slate-900 mb-3">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-3 mt-2">
                     {feature.title}
                   </h3>
 
-                  <p className="text-slate-600 leading-relaxed flex-grow">
+                  <p className="text-slate-600 leading-relaxed flex-grow mt-1">
                     {feature.desc}
                   </p>
 

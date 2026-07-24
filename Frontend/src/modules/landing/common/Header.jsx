@@ -3,7 +3,7 @@ import { Menu, X, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import CareOSLogo from "../../../assets/CareOS-logo.png";
-import "../style/Header.css"; 
+import "../style/Header.css";
 
 const Header = () => {
   const [mobileMenu, setMobileMenu] = useState(false);

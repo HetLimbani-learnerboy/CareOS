@@ -18,24 +18,24 @@ import "../style/FAQSection-style.css";
 const faqs = [
   {
     question: "What is CareOS?",
-    answer: "CareOS is a next-generation enterprise healthcare platform designed to centralize core medical ecosystems. It handles patient onboarding, secure electronic health records (EHR), complex doctor schedules, real-time pharmacy inventory tracking, automated billing pipelines, and diagnostic laboratory data streams out of the box."
+    answer: "CareOS is an intelligent enterprise healthcare management platform designed to streamline hospital operations. It integrates patient onboarding, doctor scheduling, secure OTP authentication, online appointment management with automated email notifications, pharmacy inventory tracking, diagnostic laboratory workflows, ward and bed management, and AI-powered clinical decision support."
   },
   {
-    question: "How does CareOS handle high-concurrency patient scheduling during peak hours?",
-    answer: "CareOS uses an optimized Redis-backed token bucket algorithm paired with database transaction isolation layers. When multiple requests target the same slot simultaneously, the application locks the specific resource node temporarily, eliminating race conditions or accidental double-booking anomalies instantly."
+    question: "How does the Appointment Management system handle bookings and notifications?",
+    answer: "The platform supports online appointment booking, live slot tracking, rescheduling, and cancellations. Upon any status update, the system automatically triggers automated email notifications to keep both patients and doctors informed in real time."
   },
   {
-    question: "What security measures protect Electronic Health Records (EHR) within the platform?",
-    answer: "Patient files are protected using field-level AES-256 cryptographic encryption protocols. Access is governed strictly via customized Role-Based Access Control (RBAC), ensuring that only verified medical staff with explicit system permissions can decrypt and view sensitive diagnostic logs or medical histories."
+    question: "What security measures protect user authentication and access control?",
+    answer: "CareOS secures user authentication through robust OTP verification, Role-Based Access Control (RBAC) for different healthcare staff roles, and integrated Google reCAPTCHA protection to prevent automated bot activity and unauthorized access."
   },
   {
-    question: "How does the automated Pharmacy Inventory system prevent supply shortages?",
-    answer: "The system monitors stock thresholds in real time using automated inventory tracking. When a life-saving medication or general supply drops below a pre-configured baseline, the platform automatically logs an internal alert pipeline, registers the tracking code, and drafts a digital restock invoice ready for supplier approval."
+    question: "How does the Ward and Bed Management module function?",
+    answer: "The module tracks patient admissions, room assignments, bed allocations, and active treatment plans. It allows hospital staff to efficiently manage room occupancy and seamlessly handle patient discharges and transfers."
   },
   {
-    question: "Does the system support integration with external medical hardware or laboratory tools?",
-    answer: "Yes. CareOS features a modular data integration engine designed to parse standard HL7 (Health Level Seven) and FHIR data streams. This allows direct data ingestion from digital laboratory diagnostic equipment, imaging machinery, and third-party pharmacy tracking systems securely."
-  },
+    question: "What is the role of the Receptionist Consultation Desk in CareOS?",
+    answer: "The receptionist module streamlines front-desk operations by managing incoming consultation requests, handling walk-in or phone scheduling, and providing dedicated billing oversight to ensure smooth patient check-ins and payment tracking."
+  }
 ];
 
 const FAQSection = () => {
@@ -214,53 +214,6 @@ const FAQSection = () => {
 
         <div className="section-divider" />
 
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="meta-block"
-        >
-          <div className="meta-brand">
-            <div className="meta-logo">
-              <img
-                src={CareOSLogo}
-                alt="CareOS Logo"
-                className="logo-img"
-              />
-            </div>
-            <div>
-              <h4 className="meta-title">CareOS</h4>
-              <p className="meta-badge">Healthcare ERP Suite</p>
-            </div>
-          </div>
-
-          <div className="meta-details">
-            <div className="meta-column">
-              <span className="meta-label">
-                <User size={10} /> Developer
-              </span>
-              <p className="meta-value">Het Limbani</p>
-            </div>
-
-            <div className="meta-column">
-              <span className="meta-label">
-                <GraduationCap size={10} /> Institution
-              </span>
-              <p className="meta-value-text">Adani University</p>
-            </div>
-
-            <div className="meta-column">
-              <span className="meta-label">
-                <Building2 size={10} /> Internship Company
-              </span>
-              <a href="https://www.covrize.com/" target="_blank" rel="noopener noreferrer" className="meta-value-gradient">
-                Covrize IT Solutions Private Limited
-              </a>
-            </div>
-          </div>
-        </motion.div>
-
       </div>
 
       <AnimatePresence>
@@ -302,7 +255,7 @@ const FAQSection = () => {
               </div>
 
               <div className="drawer-body">
-                
+
                 {errorMessage && (
                   <div style={{ background: "#fef2f2", color: "#ef4444", padding: "10px", borderRadius: "6px", fontSize: "13px", marginBottom: "15px", border: "1px solid #fecaca" }}>
                     {errorMessage}

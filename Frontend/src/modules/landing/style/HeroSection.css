@@ -3,6 +3,7 @@
     opacity: 0;
     transform: translateY(25px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -10,15 +11,34 @@
 }
 
 @keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes pulseDot {
-  0% { transform: scale(0.95); opacity: 0.5; }
-  50% { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.5; }
+  0% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
 }
 
 .hero-section {
@@ -286,26 +306,34 @@
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
+
   .hero-title {
     font-size: 3rem;
   }
+
   .hero-title-block {
     margin-top: 0.5rem;
   }
+
   .hero-desc {
     font-size: 1.125rem;
   }
+
   .stat-number {
     font-size: 1.5rem;
   }
+
   .stat-label {
     font-size: 0.875rem;
   }
+
   .hero-actions {
     flex-direction: row;
     max-width: 28rem;
   }
-  .btn-primary, .btn-secondary {
+
+  .btn-primary,
+  .btn-secondary {
     width: auto;
   }
 }
@@ -320,20 +348,25 @@
   .hero-section {
     padding: 5rem 0;
   }
+
   .hero-grid {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: 2rem;
   }
+
   .hero-content {
     grid-column: span 6 / span 6;
   }
+
   .hero-actions {
     max-width: none;
   }
+
   .hero-visual-wrapper {
     grid-column: span 6 / span 6;
     justify-content: flex-end;
   }
+
   .hero-visual-inner {
     max-width: 42rem;
   }

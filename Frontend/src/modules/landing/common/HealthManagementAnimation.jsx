@@ -71,7 +71,6 @@ const HealthManagementAnimation = () => {
       animate="visible"
       className="relative w-full"
     >
-      {/* Animated Background Glow */}
       <motion.div
         animate={{
           boxShadow: [
@@ -84,20 +83,17 @@ const HealthManagementAnimation = () => {
         className="absolute inset-0 rounded-3xl blur-2xl"
       />
 
-      {/* Main Card Container */}
       <div className="relative bg-white rounded-3xl p-8 sm:p-10 lg:p-14 pl-6 
       min-h-[150px] lg:min-h-[350px] shadow-2xl border border-slate-200/50 overflow-hidden healthmanagement-card">
-        {/* Gradient Background */}
+
         <div className="absolute top-0 right-0 w-96 h-100 bg-gradient-to-br from-sky-100/30 via-blue-100/20 to-transparent rounded-full blur-3xl" />
 
         <div className="relative z-10">
-          {/* Header */}
           <motion.div variants={itemVariants} className="mb-8">
             <h3 className="text-xl sm:text-2xl font-bold text-slate-900">Health Dashboard</h3>
             <p className="text-slate-500 text-xs sm:text-sm mt-1">Real-time health metrics monitoring</p>
           </motion.div>
 
-          {/* Vital Signs Circle Animation */}
           <motion.div
             variants={itemVariants}
             className="mb-8 flex justify-center"
@@ -107,17 +103,14 @@ const HealthManagementAnimation = () => {
               variants={pulseVariants}
               className="relative w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 flex items-center justify-center"
             >
-              {/* Outer Ring */}
               <motion.div className="absolute inset-0 rounded-full border-2 border-sky-400/30" />
 
-              {/* Middle Ring */}
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                 className="absolute inset-4 rounded-full border border-sky-300/40"
               />
 
-              {/* Inner Circle */}
               <motion.div
                 animate={{
                   boxShadow: [
@@ -141,7 +134,6 @@ const HealthManagementAnimation = () => {
                 </div>
               </motion.div>
 
-              {/* Animated Pulse Dots */}
               {[0, 120, 240].map((angle, i) => (
                 <motion.div
                   key={i}
@@ -172,43 +164,41 @@ const HealthManagementAnimation = () => {
           </motion.div>
 
           <div className="healthmetric-cards">
-          {/* Health Metrics Cards */}
-          <motion.div
-            variants={itemVariants}
-            className="grid grid-cols-3 gap-2 sm:gap-3 mb-6 mt-4"
-          >
-            {healthMetrics.map((metric, index) => {
-              const Icon = metric.icon;
-              return (
-                <motion.div
-                  key={metric.label}
-                  custom={index}
-                  variants={animateCardVariants}
-                  initial="hidden"
-                  animate="visible"
-                  whileHover={{
-                    y: -8,
-                    boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1)",
-                  }}
-                  className={`${metric.bg} rounded-lg sm:rounded-xl p-2 sm:p-3 lg:p-4 text-center cursor-pointer border border-slate-100/50 transition-all`}
-                >
+            <motion.div
+              variants={itemVariants}
+              className="grid grid-cols-3 gap-2 sm:gap-3 mb-6 mt-4"
+            >
+              {healthMetrics.map((metric, index) => {
+                const Icon = metric.icon;
+                return (
                   <motion.div
-                    animate="float"
-                    variants={floatVariants}
-                    className="flex justify-center mb-1 sm:mb-2"
+                    key={metric.label}
+                    custom={index}
+                    variants={animateCardVariants}
+                    initial="hidden"
+                    animate="visible"
+                    whileHover={{
+                      y: -8,
+                      boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1)",
+                    }}
+                    className={`${metric.bg} rounded-lg sm:rounded-xl p-2 sm:p-3 lg:p-4 text-center cursor-pointer border border-slate-100/50 transition-all`}
                   >
-                    <Icon className={`${metric.color} w-4 h-4 sm:w-5 sm:h-5`} />
+                    <motion.div
+                      animate="float"
+                      variants={floatVariants}
+                      className="flex justify-center mb-1 sm:mb-2"
+                    >
+                      <Icon className={`${metric.color} w-4 h-4 sm:w-5 sm:h-5`} />
+                    </motion.div>
+                    <p className="text-xs text-slate-600 font-medium">{metric.label}</p>
+                    <p className="text-sm sm:text-lg font-bold text-slate-900 mt-0.5 sm:mt-1">{metric.value}</p>
+                    <p className="text-xs text-slate-500">{metric.unit}</p>
                   </motion.div>
-                  <p className="text-xs text-slate-600 font-medium">{metric.label}</p>
-                  <p className="text-sm sm:text-lg font-bold text-slate-900 mt-0.5 sm:mt-1">{metric.value}</p>
-                  <p className="text-xs text-slate-500">{metric.unit}</p>
-                </motion.div>
-              );
-            })}
-          </motion.div>
+                );
+              })}
+            </motion.div>
           </div>
 
-          {/* Trend Chart Animation */}
           <motion.div
             variants={itemVariants}
             className="bg-gradient-to-br from-slate-50 to-blue-50/30 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-slate-100 healthmetric-cards"
@@ -223,7 +213,6 @@ const HealthManagementAnimation = () => {
               </span>
             </div>
 
-            {/* Animated Bars */}
             <div className="flex items-end gap-1 h-12 sm:h-16 justify-between">
               {[0.6, 0.8, 0.7, 0.9, 0.85, 0.95, 0.8].map((height, i) => (
                 <motion.div

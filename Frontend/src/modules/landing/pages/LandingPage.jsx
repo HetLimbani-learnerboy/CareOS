@@ -13,6 +13,7 @@ const LandingPage = () => {
       <FeaturesSection />
       <AboutSection />
       <FAQSection />
+      <Footer/>
     </div>
   );
 };

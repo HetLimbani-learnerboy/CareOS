@@ -25,23 +25,17 @@ const careOSBenefits = [
   {
     icon: Zap,
     title: "Instant Sync",
-    desc: "Zero-latency cross-department data pipelines",
-    color: "from-amber-500 to-orange-500",
-    bgColor: "bg-amber-500/10"
+    desc: "Zero-latency cross-department data pipelines"
   },
   {
     icon: ShieldCheck,
     title: "HIPAA Compliant",
-    desc: "Military-grade data protection encryption protocols",
-    color: "from-emerald-500 to-teal-500",
-    bgColor: "bg-emerald-500/10"
+    desc: "Military-grade data protection encryption protocols"
   },
   {
     icon: Layers,
     title: "Modular Scaling",
-    desc: "Deploy standalone extensions or complete systems",
-    color: "from-indigo-500 to-violet-500",
-    bgColor: "bg-indigo-500/10"
+    desc: "Deploy standalone extensions or complete systems"
   }
 ];
 
@@ -100,40 +94,40 @@ const AboutSection = () => {
   }, []);
 
   return (
-    <section id="about" className="aboutsection-card bg-gradient-to-br from-slate-50 via-white to-blue-50/30 w-full relative overflow-hidden">
+    <section id="about" className="about-section-wrapper">
 
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="about-background-glows">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-12 -right-32 w-96 h-100 bg-gradient-to-br from-sky-200/20 to-blue-200/20 rounded-full blur-3xl"
+          className="glow-circle glow-circle-1"
         />
         <motion.div
           animate={{ rotate: -360 }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-32 -left-32 w-96 h-96 bg-gradient-to-br from-blue-200/20 to-cyan-200/20 rounded-full blur-3xl"
+          className="glow-circle glow-circle-2"
         />
       </div>
 
-      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl">
+      <div className="about-container">
 
-        <div className="about-content-layout w-full">
+        <div className="about-content-layout">
 
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
-            className="about-left-panel w-full"
+            className="about-left-panel"
           >
             <motion.span
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-              className="inline-flex items-center gap-1.5 text-sky-600 font-semibold tracking-wider uppercase text-xs bg-sky-50 px-3.5 py-1.5 rounded-full border border-sky-200/60 mb-4 shadow-sm"
+              className="about-badge"
             >
-              <Sparkles size={14} className="text-sky-500 animate-pulse" />
+              <Sparkles size={14} className="badge-sparkle-icon" />
               About CareOS
             </motion.span>
 
@@ -142,7 +136,7 @@ const AboutSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl lg:text-5xl font-extrabold mt-2 text-slate-900 leading-tight tracking-tight"
+              className="about-main-title"
             >
               One Platform For Complete Healthcare Operations
             </motion.h2>
@@ -152,7 +146,7 @@ const AboutSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-slate-600 mt-6 text-lg leading-relaxed font-normal"
+              className="about-description"
             >
               CareOS centralizes patient management, doctor scheduling, pharmacy operations, laboratory workflows, billing systems, telemedicine, analytics, and more into one modern platform.
             </motion.p>
@@ -162,19 +156,19 @@ const AboutSection = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
-              className="mt-8 space-y-3.5"
+              className="about-features-list"
             >
               {features.map((item) => (
                 <motion.div
                   key={item}
                   variants={itemVariants}
                   whileHover={{ x: 6 }}
-                  className="flex items-center gap-3 group cursor-default"
+                  className="feature-item"
                 >
-                  <div className="flex-shrink-0">
-                    <CheckCircle2 className="text-emerald-500 group-hover:text-emerald-600 transition-colors shadow-sm rounded-full" size={22} />
+                  <div className="feature-icon-wrapper">
+                    <CheckCircle2 className="feature-check-icon" size={22} />
                   </div>
-                  <span className="text-slate-700 font-medium group-hover:text-slate-900 transition-colors">
+                  <span className="feature-text">
                     {item}
                   </span>
                 </motion.div>
@@ -182,30 +176,30 @@ const AboutSection = () => {
             </motion.div>
           </motion.div>
 
-          <div className="about-right-panel w-full relative">
+          <div className="about-right-panel">
 
             <motion.div
               variants={rightSideCardVariants}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
-              className="w-full bg-white border border-slate-200/80 rounded-3xl p-6 lg:p-8 shadow-xl relative backdrop-blur-md"
+              className="matrix-card"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 mb-6">
+              <div className="matrix-header">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 m-0">
-                    <span className="h-3 w-3 bg-emerald-500 rounded-full animate-ping inline-block" />
+                  <h3 className="matrix-title">
+                    <span className="matrix-pulse-dot" />
                     Live Data Matrix Pipeline
                   </h3>
-                  <p className="text-xs text-slate-500 mt-1 m-0">Simulated view of autonomous telemetry synchronizations</p>
+                  <p className="matrix-subtitle">Simulated view of autonomous telemetry synchronizations</p>
                 </div>
-                <div className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg self-start sm:self-center text-xs font-semibold tracking-wider text-slate-600 uppercase">
+                <div className="node-badge">
                   Node: East-Hub-01
                 </div>
               </div>
 
-              <div className="space-y-4 relative">
-                <div className="absolute left-[27px] top-4 bottom-4 w-[2px] bg-slate-100 -z-10" />
+              <div className="pipeline-steps-container">
+                <div className="pipeline-line" />
 
                 {pipelineSteps.map((step, index) => {
                   const StepIcon = step.icon;
@@ -217,60 +211,52 @@ const AboutSection = () => {
                       onClick={() => setActiveStep(index)}
                       animate={{
                         scale: isActive ? 1.02 : 1,
-                        backgroundColor: isActive ? "rgba(240, 249, 255, 0.7)" : "rgba(255, 255, 255, 0)"
                       }}
-                      className={`flex items-start gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer box-border ${isActive
-                          ? "border-sky-200 shadow-sm"
-                          : "border-transparent hover:border-slate-100 hover:bg-slate-50/50"
-                        }`}
+                      className={`pipeline-step-item ${isActive ? "active-step" : ""}`}
                     >
-                      <div className="relative">
+                      <div className="pipeline-icon-container">
                         <motion.div
                           animate={{
-                            backgroundColor: isActive ? "#0284c7" : "rgba(226, 232, 240, 1)",
-                            color: isActive ? "#ffffff" : "rgba(100, 116, 139, 1)",
+                            backgroundColor: isActive ? "#0284c7" : "#e2e8f0",
+                            color: isActive ? "#ffffff" : "#64748b",
                             boxShadow: isActive ? "0 0 15px rgba(14, 165, 233, 0.4)" : "none"
                           }}
-                          className="w-14 h-14 rounded-full flex items-center justify-center border-4 border-white shadow-sm transition-colors duration-300 z-10 relative"
+                          className="pipeline-icon-box"
                         >
                           <StepIcon size={22} />
                         </motion.div>
                         {isActive && (
                           <motion.div
                             layoutId="pulse-ring"
-                            className="absolute inset-0 rounded-full border-2 border-sky-400 -z-10"
+                            className="pipeline-pulse-ring"
                             animate={{ scale: [1, 1.3, 1], opacity: [1, 0, 1] }}
                             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                           />
                         )}
                       </div>
 
-                      <div className="flex-1 min-w-0 pt-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <h4 className={`text-base font-bold transition-colors m-0 ${isActive ? "text-sky-900" : "text-slate-800"}`}>
+                      <div className="pipeline-content">
+                        <div className="pipeline-step-header">
+                          <h4 className={`pipeline-label ${isActive ? "active-label" : ""}`}>
                             {step.label}
                           </h4>
-                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${isActive
-                              ? "bg-sky-100 text-sky-700"
-                              : index < activeStep
-                                ? "bg-emerald-50 text-emerald-700"
-                                : "bg-slate-100 text-slate-500"
+                          <span className={`pipeline-status-badge ${isActive ? "status-active" : index < activeStep ? "status-secured" : "status-queued"
                             }`}>
                             {isActive ? "Active Sync" : index < activeStep ? "Secured" : "Queued"}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-500 mt-1 line-clamp-1 m-0">{step.desc}</p>
+                        <p className="pipeline-desc">{step.desc}</p>
                       </div>
                     </motion.div>
                   );
                 })}
               </div>
 
-              <div className="mt-6 bg-slate-900 rounded-xl p-4 font-mono text-[11px] text-slate-400 shadow-inner overflow-hidden relative min-h-[62px]">
-                <div className="absolute right-3 top-3 flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-red-500/80" />
-                  <div className="w-2 h-2 rounded-full bg-amber-500/80" />
-                  <div className="w-2 h-2 rounded-full bg-green-500/80" />
+              <div className="terminal-box">
+                <div className="terminal-dots">
+                  <div className="terminal-dot red" />
+                  <div className="terminal-dot amber" />
+                  <div className="terminal-dot green" />
                 </div>
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -279,10 +265,9 @@ const AboutSection = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="space-y-1"
                   >
-                    <p className="text-emerald-400 font-semibold m-0">// STREAM_ESTABLISHED</p>
-                    <p className="m-0">SYSTEM.ROUTING: {pipelineSteps[activeStep].label.toUpperCase().replace(/\s+/g, '_')} processed in 0.0042s</p>
+                    <p className="terminal-stream">// STREAM_ESTABLISHED</p>
+                    <p className="terminal-output">SYSTEM.ROUTING: {pipelineSteps[activeStep].label.toUpperCase().replace(/\s+/g, '_')} processed in 0.0042s</p>
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -293,7 +278,7 @@ const AboutSection = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-20px" }}
-              className="about-benefits-grid w-full"
+              className="about-benefits-grid"
             >
               {careOSBenefits.map((benefit) => {
                 const BenefitIcon = benefit.icon;
@@ -301,16 +286,16 @@ const AboutSection = () => {
                   <motion.div
                     key={benefit.title}
                     variants={rightSideCardVariants}
-                    whileHover={{ y: -4, border: "1px solid rgba(14, 165, 233, 0.3)" }}
-                    className="bg-white/80 backdrop-blur-sm border border-slate-200/60 p-4 rounded-2xl shadow-sm transition-all flex flex-col justify-between box-border"
+                    whileHover={{ y: -4 }}
+                    className="benefit-card"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2.5 rounded-xl ${benefit.bgColor} bg-gradient-to-br text-slate-800 flex-shrink-0 flex items-center justify-center`}>
-                        <BenefitIcon size={18} className="text-slate-800" />
+                    <div className="benefit-card-header">
+                      <div className="benefit-icon-box">
+                        <BenefitIcon size={18} className="benefit-icon" />
                       </div>
-                      <h4 className="text-sm font-bold text-slate-900 m-0">{benefit.title}</h4>
+                      <h4 className="benefit-title">{benefit.title}</h4>
                     </div>
-                    <p className="text-xs text-slate-500 mt-3.5 leading-relaxed m-0">{benefit.desc}</p>
+                    <p className="benefit-desc">{benefit.desc}</p>
                   </motion.div>
                 );
               })}
@@ -324,17 +309,17 @@ const AboutSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="about-footer-card bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-lg border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full box-border"
+          className="about-footer-card"
         >
-          <div className="max-w-2xl text-left">
-            <h4 className="text-base font-bold text-sky-400 m-0">Transforming Enterprise Clinical Workflows</h4>
-            <p className="text-sm text-slate-300 mt-1 leading-relaxed m-0">
+          <div className="about-footer-text-content">
+            <h4 className="about-footer-title">Transforming Enterprise Clinical Workflows</h4>
+            <p className="about-footer-desc">
               CareOS unifies disparate legacy platforms into an interconnected environment, eliminating administrative overhead and dropping communication friction across hospital staff by up to 40%.
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0 self-start md:self-center bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl">
-            <span className="text-xs font-semibold text-slate-300">Operational Efficacy</span>
-            <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">99.98%</span>
+          <div className="about-footer-badge-box">
+            <span className="footer-badge-label">Operational Efficacy</span>
+            <span className="footer-badge-value">99.98%</span>
           </div>
         </motion.div>
 
