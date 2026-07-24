@@ -82,26 +82,9 @@ const HeroSection = () => {
               </motion.h1>
 
               <motion.p variants={itemVariants} className="hero-desc">
-                Manage Patients, Doctors, Pharmacy, Laboratory, Billing, Analytics, Telemedicine and Hospital Operations through one intelligent platform.
+                Manage patients, doctors, appointments, authentication, pharmacy, labs, wards, receptionist workflows, and AI clinical support through one intelligent platform.
               </motion.p>
             </div>
-
-            <motion.div variants={itemVariants} className="hero-stats-grid">
-              {[
-                { number: "50+", label: "Hospitals" },
-                { number: "100K+", label: "Patients" },
-                { number: "99.9%", label: "Uptime" },
-              ].map((stat) => (
-                <motion.div
-                  key={stat.label}
-                  whileHover={{ y: -4, scale: 1.02 }}
-                  className="hero-stat-card"
-                >
-                  <span className="stat-number">{stat.number}</span>
-                  <span className="stat-label">{stat.label}</span>
-                </motion.div>
-              ))}
-            </motion.div>
 
             <motion.div variants={itemVariants} className="hero-actions">
               <motion.button

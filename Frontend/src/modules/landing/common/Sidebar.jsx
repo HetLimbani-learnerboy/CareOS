@@ -98,7 +98,6 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Mobile Toggle */}
 
       <button
         onClick={() => setOpen(true)}
@@ -117,8 +116,6 @@ const Sidebar = () => {
         <Menu size={20} />
       </button>
 
-      {/* Overlay */}
-
       {open && (
         <div
           onClick={() => setOpen(false)}
@@ -131,8 +128,6 @@ const Sidebar = () => {
           "
         />
       )}
-
-      {/* Sidebar */}
 
       <aside
         className={`
@@ -149,14 +144,12 @@ const Sidebar = () => {
         transform
         transition-all
         duration-300
-        ${
-          open
+        ${open
             ? "translate-x-0"
             : "-translate-x-full lg:translate-x-0"
-        }
+          }
       `}
       >
-        {/* Header */}
 
         <div
           className="
@@ -186,8 +179,6 @@ const Sidebar = () => {
           </button>
         </div>
 
-        {/* Role Badge */}
-
         <div className="px-4 py-3">
           <div
             className="
@@ -202,8 +193,6 @@ const Sidebar = () => {
             Logged in as Super Admin
           </div>
         </div>
-
-        {/* Menu */}
 
         <div
           className="
@@ -248,10 +237,9 @@ const Sidebar = () => {
                         rounded-xl
                         transition-all
                         duration-200
-                        ${
-                          isActive
-                            ? "bg-sky-600 text-white shadow-lg"
-                            : "hover:bg-slate-800 hover:translate-x-1"
+                        ${isActive
+                          ? "bg-sky-600 text-white shadow-lg"
+                          : "hover:bg-slate-800 hover:translate-x-1"
                         }
                       `
                       }
@@ -267,8 +255,6 @@ const Sidebar = () => {
             </div>
           ))}
         </div>
-
-        {/* Footer User Card */}
 
         <div
           className="

@@ -7,7 +7,7 @@ import "../style/GetConsult-style.css";
 
 const GetConsult = () => {
   const navigate = useNavigate();
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,9 +24,9 @@ const GetConsult = () => {
     try {
       setIsSubmitting(true);
       setErrorMessage("");
-      
+
       const res = await axios.post(`${API_BASE_URL}/api/v1/receptionist/consultation/request`, formData);
-      
+
       if (res.data?.status === "success") {
         setSubmitSuccess(true);
         setFormData({ firstName: "", lastName: "", email: "", message: "" });
