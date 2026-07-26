@@ -28,16 +28,12 @@
 - [System Architecture](#-system-architecture)
 - [Workflow Diagrams](#-workflow-diagrams)
 - [Project Structure](#-project-structure)
-- [Folder Structure Deep Dive](#-folder-structure-deep-dive)
+- [Backend Folder Structure Deep Dive](#-backend-folder-structure-deep-dive)
 - [Database Schema Overview](#-database-schema-overview)
 - [Getting Started](#-getting-started)
-- [Environment Variables](#-environment-variables)
 - [Sample API Calls](#-sample-api-calls)
 - [API Reference](#-api-reference)
-- [Role-Based Access Control](#-role-based-access-control)
-- [Deployment](#-deployment)
-- [Testing](#-testing)
-- [Roadmap](#-roadmap)
+- [Deployment](#️-deployment)
 
 </details>
 
@@ -126,6 +122,7 @@ The platform supports **six distinct user roles** — Patient, Doctor, Reception
 
 </details>
 
+<details>
 <summary><strong>🧑🏼‍⚕️ Nurse Modules</strong></summary>
 
 - Access assigned patient data including prescription record files and lab report files
@@ -326,36 +323,66 @@ Book Appointment  ────────────▶  Pending Request      
 <details>
 <summary><strong>2️⃣ Authentication & Role-Based Routing Flow</strong></summary>
 
-```
-   User submits login credentials
-              │
-              ▼
-   POST /api/v1/auth/login
-              │
-              ▼
-   Validate credentials (bcrypt compare)
-              │
-              ▼
-   Issue JWT (payload: { id, email, role })
-              │
-              ▼
-   Client stores token + user object
-   (localStorage / sessionStorage)
-              │
-              ▼
-   Every subsequent request →
-   Authorization: Bearer <token>
-              │
-              ▼
-   protectRoute middleware verifies JWT
-              │
-              ▼
-   requireRole('patient' | 'doctor' | ...)
-   guards role-specific endpoints
-              │
-              ▼
-   Frontend router redirects to the
-   matching dashboard component
+```mermaid
+flowchart TD
+
+    A["👤 User submits login credentials"]
+
+    B["📨 POST /api/v1/auth/login"]
+
+    C["🔐 Validate Email & Password<br/>(bcrypt.compare)"]
+
+    D{"Credentials Valid?"}
+
+    E["❌ Return Authentication Error"]
+
+    F["🎟️ Generate JWT<br/>Payload: { id, email, role }"]
+
+    G["💾 Store JWT & User Object<br/>(localStorage / sessionStorage)"]
+
+    H["📡 Client sends API requests<br/>Authorization: Bearer &lt;token&gt;"]
+
+    I["🛡️ protectRoute Middleware<br/>Verify JWT"]
+
+    J{"JWT Valid?"}
+
+    K["❌ Return 401 Unauthorized"]
+
+    L["🔒 requireRole()<br/>Authorize User Role"]
+
+    M{"Role Authorized?"}
+
+    N["❌ Return 403 Forbidden"]
+
+    O["⚙️ Execute Controller & Service"]
+
+    P["📤 Send API Response"]
+
+    Q["🖥️ React Router redirects<br/>to Role Dashboard"]
+
+    A --> B
+    B --> C
+    C --> D
+
+    D -- "No" --> E
+    D -- "Yes" --> F
+
+    F --> G
+    G --> H
+    H --> I
+
+    I --> J
+
+    J -- "No" --> K
+    J -- "Yes" --> L
+
+    L --> M
+
+    M -- "No" --> N
+    M -- "Yes" --> O
+
+    O --> P
+    P --> Q
 ```
 
 </details>
@@ -544,8 +571,8 @@ Groq API key (for AI Assistant feature)
 <summary><strong>1. Clone the repository</strong></summary>
 
 ```bash
-git clone <REPO_URL>
-cd careos-hospital-management
+git clone https://github.com/HetLimbani-learnerboy/CareOS.git
+cd Careos
 ```
 
 </details>
@@ -554,14 +581,14 @@ cd careos-hospital-management
 <summary><strong>2. Backend setup</strong></summary>
 
 ```bash
-cd backend
+cd Backend
 npm install
 cp .env.example .env
 # Fill in your MongoDB URI, JWT secret, Groq API key
-npm run dev
+npm start
 ```
 
-Server runs on `http://localhost:5000` by default.
+Server runs on `http://localhost:8000` by default.
 
 </details>
 
@@ -569,41 +596,14 @@ Server runs on `http://localhost:5000` by default.
 <summary><strong>3. Frontend setup</strong></summary>
 
 ```bash
-cd frontend
+cd Frontend
 npm install
 cp .env.example .env
-# Set VITE_API_BASE_URL=http://localhost:5000
+# Set VITE_API_BASE_URL=http://localhost:8000
 npm run dev
 ```
 
 App runs on `http://localhost:5173` by default.
-
-</details>
-
----
-
-## 🔐 Environment Variables
-
-<details>
-<summary><strong>Backend (.env)</strong></summary>
-
-```env
-PORT=5000
-MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/careos
-JWT_SECRET=<your_jwt_secret>
-JWT_EXPIRES_IN=7d
-GROQ_API_KEY=<your_groq_api_key>
-CLIENT_ORIGIN=http://localhost:5173
-```
-
-</details>
-
-<details>
-<summary><strong>Frontend (.env)</strong></summary>
-
-```env
-VITE_API_BASE_URL=http://localhost:5000
-```
 
 </details>
 
@@ -620,166 +620,38 @@ POST /api/v1/auth/login
 Content-Type: application/json
 
 {
-  "email": "patient@example.com",
-  "password": "SecurePass123"
+  "email": "doctor@careos.com",
+  "password": "Temp1234!",
+  "captchaToken": "<enter_reCAPTCHA_response_token_here>",
+  "rememberMe": true
 }
 ```
 
 **Response**
 ```json
 {
-  "status": "success",
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "status": "success",
     "user": {
-      "email": "patient@example.com",
-      "role": "patient",
-      "firstName": "Aarav",
-      "lastName": "Shah"
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary><strong>📅 Book an Appointment</strong></summary>
-
-**Request**
-```http
-POST /api/v1/appointments/book-request
-Content-Type: application/json
-Authorization: Bearer <token>
-
-{
-  "patientEmail": "patient@example.com",
-  "doctorEmail": "dr.mehta@careos.com",
-  "date": "2026-08-14",
-  "time": "10:30 AM",
-  "symptoms": "Persistent headache and mild fever for 3 days"
-}
-```
-
-**Response**
-```json
-{
-  "status": "success",
-  "data": {
-    "_id": "66b1f0c2e4a1234567890abc",
-    "patient_id": "66a...",
-    "doctor_id": "66b...",
-    "appointment_date": "2026-08-14",
-    "time_slot": "10:30 AM",
-    "status": "pending",
-    "reason_for_visit": "Persistent headache and mild fever for 3 days"
-  }
-}
-```
-
-</details>
-
-<details>
-<summary><strong>💰 Generate Draft Invoice (Receptionist)</strong></summary>
-
-**Request**
-```http
-GET /api/v1/receptionist/draft-invoice/66b1f0c2e4a1234567890abc
-x-user-email: reception@careos.com
-```
-
-**Response**
-```json
-{
-  "status": "success",
-  "data": {
-    "appointmentId": "66b1f0c2e4a1234567890abc",
-    "patientName": "Aarav Shah",
-    "doctorName": "Dr. Priya Mehta",
-    "costs": {
-      "consultationFee": 500,
-      "treatmentCost": 0,
-      "medicineCost": 320,
-      "labCost": 800,
-      "grossTotal": 1620,
-      "deductionsPrePaid": 320,
-      "netBeforeInsurance": 1300
+        "_id": "**",
+        "firstName": "Rohan",
+        "lastName": "Joshi",
+        "email": "doctor@careos.com",
+        "countryCode": "+91",
+        "phone": "909090909",
+        "role": "doctor",
+        "profile_image": null,
+        "is_verified": true,
+        "createdAt": "2026-06-18T16:19:21.449Z",
+        "updatedAt": "2026-06-19T00:15:53.723Z",
+        "id": 107,
+        "__v": 0
     },
-    "billingItems": [
-      { "name": "Consultation - Dr. Priya Mehta", "category": "Consultation", "totalPrice": 500 },
-      { "name": "Paracetamol 500mg", "category": "Medicine", "totalPrice": 320, "prePaid": true },
-      { "name": "Complete Blood Count", "category": "LabReport", "totalPrice": 800 }
-    ]
-  }
+    "token": "ey..."
 }
 ```
 
 </details>
 
-<details>
-<summary><strong>🤖 AI Assistant Chat</strong></summary>
-
-**Request**
-```http
-POST /api/v1/ai/chat
-Content-Type: application/json
-x-user-email: reception@careos.com
-x-user-role: receptionist
-
-{
-  "prompt": "How do I process an unpaid invoice?",
-  "sessionId": null
-}
-```
-
-**Response**
-```json
-{
-  "status": "success",
-  "data": {
-    "sessionId": "66c3a1b2e4a9876543210fed",
-    "title": "How do I process an unpaid invoice?",
-    "reply": "To process an unpaid invoice in CareOS:\n1. Navigate to Billing History → Pending Desk tab\n2. Select the invoice and choose a payment method\n3. Click 'Collect' to mark it as Paid...",
-    "lastMessageAt": "2026-07-26T10:15:00.000Z"
-  }
-}
-```
-
-</details>
-
-<details>
-<summary><strong>💳 Patient Online Payment</strong></summary>
-
-**Request**
-```http
-POST /api/v1/patients/invoice/66c1.../pay
-Content-Type: application/json
-x-user-email: patient@example.com
-
-{
-  "paymentMethod": "UPI",
-  "transactionId": "UPI2026071012345678",
-  "cardOrPayerName": "Aarav Shah",
-  "paymentTimestamp": "2026-07-26T10:20:00.000Z"
-}
-```
-
-**Response**
-```json
-{
-  "status": "success",
-  "message": "Payment processed successfully.",
-  "data": {
-    "invoiceNumber": "INV-1753500000000-4821",
-    "paymentStatus": "Paid",
-    "netPayableAmount": 0
-  }
-}
-```
-
-</details>
-
----
 
 ## 📚 API Reference
 
@@ -830,22 +702,6 @@ x-user-email: patient@example.com
 | DELETE | `/api/v1/ai/sessions/:sessionId` | Delete session |
 
 </details>
-
----
-
-## 🛡 Role-Based Access Control
-
-| Role | Dashboard Access | Key Permissions |
-|---|---|---|
-| **Patient** | `/dashboard/patient` | Book appointments, view own records, pay invoices |
-| **Doctor** | `/dashboard/doctor` | Manage appointments, issue prescriptions, view roster |
-| **Receptionist** | `/dashboard/receptionist` | Generate & manage all billing invoices |
-| **Pharmacist** | `/dashboard/pharmacist` | Dispense medicines, manage pharmacy invoices |
-| **Lab Technician** | `/dashboard/lab` | Process diagnostic tests, upload results |
-| **Admin** | `/dashboard/admin` | Full system oversight *(planned)* |
-
-All protected routes use `protectRoute` (JWT verification) + `requireRole(role)` middleware chained at the router level.
-
 ---
 
 ## ☁️ Deployment
@@ -869,30 +725,3 @@ Both frontend and backend are configured for Vercel deployment.
 Set all environment variables in **Vercel Project Settings → Environment Variables** for both the frontend and backend projects.
 
 </details>
-
----
-
-## 🧪 Testing
-
-```bash
-# Backend
-cd backend
-npm run test
-
-# Frontend
-cd frontend
-npm run test
-```
-
-> Test coverage is actively being expanded — see [Roadmap](#-roadmap).
-
----
-
-## 🗺 Roadmap
-
-- [ ] Admin analytics dashboard (revenue, occupancy, staff performance)
-- [ ] SMS/Email appointment reminders
-- [ ] Telemedicine video consultation module
-- [ ] Multi-language support
-- [ ] Automated test suite (Jest + React Testing Library)
-- [ ] Docker containerization for local dev parity
