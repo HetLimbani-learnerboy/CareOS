@@ -6,13 +6,11 @@
 ![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+![Groq](https://img.shields.io/badge/Groq-F55036?style=for-the-badge&logo=groq&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen?style=for-the-badge)
 
 **A full-stack, role-based Hospital Management System built on the MERN stack**
 *Streamlining patient care, clinical workflows, billing, and hospital operations — end to end.*
-
-[Live Demo](#) · [Report Bug](#) · [Request Feature](#)
 
 </div>
 
@@ -40,9 +38,6 @@
 - [Deployment](#-deployment)
 - [Testing](#-testing)
 - [Roadmap](#-roadmap)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Acknowledgements](#-acknowledgements)
 
 </details>
 
@@ -50,9 +45,9 @@
 
 ## 📖 About the Project
 
-**CareOS** is a production-grade, multi-role hospital management system designed to digitize and streamline the complete patient care lifecycle — from appointment booking to billing reconciliation. Built as an **industrial/product-style engineering project**, it follows real-world patterns: role-based dashboards, service-layer architecture, RESTful APIs, JWT authentication, MongoDB aggregation pipelines, and an integrated domain-restricted AI assistant with persistent chat history.
+**CareOS** is an industrial-grade, multi-role hospital management system engineered to digitize and optimize the complete patient care lifecycle—from initial appointment scheduling to final billing reconciliation. Built following modern product development standards, the platform features a robust service-layer architecture, RESTful API endpoints, secure JWT authentication, advanced MongoDB aggregation pipelines, and an integrated AI clinical assistant complete with persistent conversation history.
 
-The platform supports **six distinct user roles** — Patient, Doctor, Receptionist, Pharmacist, Lab Technician, and Admin — each with a tailored dashboard and permission set, all backed by a single unified backend.
+The platform supports **six distinct user roles** — Patient, Doctor, Receptionist, Pharmacist, Lab Technician, and Nurse — each with a tailored dashboard and permission set, all backed by a single unified backend.
 
 > This project was built as part of an internship engagement to demonstrate full-stack engineering capability across backend architecture, frontend UX, database design, and deployment practices.
 
@@ -62,15 +57,13 @@ The platform supports **six distinct user roles** — Patient, Doctor, Reception
 
 | Field | Detail |
 |---|---|
-| **Project Name** | `<YOUR_PROJECT_NAME>` (e.g. CareOS Hospital Management System) |
-| **Author** | `<YOUR_NAME>` |
-| **Role** | `<YOUR_ROLE>` (e.g. Full Stack Development Intern) |
-| **Internship Company** | `<COMPANY_NAME>` |
-| **Duration** | `<START_MONTH_YEAR>` – `<END_MONTH_YEAR>` |
-| **Mentor / Reporting Manager** | `<MENTOR_NAME>` |
-| **GitHub Repository** | `<REPO_URL>` |
+| **Project Name** | `CareOS Hospital Management ERP System` |
+| **Author** | `Het Limbani` |
+| **Role** | `MERN Stack Developer` |
+| **Institution** | `Adani University` |
+| **Internship Company** | [Covrize IT Solutions Private Limited](https://www.covrize.com/) |
+| **Duration** | `Summer Internship  June 1, 2026` – `July 26, 2026` |
 | **Live Deployment** | `<DEPLOYED_URL>` |
-| **Contact** | `<YOUR_EMAIL>` |
 
 ---
 
@@ -84,9 +77,9 @@ The platform supports **six distinct user roles** — Patient, Doctor, Reception
 - Book, reschedule, and cancel appointments in real time (slot-collision safe)
 - View complete prescription history with medicine and lab test breakdowns
 - Track diagnostic lab report status and results
-- View and pay billing invoices online (UPI / Card / Net Banking)
 - Personal clinical dashboard — allergies, chronic conditions, vitals log
 - Domain-restricted AI Assistant with persistent, per-user chat history
+- Billing history tracking with insurance verification status (verified or pending) and completed billing information details
 
 </details>
 
@@ -109,16 +102,36 @@ The platform supports **six distinct user roles** — Patient, Doctor, Reception
 - Insurance coverage validation and adjustment charge handling
 - Partitioned billing ledger: Unpaid / Insurance Pending / Paid / Cancelled
 - Invoice status lifecycle management with payment method tracking
+- Appointment management with real-time slot booking, rescheduling, and accept/reject request handling backed by automated email notifications
+- Admission processing and dynamic room/bed assignment tracking
+- Consultation request management handling incoming walk-in or phone schedules with automated email response dispatch
 
 </details>
 
 <details>
-<summary><strong>💊 Pharmacist & 🧪 Lab Technician Modules</strong></summary>
+<summary><strong>💊 Pharmacist Modules</strong></summary>
 
 - Prescription-linked medicine dispensing and pharmacy invoice generation
-- Lab test request intake, result upload, and status pipeline tracking
-- Billing amount attribution feeding into the unified invoice engine
+- Medicine inventory management with real-time stock updates, low-stock alerts, and new stock batch registration
+- Comprehensive pharmacy billing history with status tracking to view paid, pending, and voided bills instantly
 
+</details>
+
+<details>
+<summary><strong>🧪 Lab Technician Modules</strong></summary>
+
+- Manage upcoming lab requests
+- Lab test request intake, result upload, and status pipeline tracking
+- Comprehensive pharmacy billing history with status tracking to view paid, pending, and voided bills instantly
+
+</details>
+
+<summary><strong>🧑🏼‍⚕️ Nurse Modules</strong></summary>
+
+- Access assigned patient data including prescription record files and lab report files
+- Ward management restricted to assigned patients, including tracking status such as ready for discharge
+- Record and store vital logs including Blood Pressure, Heart Rate (BPM), and Temperature (°C), and view Historical Evaluation Logs
+- Manage treatment plans prescribed by doctors, execute them to completion, and update treatment plan details as a nurse
 </details>
 
 <details>
@@ -171,30 +184,77 @@ The platform supports **six distinct user roles** — Patient, Doctor, Reception
 
 ## 🏗 System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         CLIENT (React SPA)                       │
-│   Patient │ Doctor │ Receptionist │ Pharmacist │ Lab │ Admin      │
-│                     Dashboards (Role-Routed)                     │
-└───────────────────────────────┬─────────────────────────────────┘
-                                 │  Axios (REST, JWT in headers)
-┌───────────────────────────────▼─────────────────────────────────┐
-│                     EXPRESS.JS API GATEWAY                       │
-│   Auth Middleware → Role Guard → Controller → Service Layer      │
-├────────────────────────────────────────────────────────────────┤
-│  /auth   /patients   /doctors   /receptionist   /pharmacist      │
-│  /lab-technician    /appointments    /ai                         │
-└───────────────────────────────┬─────────────────────────────────┘
-                                 │  Mongoose ODM
-┌───────────────────────────────▼─────────────────────────────────┐
-│                      MONGODB ATLAS (Cloud)                       │
-│  UserIdentity │ PatientProfile │ DoctorProfile │ Appointment      │
-│  Prescription │ Billing │ LabReportHistory │ ChatSession │ ...   │
-└────────────────────────────────────────────────────────────────┘
-                                 │
-┌───────────────────────────────▼─────────────────────────────────┐
-│                    EXTERNAL: Groq LLM API (Llama 3.3)             │
-└────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+
+subgraph Frontend["🌐 Frontend (React + Vite)"]
+    Patient["👤 Patient Portal"]
+    Doctor["🩺 Doctor Portal"]
+    Receptionist["🧾 Receptionist Portal"]
+    Pharmacist["💊 Pharmacist Portal"]
+    Lab["🧪 Lab Technician Portal"]
+    Nurse["👩‍⚕️ Nurse Portal"]
+end
+
+subgraph Backend["⚙️ Express.js Backend"]
+    Middleware["Authentication Middleware"]
+    Authorization["Role-Based Authorization"]
+    Controllers["REST Controllers"]
+    Services["Business Logic Services"]
+
+    Auth["Auth Module"]
+    Appointment["Appointment Module"]
+    DoctorAPI["Doctor Module"]
+    Reception["Receptionist Module"]
+    Pharmacy["Pharmacy Module"]
+    Laboratory["Lab Module"]
+    Nursing["Nurse Module"]
+    AI["AI Assistant Module"]
+end
+
+subgraph Database["☁️ MongoDB Atlas"]
+    UserIdentity
+    PatientProfile
+    DoctorProfile
+    AppointmentDB["Appointments"]
+    Prescription
+    Admission
+    WardBed
+    Medicine
+    LabHistory["Lab Report History"]
+    Billing
+    ChatSession
+end
+
+subgraph External["🤖 External Services"]
+    Groq["Groq API"]
+    Llama["Llama 3.3 LLM"]
+end
+
+Frontend -->|Axios REST API + JWT| Middleware
+Middleware --> Authorization
+Authorization --> Controllers
+Controllers --> Services
+
+Services --> Auth
+Services --> Appointment
+Services --> DoctorAPI
+Services --> Reception
+Services --> Pharmacy
+Services --> Laboratory
+Services --> Nursing
+Services --> AI
+
+Auth --> Database
+Appointment --> Database
+DoctorAPI --> Database
+Reception --> Database
+Pharmacy --> Database
+Laboratory --> Database
+Nursing --> Database
+
+AI --> Groq
+Groq --> Llama
 ```
 
 ---
@@ -303,38 +363,51 @@ Book Appointment  ────────────▶  Pending Request      
 <details>
 <summary><strong>3️⃣ AI Assistant Chat Persistence Flow</strong></summary>
 
-```
-  User sends message (with or without sessionId)
-              │
-              ▼
-     POST /api/v1/ai/chat
-              │
-              ▼
-  sessionId provided? ──No──▶ Create new ChatSession
-       │ Yes                      (title = first prompt)
-       ▼
-  Load existing session,
-  slice last 20 messages
-  for bounded context
-              │
-              ▼
-  Prepend guardrail system prompt
-  + role/email context
-              │
-              ▼
-  Call Groq (Llama 3.3 70B)
-              │
-              ▼
-  Append user + assistant turns
-  to session.messages[]
-              │
-              ▼
-  Save session → return reply +
-  sessionId to client
-              │
-              ▼
-  Sidebar updates: new/updated
-  session bumped to top of list
+```mermaid
+flowchart TD
+
+    A["👤 User sends message<br/>(with or without sessionId)"]
+
+    B["📨 POST /api/v1/ai/chat"]
+
+    C{"Session ID provided?"}
+
+    D["🆕 Create new ChatSession<br/>Title = First User Prompt"]
+
+    E["📂 Load Existing ChatSession"]
+
+    F["📝 Retrieve Last 20 Messages<br/>for Context Window"]
+
+    G["🛡️ Prepend System Prompt<br/>+ User Role & Email Context"]
+
+    H["🤖 Call Groq API<br/>Llama 3.3 70B"]
+
+    I["💬 Generate AI Response"]
+
+    J["➕ Append User & Assistant Messages<br/>to session.messages[]"]
+
+    K["💾 Save ChatSession"]
+
+    L["📤 Return Reply + sessionId"]
+
+    M["🗂️ Sidebar Refresh<br/>Move Session to Top"]
+
+    A --> B
+    B --> C
+
+    C -- "No" --> D
+    C -- "Yes" --> E
+
+    D --> G
+    E --> F
+    F --> G
+
+    G --> H
+    H --> I
+    I --> J
+    J --> K
+    K --> L
+    L --> M
 ```
 
 </details>
@@ -346,7 +419,7 @@ Book Appointment  ────────────▶  Pending Request      
 ```
 careos-hospital-management/
 │
-├── backend/                       # Node.js + Express API server
+├── Backend/                       # Node.js + Express API server
 │   ├── src/
 │   │   ├── modules/                # Feature-based module organization
 │   │   │   ├── auth/
@@ -354,47 +427,53 @@ careos-hospital-management/
 │   │   │   ├── doctor/
 │   │   │   ├── receptionist/
 │   │   │   ├── pharmacist/
+│   │   │   ├── nurse/
 │   │   │   ├── lab_technician/
-│   │   │   ├── appointments/
-│   │   │   └── ai/
 │   │   ├── middleware/
 │   │   │   ├── authMiddleware.js
 │   │   │   └── errorHandler.js
+│   │   ├── service/
+│   │   │   ├── ai.service.js
+│   │   │   └── email.service.js
+│   │   ├── utils/
+│   │   │   ├── ai.controller.js
+│   │   │   └── ai.routes.js
+│   │   │   ├── ai.recaptcha.js
+│   │   │   └── ...
 │   │   ├── config/
-│   │   │   └── db.js
 │   │   └── app.js
 │   ├── .env.example
 │   ├── package.json
 │   └── vercel.json
 │
-├── frontend/                      # React SPA
+├── Frontend/                      # React SPA
 │   ├── public/
 │   ├── src/
-│   │   ├── pages/
+│   │   ├── assets/
+│   │   ├── modules/
+│   │   │   ├── auth/
+│   │   │   ├── common/
+│   │   │   ├── landing/
 │   │   │   ├── patient/
 │   │   │   ├── doctor/
 │   │   │   ├── receptionist/
 │   │   │   ├── pharmacist/
-│   │   │   ├── lab/
-│   │   │   └── ai/
-│   │   ├── style/                  # External CSS per page
-│   │   ├── components/             # Shared UI components
-│   │   ├── routes/
+│   │   │   ├── nurse/
+│   │   │   ├── lab_technician/
 │   │   ├── App.jsx
 │   │   └── main.jsx
+│   │   ├── App.css
+│   │   └── index.css
 │   ├── .env.example
 │   ├── package.json
 │   └── vite.config.js
-│
-├── docs/                          # Architecture notes, ER diagrams
-├── .gitignore
-├── LICENSE
+├── CareOS-Hospital_ERP_System.xlsx
 └── README.md
 ```
 
 ---
 
-## 🔍 Folder Structure Deep Dive
+## 🔍 Backend Folder Structure Deep Dive
 
 <details>
 <summary><strong>Backend: modules/ (feature-sliced architecture)</strong></summary>
@@ -422,31 +501,6 @@ receptionist/
 ├── billing.controller.js      # HTTP handlers
 └── billing.routes.js          # /api/v1/receptionist/* routes
 ```
-
-</details>
-
-<details>
-<summary><strong>Frontend: pages/ (role-based dashboard organization)</strong></summary>
-
-```
-pages/
-├── patient/
-│   └── PatientDashboard.jsx       # Tabs: Overview, Book, Appointments, Rx, Labs, Billing
-├── doctor/
-│   └── DashboardOverview.jsx      # Tabs: Overview, Appointments, Rx, Roster, Labs, Inpatients
-├── receptionist/
-│   ├── BillingConsole.jsx         # Draft → finalize invoice workflow
-│   └── BillingHistoryDashboard.jsx
-├── ai/
-│   └── CareOSAssistantPage.jsx    # Persistent multi-session chat UI
-└── style/
-    ├── PatientDashboard.css
-    ├── DashboardOverview.css
-    ├── BillingConsole.css
-    └── CareOSAssistantPage.css
-```
-
-Each dashboard is a **single self-contained page component** using local tab-state (`useState("overview")`) rather than nested routes — this keeps data-fetching co-located with the UI that needs it via `useCallback` + `useEffect` triggered on tab change.
 
 </details>
 
@@ -842,39 +896,3 @@ npm run test
 - [ ] Multi-language support
 - [ ] Automated test suite (Jest + React Testing Library)
 - [ ] Docker containerization for local dev parity
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome. Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-## 🙏 Acknowledgements
-
-- **`<COMPANY_NAME>`** — for the internship opportunity and mentorship throughout this project
-- **`<MENTOR_NAME>`** — for technical guidance and code review
-- [Lucide Icons](https://lucide.dev/) — icon system used across the UI
-- [Groq](https://groq.com/) — LLM inference powering the CareOS AI Assistant
-- [MongoDB Atlas](https://www.mongodb.com/atlas) — managed database hosting
-
----
-
-<div align="center">
-
-**Built with ❤️ by `<YOUR_NAME>` during an internship at `<COMPANY_NAME>`**
-
-</div>
