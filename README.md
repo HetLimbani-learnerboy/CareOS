@@ -572,7 +572,7 @@ Groq API key (for AI Assistant feature)
 
 ```bash
 git clone https://github.com/HetLimbani-learnerboy/CareOS.git
-cd Careos
+cd CareOS
 ```
 
 </details>
@@ -702,7 +702,6 @@ Content-Type: application/json
 | DELETE | `/api/v1/ai/sessions/:sessionId` | Delete session |
 
 </details>
----
 
 ## ☁️ Deployment
 
