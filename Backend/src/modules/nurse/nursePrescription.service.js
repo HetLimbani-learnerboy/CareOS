@@ -3,6 +3,9 @@ import Prescription from '../doctor/prescription.model.js';
 import Admission from '../receptionist/admission.model.js';
 import Appointment from '../patients/appointment.model.js';
 import UserIdentity from '../auth/userIdentity.model.js';
+import { upsertBillingFromDraft } from '../receptionist/billing.service.js';
+import LabReportHistory from '../lab_technician/labReportHistory.model.js';
+import PharmacyInvoice from '../pharmacist/pharmacyInvoice.model.js';
 
 const httpError = (statusCode, message) => {
     const error = new Error(message);
@@ -232,7 +235,58 @@ export const updatePrescriptionForNurse = async (prescriptionId, nurseEmail, upd
         { new: true, runValidators: true }
     );
 
+    if (!prescription) {
+        throw httpError(404, 'Prescription not found or permission denied.');
+    }
+
+    await syncPrescriptionUpdateEffects(prescription, sanitizedUpdates);
+
     return prescription;
+};
+
+const syncPrescriptionUpdateEffects = async (prescription, sanitizedUpdates) => {
+    const appointmentId = prescription?.appointmentId;
+    const hasMedicineChanges = Array.isArray(sanitizedUpdates.medicines);
+    const hasLabChanges = Array.isArray(sanitizedUpdates.labReports);
+
+    if (!appointmentId || (!hasMedicineChanges && !hasLabChanges)) return;
+
+    try {
+        if (hasLabChanges) {
+            const labHistory = await LabReportHistory.findOne({
+                prescriptionId: prescription._id
+            });
+
+            const newLabs = sanitizedUpdates.labReports || [];
+
+            if (labHistory) {
+                labHistory.requestedTests = newLabs;
+
+                if (newLabs.length > 0) {
+                    labHistory.status = 'initialized';
+                    labHistory.isBilled = false;
+                    labHistory.billingAmount = 0;
+                    labHistory.statusTimestamps = {
+                        initializedAt: new Date()
+                    };
+                } else {
+                    labHistory.status = 'cancelled';
+                }
+                await labHistory.save();
+            }
+        }
+
+        if (hasMedicineChanges) {
+            await PharmacyInvoice.updateMany(
+                { prescriptionId: prescription._id, paymentStatus: 'Pending' },
+                { $set: { paymentStatus: 'Cancelled' } }
+            );
+        }
+
+        await upsertBillingFromDraft(appointmentId);
+    } catch (err) {
+        console.warn('Nurse prescription update sync failed:', err.message || err);
+    }
 };
 
 export const deletePrescriptionForNurse = async (prescriptionId, nurseEmail) => {
@@ -246,9 +300,25 @@ export const deletePrescriptionForNurse = async (prescriptionId, nurseEmail) => 
         throw httpError(403, 'Administrative execution denied. Structural mapping rights restriction criteria active.');
     }
 
-    await Prescription.findByIdAndDelete(prescriptionId);
+    const record = await Prescription.findByIdAndDelete(prescriptionId);
 
     await Admission.updateMany({ prescriptionId }, { $unset: { prescriptionId: "" } });
+
+    if (record && record.appointmentId) {
+        try {
+            await LabReportHistory.updateMany(
+                { prescriptionId: record._id, status: { $ne: 'completed' } },
+                { $set: { status: 'cancelled' } }
+            );
+            await PharmacyInvoice.updateMany(
+                { prescriptionId: record._id, paymentStatus: 'Pending' },
+                { $set: { paymentStatus: 'Cancelled' } }
+            );
+            await upsertBillingFromDraft(record.appointmentId);
+        } catch (err) {
+            console.warn('Nurse prescription delete sync failed:', err.message || err);
+        }
+    }
 
     return { deleted: true, prescriptionId };
 };

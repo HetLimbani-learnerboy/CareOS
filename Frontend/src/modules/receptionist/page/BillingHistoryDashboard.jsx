@@ -86,14 +86,14 @@ export default function BillingHistoryDashboard() {
         );
     }, [history, activeTab, searchTerm]);
 
-    const handleUpdateStatus = async (invoiceId, targetStatus) => {
+    const handleUpdateStatus = async (invoiceId, targetStatus, overridePaymentMethod = null) => {
         try {
             setActionId(invoiceId);
             const res = await axios.patch(
                 `${API_BASE_URL}/api/v1/receptionist/invoice/${invoiceId}/status`,
                 {
                     status: targetStatus,
-                    paymentMethod: paymentMethodMap[invoiceId] || "Cash"
+                    paymentMethod: overridePaymentMethod || paymentMethodMap[invoiceId] || "Cash"
                 },
                 { headers: { "x-user-email": getReceptionistEmail() } }
             );
@@ -107,7 +107,6 @@ export default function BillingHistoryDashboard() {
             setActionId(null);
         }
     };
-
     const handleRedirectToConsole = (item) => {
         setMessage({ type: "success", text: `Redirecting to console for appointment ${item.appointmentId}...` });
         navigate(`/billing-console?appointmentId=${item.appointmentId}`);
@@ -417,6 +416,10 @@ export default function BillingHistoryDashboard() {
                                                 <span>Pre-Settled Counters (-):</span>
                                                 <span>₹{item.deductionsPrePaid || 0}</span>
                                             </div>
+                                            <div className="hd-cost-line hd-text-blue">
+                                                <span>Paid Amount:</span>
+                                                <span>₹{item.paidAmount || 0}</span>
+                                            </div>
                                             {(item.insuranceCoverageAmount || 0) > 0 && (
                                                 <div className="hd-cost-line hd-text-orange">
                                                     <span>Insurance Coverage Amount (-):</span>
@@ -558,7 +561,7 @@ export default function BillingHistoryDashboard() {
                                                 <button
                                                     type="button"
                                                     className="hd-action-btn btn-collect wide-btn"
-                                                    onClick={() => handleUpdateStatus(item._id, "Paid")}
+                                                    onClick={() => handleUpdateStatus(item._id, "Paid", "Insurance")}
                                                     disabled={actionId === item._id}
                                                 >
                                                     {actionId === item._id ? <Loader2 className="hd-spin" size={13} /> : <CheckCircle size={13} />}

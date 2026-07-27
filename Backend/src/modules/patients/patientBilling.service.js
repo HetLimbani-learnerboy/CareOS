@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import Billing from "../receptionist/billing.model.js";
 import UserIdentity from "../auth/userIdentity.model.js";
 
+const money = (value) => Number(Number(value || 0).toFixed(2));
+
 const fullName = (user) =>
     [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
     [user?.first_name, user?.last_name].filter(Boolean).join(" ") ||
@@ -82,12 +84,19 @@ export const processPatientOnlinePayment = async (invoiceId, payload, patientEma
         throw new Error("Account holder / Cardholder name is required.");
     }
 
-    // Map payment method to schema enumeration
     const backendPaymentMethod = paymentMethod === "Net_Banking" ? "UPI" : paymentMethod;
 
-    bill.paymentStatus = "Paid";
+    const paymentAmount = money(payload.amount || bill.netPayableAmount || 0);
+    if (paymentAmount <= 0) throw new Error("Payment amount must be greater than zero.");
+
+    bill.paidAmount = money((bill.paidAmount || 0) + paymentAmount);
     bill.paymentMethod = backendPaymentMethod;
-    bill.netPayableAmount = 0;
+
+    bill.netPayableAmount = money(Math.max((bill.grossTotal || 0) - (bill.deductionsPrePaid || 0) - (bill.insuranceCoverageAmount || 0) - bill.paidAmount, 0));
+    bill.remainingBalance = bill.netPayableAmount;
+
+    if (bill.netPayableAmount <= 0) bill.paymentStatus = "Paid";
+    else if (bill.paidAmount > 0) bill.paymentStatus = "Partially_Paid";
 
     const auditStamp = `[Digital Online Payment] Method: ${paymentMethod} | TxnID: ${String(transactionId).trim()} | Payer: ${String(cardOrPayerName).trim()} | Timestamp: ${paymentTimestamp || new Date().toISOString()}`;
     bill.extraChargesNotes = bill.extraChargesNotes

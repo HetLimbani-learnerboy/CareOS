@@ -1,7 +1,11 @@
 import Prescription from '../doctor/prescription.model.js';
 import LabReportHistory from './labReportHistory.model.js';
 import UserIdentity from '../auth/userIdentity.model.js';
+import Billing from '../receptionist/billing.model.js';
+import { upsertBillingFromDraft } from '../receptionist/billing.service.js';
 import mongoose from 'mongoose';
+
+const money = (value) => Number(Number(value || 0).toFixed(2));
 
 const httpError = (statusCode, message) => {
     const error = new Error(message);
@@ -13,7 +17,7 @@ export const getEligibleLabPatients = async (currentLabTechId) => {
     const prescriptionsWithLabs = await Prescription.find({
         labReports: { $exists: true, $not: { $size: 0 } }
     })
-        .sort({ createdAt: -1 })
+        .sort({ updatedAt: -1, updated_at: -1, createdAt: -1, created_at: -1 })
         .lean();
 
     const activeLabHistories = await LabReportHistory.find({}).lean();
@@ -148,6 +152,13 @@ export const advanceLabStatusPipeline = async (historyId, currentLabTechId, targ
     }
 
     await history.save();
+    if (history.status === 'completed' && history.appointmentId) {
+        try {
+            await upsertBillingFromDraft(history.appointmentId);
+        } catch (err) {
+            console.warn('Failed to sync billing after lab completion:', err.message || err);
+        }
+    }
     return history;
 };
 
@@ -231,6 +242,25 @@ export const updateInvoiceToPaid = async (historyId, currentLabTechId) => {
 
     report.isBilled = true;
     await report.save();
+
+    try {
+        if (report.appointmentId) {
+            await upsertBillingFromDraft(report.appointmentId);
+
+            const bill = await Billing.findOne({ appointmentId: report.appointmentId, paymentStatus: { $ne: 'Cancelled' } });
+            if (bill) {
+                const paidInc = money(report.billingAmount || 0);
+                bill.paidAmount = money((bill.paidAmount || 0) + paidInc);
+                bill.netPayableAmount = money(Math.max((bill.grossTotal || 0) - (bill.deductionsPrePaid || 0) - (bill.insuranceCoverageAmount || 0) - bill.paidAmount, 0));
+                bill.remainingBalance = bill.netPayableAmount;
+                if (bill.netPayableAmount <= 0) bill.paymentStatus = 'Paid';
+                else if (bill.paidAmount > 0) bill.paymentStatus = 'Partially_Paid';
+                await bill.save();
+            }
+        }
+    } catch (err) {
+        console.warn('Failed to update central billing after lab payment:', err.message || err);
+    }
 
     return report;
 };

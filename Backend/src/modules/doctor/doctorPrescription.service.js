@@ -2,6 +2,9 @@ import { MedicineCatalog, LabReportCatalog } from './catalog.model.js';
 import Prescription from './prescription.model.js';
 import Appointment from '../patients/appointment.model.js';
 import UserIdentity from '../auth/userIdentity.model.js';
+import { upsertBillingFromDraft } from '../receptionist/billing.service.js';
+import LabReportHistory from '../lab_technician/labReportHistory.model.js';
+import PharmacyInvoice from '../pharmacist/pharmacyInvoice.model.js';
 
 const httpError = (statusCode, message) => {
     const error = new Error(message);
@@ -41,11 +44,7 @@ export const savePatientEPrescription = async (prescriptionData) => {
         throw httpError(400, 'Missing mandatory properties. Appointment ID, Patient Email, Doctor Email, and Result are required.');
     }
 
-    console.log("Appointment ID:", appointmentId);
-
     const duplicateCheck = await Prescription.findOne({ appointmentId }).lean();
-
-    console.log("Duplicate:", duplicateCheck);
     if (duplicateCheck) {
         throw httpError(409, 'An electronic medical prescription record profile stands tracked for this scheduled visit already.');
     }
@@ -60,7 +59,7 @@ export const savePatientEPrescription = async (prescriptionData) => {
 
     const doctorName = `Dr. ${doctorUser.firstName} ${doctorUser.lastName}`.trim();
 
-    return await Prescription.create({
+    const created = await Prescription.create({
         appointmentId,
         patientEmail: normalizeEmail(patientEmail),
         doctorEmail: normalizeEmail(doctorEmail),
@@ -72,6 +71,16 @@ export const savePatientEPrescription = async (prescriptionData) => {
         medicines: cleanMedicines,
         labReports: cleanLabReports
     });
+
+    if (appointmentId) {
+        try {
+            await upsertBillingFromDraft(appointmentId);
+        } catch (billingErr) {
+            console.warn('Billing sync notice:', billingErr.message || billingErr);
+        }
+    }
+
+    return created;
 };
 
 const resolveDoctorByEmail = async (doctorEmail) => {
@@ -211,14 +220,63 @@ export const updatePrescriptionForDoctor = async (prescriptionId, doctorEmail, u
     const prescription = await Prescription.findOneAndUpdate(
         { _id: prescriptionId, doctorEmail: normalizedDoctorEmail },
         { $set: sanitizedUpdates },
-        { new: true, runValidators: true }
+        { new: true, runValidators: true, timestamps: true }
     );
 
     if (!prescription) {
         throw httpError(404, 'Prescription not found or you do not have permission to edit it.');
     }
 
+    await syncPrescriptionUpdateEffects(prescription, sanitizedUpdates);
+
     return prescription;
+};
+
+const syncPrescriptionUpdateEffects = async (prescription, sanitizedUpdates) => {
+    const appointmentId = prescription?.appointmentId;
+    const hasMedicineChanges = Array.isArray(sanitizedUpdates.medicines);
+    const hasLabChanges = Array.isArray(sanitizedUpdates.labReports);
+
+    if (!appointmentId || (!hasMedicineChanges && !hasLabChanges)) {
+        return;
+    }
+
+    try {
+        if (hasLabChanges) {
+            const labHistory = await LabReportHistory.findOne({
+                prescriptionId: prescription._id
+            });
+
+            const newLabs = sanitizedUpdates.labReports || [];
+
+            if (labHistory) {
+                labHistory.requestedTests = newLabs;
+
+                if (newLabs.length > 0) {
+                    labHistory.status = 'initialized';
+                    labHistory.isBilled = false;
+                    labHistory.billingAmount = 0;
+                    labHistory.statusTimestamps = {
+                        initializedAt: new Date()
+                    };
+                } else {
+                    labHistory.status = 'cancelled';
+                }
+                await labHistory.save();
+            }
+        }
+
+        if (hasMedicineChanges) {
+            await PharmacyInvoice.updateMany(
+                { prescriptionId: prescription._id, paymentStatus: 'Pending' },
+                { $set: { paymentStatus: 'Cancelled' } }
+            );
+        }
+
+        await upsertBillingFromDraft(appointmentId);
+    } catch (err) {
+        console.warn('Prescription update sync failed:', err.message || err);
+    }
 };
 
 export const deletePrescriptionForDoctor = async (prescriptionId, doctorEmail) => {
@@ -237,7 +295,31 @@ export const deletePrescriptionForDoctor = async (prescriptionId, doctorEmail) =
         throw httpError(404, 'Prescription not found or you do not have permission to delete it.');
     }
 
+    await syncPrescriptionDeletionEffects(result);
+
     return { deleted: true, prescriptionId };
+};
+
+const syncPrescriptionDeletionEffects = async (prescription) => {
+    const appointmentId = prescription?.appointmentId;
+
+    if (!appointmentId) return;
+
+    try {
+        await LabReportHistory.updateMany(
+            { prescriptionId: prescription._id, status: { $ne: 'completed' } },
+            { $set: { status: 'cancelled', updatedAt: new Date() } }
+        );
+
+        await PharmacyInvoice.updateMany(
+            { prescriptionId: prescription._id, paymentStatus: 'Pending' },
+            { $set: { paymentStatus: 'Cancelled' } }
+        );
+
+        await upsertBillingFromDraft(appointmentId);
+    } catch (err) {
+        console.warn('Prescription delete sync failed:', err.message || err);
+    }
 };
 
 function mongoose_isValidObjectId(id) {
