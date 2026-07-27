@@ -32,7 +32,8 @@ import {
   Loader2,
   Download,
   Award,
-  CalendarPlus
+  CalendarPlus,
+  TimerOff
 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -421,6 +422,24 @@ export default function DashboardOverview() {
       notify("error", "Select a doctor, date, time slot, and describe your symptoms.");
       return;
     }
+    const isPatientCollision = myAppointments.some((apt) => {
+      const aptId = apt.id || apt._id;
+      return (
+        apt.date === selectedDate &&
+        apt.time === selectedTime &&
+        (apt.status === "pending" || apt.status === "confirmed") &&
+        aptId !== editingAppointmentId
+      );
+    });
+
+    if (isPatientCollision) {
+      notify(
+        "error",
+        "You already have an active appointment scheduled for this date and time. You cannot book two appointments for the same slot."
+      );
+      return;
+    }
+
     try {
       setActionIdLoading("book_submit");
       clearNotify();
@@ -432,7 +451,7 @@ export default function DashboardOverview() {
         symptoms: symptoms.trim(),
         ...(editingAppointmentId ? { appointmentId: editingAppointmentId } : {})
       };
-      const res = await axios.post(`${API_BASE_URL}/api/v1/appointments/book-request`, payload, authHeaders);
+      const res = await axios.post(`${API_BASE_URL}/api/v1/patients/book-request`, payload, authHeaders);
       if (res.data?.status === "success") {
         notify("success", editingAppointmentId ? "Appointment rescheduled successfully." : "Appointment request submitted successfully.");
         resetBookingForm();
@@ -451,7 +470,7 @@ export default function DashboardOverview() {
       setActionIdLoading(`cancel_${appointmentId}`);
       clearNotify();
       const res = await axios.post(
-        `${API_BASE_URL}/api/v1/appointments/book-request`,
+        `${API_BASE_URL}/api/v1/patients/book-request`,
         { patientEmail, appointmentId, time: "", date: "" },
         authHeaders
       );
@@ -497,16 +516,19 @@ export default function DashboardOverview() {
   }, [myAppointments, appointmentSearch]);
 
   const categorizedLedgers = useMemo(() => {
-    const lists = { confirmed: [], pending: [], visited: [], cancelled: [] };
+    const lists = { confirmed: [], pending: [], visited: [], expired: [], cancelled: [] };
 
     filteredAppointments.forEach((apt) => {
       const isPast = isPastTimeSlot(apt.date, apt.time);
+
       if (apt.status === "cancelled" || apt.status === "rejected") {
         lists.cancelled.push(apt);
-      } else if (isPast && apt.status === "confirmed") {
+      } else if (apt.status === "confirmed" && isPast) {
         lists.visited.push(apt);
       } else if (apt.status === "confirmed") {
         lists.confirmed.push(apt);
+      } else if (apt.status === "pending" && isPast) {
+        lists.expired.push(apt);
       } else if (apt.status === "pending") {
         lists.pending.push(apt);
       }
@@ -520,6 +542,7 @@ export default function DashboardOverview() {
     lists.confirmed.sort(sortChronologically);
     lists.pending.sort(sortChronologically);
     lists.visited.sort(sortChronologically);
+    lists.expired.sort(sortChronologically);
     lists.cancelled.sort(sortChronologically);
 
     return lists;
@@ -789,7 +812,8 @@ export default function DashboardOverview() {
   useEffect(() => {
     fetchProfileData();
     fetchClinicalDashboard();
-  }, [fetchProfileData, fetchClinicalDashboard]);
+    fetchMyAppointments();
+  }, [fetchProfileData, fetchClinicalDashboard, fetchMyAppointments]);
 
   useEffect(() => {
     if (activeTab === "appointments") fetchMyAppointments();
@@ -808,19 +832,23 @@ export default function DashboardOverview() {
     else if (activeTab === "billing") fetchBillingHistory();
   };
 
-  const renderAppointmentCardList = (list) => {
+  const renderAppointmentCardList = (list, variant = "default") => {
     return list.map((apt) => {
       const aptId = apt.id || apt._id;
       const isStatusLocked = apt.status === "rejected" || apt.status === "cancelled";
       const isPastTimeline = isPastTimeSlot(apt.date, apt.time);
-      const isTotalLocked = isStatusLocked || isPastTimeline;
+      const isExpiredRequest = variant === "expired";
+      const isTotalLocked = isStatusLocked || isPastTimeline || isExpiredRequest;
       const isExpanded = !!expandedAptIds[aptId];
 
       return (
-        <div key={aptId} className={`pt-list-node ${isTotalLocked ? "card-state-locked" : ""} pr-fade-in`}>
+        <div
+          key={aptId}
+          className={`pt-list-node-exp ${isTotalLocked ? "card-state-locked-exp" : ""} ${isExpiredRequest ? "card-state-expired-exp" : ""} pr-fade-in`}
+        >
           <div style={{ width: "100%" }}>
             <div
-              className="pt-invoice-head"
+              className="pt-invoice-head-exp"
               style={{ cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}
               onClick={() => toggleAccordion(aptId)}
             >
@@ -829,12 +857,19 @@ export default function DashboardOverview() {
                 <span>{apt.specialization} &bull; {apt.doctorEmail}</span>
                 <small style={{ marginTop: "4px" }}>
                   <Calendar size={12} /> {apt.date} @ <Clock size={12} /> {apt.time} &bull;{" "}
-                  <span className={`pt-status-tag tag-${apt.status}`}>
-                    {isPastTimeline && apt.status === "confirmed" ? "Concluded Session" : apt.status}
-                  </span>
+                  {isExpiredRequest ? (
+                    <span className="pt-status-tag tag-expired">
+                      <TimerOff size={11} style={{ marginRight: "3px", verticalAlign: "-2px" }} />
+                      Request Expired
+                    </span>
+                  ) : (
+                    <span className={`pt-status-tag tag-${apt.status}`}>
+                      {isPastTimeline && apt.status === "confirmed" ? "Concluded Session" : apt.status}
+                    </span>
+                  )}
                 </small>
               </div>
-              <div className="pt-badge-flex">
+              <div className="pt-badge-flex-exp">
                 <button
                   type="button"
                   style={{ background: "transparent", border: "none", cursor: "pointer", color: "inherit" }}
@@ -849,27 +884,38 @@ export default function DashboardOverview() {
             </div>
 
             {isExpanded && (
-              <div className="pt-prescription-detail pr-slide-fade" style={{ marginTop: "0.75rem" }}>
+              <div className="pt-prescription-detail-exp pr-slide-fade-exp" style={{ marginTop: "0.75rem" }}>
                 <p><strong>Reason for Visit:</strong> {apt.reason_for_visit || "No symptoms documented."}</p>
                 <p><strong>Consultation Fee:</strong> ₹{apt.consultation_fee || 0}</p>
                 <p><strong>Clinic Address:</strong> {apt.clinic_address || "N/A"}</p>
+                {isExpiredRequest && (
+                  <p className="pt-expired-note-exp">
+                    <TimerOff size={13} /> This request's slot time passed before the doctor responded, so it can
+                    no longer be confirmed or rejected. Please book a new appointment if you still need this visit.
+                  </p>
+                )}
               </div>
             )}
 
-            <div className="pt-btn-group" style={{ marginTop: "0.75rem" }}>
-              {(apt.status === "pending" || apt.status === "confirmed") && !isPastTimeline && (
+            <div className="pt-btn-group-exp" style={{ marginTop: "0.75rem" }}>
+              {(apt.status === "pending" || apt.status === "confirmed") && !isPastTimeline && !isExpiredRequest && (
                 <>
-                  <button className="pt-btn-secondary" onClick={() => handleStartReschedule(apt)}>
+                  <button className="pt-btn-secondary-exp" onClick={() => handleStartReschedule(apt)}>
                     Reschedule
                   </button>
                   <button
-                    className="pt-btn-err"
+                    className="pt-btn-err-exp"
                     disabled={actionLoading === `cancel_${aptId}`}
                     onClick={() => handleCancelAppointment(aptId)}
                   >
                     <Ban size={13} /> Cancel Visit
                   </button>
                 </>
+              )}
+              {isExpiredRequest && (
+                <button className="pt-btn-primary-exp" onClick={() => { resetBookingForm(); setActiveTab("book"); }}>
+                  <CalendarPlus size={13} /> Book Again
+                </button>
               )}
             </div>
           </div>
@@ -942,7 +988,6 @@ export default function DashboardOverview() {
           </div>
         )}
 
-        {/* OVERVIEW TAB */}
         {!loading && activeTab === "overview" && (
           <div className="pt-grid-2 col-unequal pr-fade-in">
             <div className="pt-card">
@@ -1197,7 +1242,6 @@ export default function DashboardOverview() {
           </div>
         )}
 
-        {/* BOOK APPOINTMENT TAB */}
         {!loading && activeTab === "book" && (
           <div className="pt-grid-2 col-unequal pr-fade-in">
             <div className="pt-card">
@@ -1333,7 +1377,7 @@ export default function DashboardOverview() {
                         if (isPast || slots.length === 0) return null;
                         return (
                           <option key={loopDateStr} value={loopDateStr}>
-                            {loopDateStr} ({slots.length} available slots)
+                            {loopDateStr}
                           </option>
                         );
                       })}
@@ -1351,8 +1395,19 @@ export default function DashboardOverview() {
                             const isSlotTaken = doctorAvailability.activeBookings?.some(
                               (b) => b.date === selectedDate && b.time === t
                             );
+
+                            const isPatientAlreadyBooked = myAppointments.some((apt) => {
+                              const aptId = apt.id || apt._id;
+                              return (
+                                apt.date === selectedDate &&
+                                apt.time === t &&
+                                (apt.status === "pending" || apt.status === "confirmed") &&
+                                aptId !== editingAppointmentId
+                              );
+                            });
+
                             const isPast = isPastTimeSlot(selectedDate, t);
-                            const isDisabled = isSlotTaken || isPast;
+                            const isDisabled = isSlotTaken || isPatientAlreadyBooked || isPast;
 
                             return (
                               <button
@@ -1360,9 +1415,25 @@ export default function DashboardOverview() {
                                 key={t}
                                 disabled={isDisabled}
                                 className={`pt-slot-chip ${selectedTime === t ? "slot-active" : ""}`}
-                                onClick={() => !isDisabled && setSelectedTime(t)}
+                                onClick={() => {
+                                  if (isPatientAlreadyBooked) {
+                                    notify(
+                                      "error",
+                                      "You already have an active appointment scheduled at this date and time."
+                                    );
+                                    return;
+                                  }
+                                  if (!isDisabled) setSelectedTime(t);
+                                }}
                               >
-                                <Clock size={12} /> {t} {isSlotTaken ? "(Booked)" : ""} {isPast ? "(Passed)" : ""}
+                                <Clock size={12} /> {t}{" "}
+                                {isSlotTaken
+                                  ? "(Doctor Booked)"
+                                  : isPatientAlreadyBooked
+                                    ? "(Schedule Conflict)"
+                                    : isPast
+                                      ? "(Passed)"
+                                      : ""}
                               </button>
                             );
                           })
@@ -1390,7 +1461,6 @@ export default function DashboardOverview() {
           </div>
         )}
 
-        {/* MY APPOINTMENTS TAB */}
         {!loading && activeTab === "appointments" && (
           <div className="pt-card pr-fade-in">
             <div className="pt-card-head" style={{ justifyContent: "space-between" }}>
@@ -1449,12 +1519,15 @@ export default function DashboardOverview() {
                   </div>
                 )}
 
-                {categorizedLedgers.cancelled.length > 0 && (
+                {(categorizedLedgers.expired.length > 0 || categorizedLedgers.cancelled.length > 0) && (
                   <div>
                     <h3 style={{ fontSize: "0.9rem", color: "#991b1b", marginBottom: "0.75rem", textTransform: "uppercase" }}>
-                      Cancelled / Declined ({categorizedLedgers.cancelled.length})
+                      Declined &amp; Cancelled Logs ({categorizedLedgers.expired.length + categorizedLedgers.cancelled.length})
                     </h3>
-                    <div className="pt-list-stack">{renderAppointmentCardList(categorizedLedgers.cancelled)}</div>
+                    <div className="pt-list-stack">
+                      {renderAppointmentCardList(categorizedLedgers.expired, "expired")}
+                      {renderAppointmentCardList(categorizedLedgers.cancelled)}
+                    </div>
                   </div>
                 )}
               </div>
@@ -1462,7 +1535,6 @@ export default function DashboardOverview() {
           </div>
         )}
 
-        {/* PRESCRIPTIONS TAB */}
         {!loading && activeTab === "prescriptions" && (
           <div className="pt-card pr-fade-in">
             <div className="pt-card-head">
@@ -1549,7 +1621,6 @@ export default function DashboardOverview() {
           </div>
         )}
 
-        {/* LAB REPORTS TAB */}
         {!loading && activeTab === "labs" && (
           <div className="pt-card pr-fade-in">
             <div className="pt-card-head">
@@ -1593,7 +1664,6 @@ export default function DashboardOverview() {
           </div>
         )}
 
-        {/* BILLING TAB */}
         {!loading && activeTab === "billing" && (
           <div className="pt-card pr-fade-in">
             <div className="pt-card-head">
