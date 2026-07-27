@@ -619,3 +619,33 @@
     transform: translateY(0) scale(1);
   }
 }
+
+.pl-10 {
+  padding-left: 2.5rem !important;
+}
+
+.pr-11 {
+  padding-right: 2.75rem !important;
+}
+
+.text-sky-500 {
+  color: #0ea5e9;
+}
+
+.animate-pulse {
+  animation: registerPulse 2s ease-in-out infinite;
+}
+
+@keyframes registerPulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}

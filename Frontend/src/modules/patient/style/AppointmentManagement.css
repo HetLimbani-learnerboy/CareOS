@@ -723,6 +723,24 @@
   box-shadow: 0 10px 20px -8px rgba(15, 23, 42, 0.05);
 }
 
+.appointment-wrapper-node.card-state-expired {
+  opacity: 0.85;
+  border-left: 4px solid #f59e0b;
+}
+
+.status-pill.expired {
+  background-color: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fde68a;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  display: inline-block;
+}
+
 .appointment-matrix-card {
   border: none;
   box-shadow: none;

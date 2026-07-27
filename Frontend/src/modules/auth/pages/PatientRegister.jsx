@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   User, Mail, Lock, Eye, EyeOff, ArrowLeft, ShieldCheck,
-  Sparkles, Check, X, KeyRound, Activity, Phone, RefreshCw
+  Sparkles, Check, X, KeyRound, Activity, Phone, RefreshCw, AlertTriangle
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,7 +23,7 @@ const PatientRegister = () => {
   const navigate = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const [step, setStep] = useState("form");
+  const [step, setStep] = useState("form"); // "form" | "confirm" | "otp"
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -64,9 +64,16 @@ const PatientRegister = () => {
   const doPasswordsMatch = formData.password && formData.password === formData.confirmPassword;
   const isFormValid = isMinLength && hasUppercase && hasLowercase && hasNumber && hasSpecialChar && doPasswordsMatch;
 
-  const handleFormSubmit = async (e) => {
+  // Initial form submission moves to the confirmation step instead of sending OTP immediately
+  const handleInitialSubmit = (e) => {
     e.preventDefault();
     if (!isFormValid) return;
+    setErrorMessage("");
+    setStep("confirm");
+  };
+
+  // Confirmed details trigger the actual API request to send OTP
+  const handleConfirmAndSendOtp = async () => {
     try {
       setIsSubmitting(true);
       setErrorMessage("");
@@ -85,6 +92,7 @@ const PatientRegister = () => {
       }
     } catch (error) {
       setErrorMessage(error.response?.data?.message || "Registration failed.");
+      setStep("form");
     } finally {
       setIsSubmitting(false);
     }
@@ -121,7 +129,6 @@ const PatientRegister = () => {
     }
   };
 
-  // Uses dedicated /resend-otp endpoint — no captcha or password needed
   const handleResendOtp = async () => {
     if (resendCountdown > 0 || isResending) return;
     try {
@@ -193,9 +200,9 @@ const PatientRegister = () => {
             CareOS Patient Portal
           </h2>
           <p className="register-subtitle">
-            {step === "form"
-              ? "Create your secure patient profile"
-              : "Enter the verification code sent to your email"}
+            {step === "form" && "Create your secure patient profile"}
+            {step === "confirm" && "Please verify your information before continuing"}
+            {step === "otp" && "Enter the verification code sent to your email"}
           </p>
         </div>
 
@@ -204,13 +211,13 @@ const PatientRegister = () => {
         )}
 
         <AnimatePresence mode="wait">
-          {step === "form" ? (
+          {step === "form" && (
             <motion.form
               key="reg-form"
               initial={{ opacity: 0, x: -15 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 15 }}
-              onSubmit={handleFormSubmit}
+              onSubmit={handleInitialSubmit}
               className="register-form"
             >
               <div className="register-grid-2col">
@@ -302,14 +309,71 @@ const PatientRegister = () => {
               </div>
 
               <div className="register-action-wrapper">
-                <button type="submit" disabled={isSubmitting || !isFormValid} className="register-submit-btn">
-                  {isSubmitting ? <div className="register-spinner" /> : (
-                    <><span>Create Account</span><ShieldCheck size={16} /></>
-                  )}
+                <button type="submit" disabled={!isFormValid} className="register-submit-btn">
+                  <span>Create Account</span>
+                  <ShieldCheck size={16} />
                 </button>
               </div>
             </motion.form>
-          ) : (
+          )}
+
+          {step === "confirm" && (
+            <motion.div
+              key="confirm-step"
+              initial={{ opacity: 0, x: 15 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -15 }}
+              className="register-form"
+            >
+              <div className="register-otp-banner" style={{ background: "rgba(245, 158, 11, 0.1)", border: "1px solid rgba(245, 158, 11, 0.3)" }}>
+                <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                  <AlertTriangle size={20} style={{ color: "#f59e0b", flexShrink: 0, marginTop: "2px" }} />
+                  <p className="register-otp-banner-text" style={{ margin: 0 }}>
+                    <strong>Please review your details carefully.</strong> Once you confirm, a verification code will be sent to your email address and cannot be changed during verification.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div style={{ display: "flex", justifyContent: "between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px" }}>
+                  <span style={{ fontWeight: "bolder", color: "#94a3b8", fontSize: "13px" }}>Full Name: &nbsp;</span>
+                  <span style={{ color: "#000000", fontWeight: 500, fontSize: "14px" }}>{formData.firstName} {formData.lastName}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px" }}>
+                  <span style={{ fontWeight: "bolder", color: "#94a3b8", fontSize: "13px" }}>Email Address:  &nbsp;</span>
+                  <span style={{ color: "#38bdf8", fontWeight: 500, fontSize: "14px" }}>{formData.email}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "between" }}>
+                  <span style={{ fontWeight: "bolder", color: "#94a3b8", fontSize: "13px" }}>Phone Number:  &nbsp;</span>
+                  <span style={{ color: "#000000", fontWeight: 500, fontSize: "14px" }}>{formData.countryCode} {formData.phone}</span>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
+                <button
+                  type="button"
+                  onClick={() => setStep("form")}
+                  className="register-otp-back-btn"
+                  style={{ flex: 1, padding: "12px", justifyContent: "center", display: "flex", alignItems: "center" }}
+                >
+                  Edit Info
+                </button>
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={handleConfirmAndSendOtp}
+                  className="register-otp-submit-btn"
+                  style={{ flex: 1, justifyContent: "center", display: "flex", alignItems: "center" }}
+                >
+                  {isSubmitting ? <div className="register-spinner" /> : (
+                    <><span>Confirm & Send Code</span><ShieldCheck size={16} /></>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === "otp" && (
             <motion.form
               key="otp-form"
               initial={{ opacity: 0, x: 15 }}
@@ -364,10 +428,8 @@ const PatientRegister = () => {
               </div>
 
               <div className="register-otp-actions">
-                <button type="button" onClick={() => { setStep("form"); setOtp(new Array(6).fill("")); setErrorMessage(""); }} className="register-otp-back-btn">
-                  Edit Info
-                </button>
-                <button type="submit" disabled={isSubmitting || otp.some(v => v === "")} className="register-otp-submit-btn">
+                <div />
+                <button type="submit" disabled={isSubmitting || otp.some(v => v === "")} className="register-otp-submit-btn" style={{ width: "100%" }}>
                   {isSubmitting ? <div className="register-spinner" /> : (
                     <><span>Verify & Activate</span><KeyRound size={16} /></>
                   )}

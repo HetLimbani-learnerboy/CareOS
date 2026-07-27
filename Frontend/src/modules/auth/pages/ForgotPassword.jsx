@@ -302,7 +302,7 @@ export default function ForgotPassword() {
 
                 <div className="recovery-footer">
                     <Link to="/login" className="back-to-login-link">
-                        <ArrowLeft size={16} /> <span>Return to login gate</span>
+                        <ArrowLeft size={16} /> <span>Return to login page</span>
                     </Link>
                 </div>
             </div>

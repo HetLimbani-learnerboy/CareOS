@@ -155,7 +155,8 @@ export const saveAppointmentRequest = async ({
     if (!existingAppointment) throw httpError(404, 'Active appointment not found.');
   }
 
-  const collision = await Appointment.exists({
+  // 1. Check if Doctor is already booked for this slot
+  const doctorCollision = await Appointment.exists({
     doctor_id: doctor._id,
     appointment_date: date,
     time_slot: String(time).trim(),
@@ -163,7 +164,25 @@ export const saveAppointmentRequest = async ({
     ...(existingAppointment ? { _id: { $ne: existingAppointment._id } } : {})
   });
 
-  if (collision) throw httpError(409, 'This time slot has already been booked.');
+  if (doctorCollision) {
+    throw httpError(409, 'This time slot has already been booked for this doctor.');
+  }
+
+  // 2. CHECK PATIENT COLLISION: Check if Patient already has an active appointment at the same date & time
+  const patientCollision = await Appointment.exists({
+    patient_id: patient._id,
+    appointment_date: date,
+    time_slot: String(time).trim(),
+    status: { $in: ACTIVE_STATUSES },
+    ...(existingAppointment ? { _id: { $ne: existingAppointment._id } } : {})
+  });
+
+  if (patientCollision) {
+    throw httpError(
+      409,
+      'You already have an active appointment scheduled at this date and time. You cannot book two appointments for the same time slot.'
+    );
+  }
 
   const values = {
     patient_id: patient._id,

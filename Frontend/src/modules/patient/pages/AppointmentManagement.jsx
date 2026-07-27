@@ -182,14 +182,15 @@ export default function AppointmentManagement() {
   };
 
   const handleTriggerReschedule = (apt) => {
-    if (apt.status === "rejected" || apt.status === "cancelled" || isPastTimeSlot(apt.date, apt.time)) return;
+    const isExpired = isPastTimeSlot(apt.date, apt.time) && apt.status === "pending";
+    if (apt.status === "rejected" || apt.status === "cancelled" || isExpired || isPastTimeSlot(apt.date, apt.time)) return;
     setEditingAppointmentId(apt.id);
     setBookingForm({
       specialization: apt.specialization || "General Medicine",
       doctorEmail: apt.doctorEmail,
       selectedDate: apt.date >= todayStr ? apt.date : "",
       selectedTime: apt.date >= todayStr ? apt.time : "",
-      symptoms: "Requesting schedule adjustment baseline configuration.",
+      symptoms: "",
       additionalNotes: ""
     });
     setIsBookingMode(true);
@@ -226,7 +227,9 @@ export default function AppointmentManagement() {
   const firstDayOfMonth = new Date(currentCalDate.getFullYear(), currentCalDate.getMonth(), 1).getDay();
 
   const getStatusLabel = (status, date, time) => {
-    if (isPastTimeSlot(date, time) && status === "confirmed") return "Concluded Session";
+    const isPast = isPastTimeSlot(date, time);
+    if (isPast && status === "pending") return "Request Expired";
+    if (isPast && status === "confirmed") return "Concluded Session";
     if (status === "confirmed") return "Active Schedule";
     if (status === "rejected") return "Request Declined";
     if (status === "cancelled") return "Cancelled Visit";
@@ -245,7 +248,8 @@ export default function AppointmentManagement() {
 
     appointments.forEach((apt) => {
       const isPast = isPastTimeSlot(apt.date, apt.time);
-      if (apt.status === "cancelled" || apt.status === "rejected") {
+
+      if (apt.status === "cancelled" || apt.status === "rejected" || (isPast && apt.status === "pending")) {
         lists.cancelled.push(apt);
       } else if (isPast && apt.status === "confirmed") {
         lists.visited.push(apt);
@@ -266,17 +270,19 @@ export default function AppointmentManagement() {
 
   const renderAppointmentCardList = (list) => {
     return list.map((apt) => {
-      const isStatusLocked = apt.status === "rejected" || apt.status === "cancelled";
-      const isPastTimeline = isPastTimeSlot(apt.date, apt.time);
+      const isPast = isPastTimeSlot(apt.date, apt.time);
+      const isExpired = isPast && apt.status === "pending";
+      const isStatusLocked = apt.status === "rejected" || apt.status === "cancelled" || isExpired;
+      const isPastTimeline = isPast && apt.status === "confirmed";
       const isTotalLocked = isStatusLocked || isPastTimeline;
       const isExpanded = !!expandedAptIds[apt.id];
 
       return (
-        <div key={apt.id} className={`appointment-wrapper-node ${isTotalLocked ? 'card-state-locked' : ''} animate-slide-up`}>
+        <div key={apt.id} className={`appointment-wrapper-node ${isTotalLocked ? 'card-state-locked' : ''} ${isExpired ? 'card-state-expired' : ''} animate-slide-up`}>
           <div className="appointment-matrix-card">
             <div className="card-primary-details" onClick={() => toggleAccordion(apt.id)}>
               <div className="details-interactive-header">
-                <span className={`status-pill ${isPastTimeline && apt.status === "confirmed" ? "concluded" : apt.status}`}>
+                <span className={`status-pill ${isExpired ? "expired" : isPastTimeline && apt.status === "confirmed" ? "concluded" : apt.status}`}>
                   {getStatusLabel(apt.status, apt.date, apt.time)}
                 </span>
                 <button type="button" className="accordion-expand-toggle-btn">
@@ -430,21 +436,43 @@ export default function AppointmentManagement() {
                   <div className="slots-flex-box">
                     {getSlotsForDate(bookingForm.selectedDate).length > 0 ? (
                       getSlotsForDate(bookingForm.selectedDate).map(slot => {
-                        const isSlotTaken = doctorAvailability.activeBookings?.some(
+                        // Check if Doctor is booked
+                        const isDoctorBooked = doctorAvailability.activeBookings?.some(
                           b => b.date === bookingForm.selectedDate && b.time === slot
                         );
+
+                        // Check if Patient ALREADY has an active appointment at this date & time
+                        const isPatientAlreadyBooked = appointments.some(
+                          apt =>
+                            apt.date === bookingForm.selectedDate &&
+                            apt.time === slot &&
+                            (apt.status === "pending" || apt.status === "confirmed") &&
+                            apt.id !== editingAppointmentId
+                        );
+
                         const isPastSlot = isPastTimeSlot(bookingForm.selectedDate, slot);
-                        const isNodeDisabled = isSlotTaken || isPastSlot;
+                        const isNodeDisabled = isDoctorBooked || isPatientAlreadyBooked || isPastSlot;
 
                         return (
                           <button
                             type="button"
                             disabled={isNodeDisabled}
                             key={slot}
-                            className={`slot-pill-node ${bookingForm.selectedTime === slot ? 'active' : ''} ${isSlotTaken ? 'booked' : ''} ${isPastSlot ? 'past-lockout' : ''}`}
-                            onClick={() => !isNodeDisabled && setBookingForm(prev => ({ ...prev, selectedTime: slot }))}
+                            className={`slot-pill-node ${bookingForm.selectedTime === slot ? 'active' : ''} ${isDoctorBooked || isPatientAlreadyBooked ? 'booked' : ''} ${isPastSlot ? 'past-lockout' : ''}`}
+                            onClick={() => {
+                              if (isPatientAlreadyBooked) {
+                                alert("You already have an active appointment at this date and time.");
+                                return;
+                              }
+                              if (!isNodeDisabled) {
+                                setBookingForm(prev => ({ ...prev, selectedTime: slot }));
+                              }
+                            }}
                           >
-                            {slot} {isSlotTaken && "(Booked)"} {isPastSlot && "(Passed)"}
+                            {slot}
+                            {isDoctorBooked && " (Doctor Booked)"}
+                            {isPatientAlreadyBooked && " (Your Schedule Conflict)"}
+                            {isPastSlot && " (Passed)"}
                           </button>
                         );
                       })
@@ -453,7 +481,6 @@ export default function AppointmentManagement() {
                 )}
               </div>
             )}
-
             <div className="input-node">
               <label>Presenting Symptoms</label>
               <textarea name="symptoms" required value={bookingForm.symptoms} onChange={handleInputChange} placeholder="Describe symptoms..." />

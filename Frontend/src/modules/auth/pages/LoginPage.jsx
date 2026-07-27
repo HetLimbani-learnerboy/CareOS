@@ -266,10 +266,6 @@ export default function LoginPage() {
             <button type="submit" disabled={loading || otp.length !== 6} className="login-submit-btn">
               {loading ? "Activating..." : "Confirm Activation"}
             </button>
-
-            <button type="button" onClick={() => { setStep(1); setMessage({ type: "", text: "" }); }} className="portal-back-to-login-btn">
-              <ArrowLeft size={14} /> Back to Sign In
-            </button>
           </form>
         )}
 
