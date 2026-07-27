@@ -53,6 +53,28 @@ const completedLabRecord = (record) => {
     return validRelatedRecord(record) && ["completed", "complete", "delivered", "paid"].includes(status);
 };
 
+const syncPaidRelatedRecords = async (appointmentId) => {
+    if (!appointmentId) return;
+    await Promise.all([
+        PharmacyInvoice.updateMany(
+            { appointmentId },
+            { $set: { paymentStatus: "Paid" } }
+        ),
+        LabReportHistory.updateMany(
+            { appointmentId },
+            { $set: { isBilled: true } }
+        )
+    ]);
+};
+
+const getUnbilledAppointmentIds = async () => {
+    const [pendingPharmacy, unbilledLabs] = await Promise.all([
+        PharmacyInvoice.find({ paymentStatus: "Pending" }).distinct("appointmentId"),
+        LabReportHistory.find({ status: "completed", isBilled: false }).distinct("appointmentId")
+    ]);
+    return [...new Set([...pendingPharmacy, ...unbilledLabs].map((id) => String(id)).filter(Boolean))];
+};
+
 const getInsurance = (profile) => {
     const provider = pick(
         profile?.insurance_provider,
@@ -80,10 +102,14 @@ const getInsurance = (profile) => {
 
 export const getCompletedAppointmentsList = async () => {
     const billedRows = await Billing.find({ paymentStatus: { $ne: "Cancelled" } }).select("appointmentId").lean();
-    const billedIds = billedRows.map((row) => String(row.appointmentId));
+    const fullyBilledIds = billedRows.map((row) => String(row.appointmentId));
+    const unbilledApptIds = await getUnbilledAppointmentIds();
 
     const appointments = await Appointment.find({
-        _id: { $nin: billedIds },
+        $or: [
+            { _id: { $nin: fullyBilledIds } },
+            { _id: { $in: unbilledApptIds } }
+        ],
         status: { $in: ["confirmed", "visited", "completed"] }
     })
         .sort({ appointment_date: -1, updatedAt: -1 })
@@ -273,6 +299,103 @@ export const aggregateDraftInvoiceData = async (appointmentId) => {
     };
 };
 
+export const upsertBillingFromDraft = async (appointmentId, options = {}) => {
+    if (!appointmentId) throw new Error("Appointment id required for billing upsert.");
+
+    const draft = await aggregateDraftInvoiceData(appointmentId);
+    const extraCharges = money(options.extraCharges || 0);
+    const extraChargesNotes = String(options.extraChargesNotes || "").trim();
+
+    const grossTotal = money(draft.costs.grossTotal + extraCharges);
+    const deductionsPrePaid = money(draft.costs.deductionsPrePaid);
+
+    let existing = await Billing.findOne({ appointmentId: draft.appointmentId, paymentStatus: { $ne: "Cancelled" } });
+
+    const insurance = existing?.insurance || draft.insurance || getInsurance({});
+    const isInsurancePayment = existing?.paymentMethod === "Insurance" || (insurance?.isValidated && insurance.provider && insurance.provider !== "N/A");
+
+    const deskBalance = money(Math.max(grossTotal - deductionsPrePaid, 0));
+
+    let insuranceCoverageAmount = 0;
+    let netPayableAmount = 0;
+    let paidAmount = money(existing?.paidAmount || 0);
+
+    if (isInsurancePayment) {
+        insuranceCoverageAmount = deskBalance;
+        netPayableAmount = 0;
+    } else {
+        netPayableAmount = money(Math.max(deskBalance - paidAmount, 0));
+    }
+
+    let paymentStatus;
+    if (netPayableAmount <= 0) {
+        paymentStatus = isInsurancePayment ? "Insurance_Claim_Pending" : "Paid";
+    } else if (paidAmount > 0) {
+        paymentStatus = "Partially_Paid"; 
+    } else {
+        paymentStatus = isInsurancePayment ? "Insurance_Claim_Pending" : "Unpaid";
+    }
+
+    const billingItems = [...draft.billingItems];
+    if (extraCharges > 0) {
+        billingItems.push({
+            name: extraChargesNotes || "Administrative Adjustment Fee",
+            category: "Adjustment",
+            unitPrice: extraCharges,
+            quantity: 1,
+            totalPrice: extraCharges,
+            prePaid: false
+        });
+    }
+
+    if (existing) {
+        existing.consultationFee = draft.costs.consultationFee;
+        existing.treatmentCost = draft.costs.treatmentCost;
+        existing.medicineCost = draft.costs.medicineCost;
+        existing.labCost = draft.costs.labCost;
+        existing.extraCharges = extraCharges;
+        existing.extraChargesNotes = extraChargesNotes;
+        existing.grossTotal = grossTotal;
+        existing.deductionsPrePaid = deductionsPrePaid;
+        existing.insuranceCoverageAmount = insuranceCoverageAmount;
+        existing.netPayableAmount = netPayableAmount;
+        existing.remainingBalance = netPayableAmount;
+        existing.insurance = insurance;
+        existing.billingItems = billingItems;
+        existing.paymentStatus = paymentStatus;
+
+        await existing.save();
+        return existing;
+    }
+
+    const created = await Billing.create({
+        invoiceNumber: invoiceNumber(),
+        appointmentId: draft.appointmentId,
+        patientId: draft.patientId,
+        patientEmail: draft.patientEmail,
+        doctorId: draft.doctorId,
+        consultationFee: draft.costs.consultationFee,
+        treatmentCost: draft.costs.treatmentCost,
+        medicineCost: draft.costs.medicineCost,
+        labCost: draft.costs.labCost,
+        extraCharges,
+        extraChargesNotes,
+        grossTotal,
+        deductionsPrePaid,
+        insuranceCoverageAmount,
+        netPayableAmount,
+        insurance,
+        billingItems,
+        paymentStatus,
+        paymentMethod: isInsurancePayment ? "Insurance" : "N/A",
+        paidAmount: 0,
+        remainingBalance: netPayableAmount
+    });
+
+    return created;
+};
+
+
 export const saveConfirmedLedgerBill = async (payload, receptionistEmail) => {
     const receptionist = await UserIdentity.findOne({
         email: String(receptionistEmail || "").toLowerCase(),
@@ -283,8 +406,7 @@ export const saveConfirmedLedgerBill = async (payload, receptionistEmail) => {
     const existing = await Billing.findOne({
         appointmentId: payload.appointmentId,
         paymentStatus: { $ne: "Cancelled" }
-    }).lean();
-    if (existing) throw new Error("Invoice already exists for this appointment slot.");
+    });
 
     const draft = await aggregateDraftInvoiceData(payload.appointmentId);
     const extraCharges = money(payload.extraCharges);
@@ -322,10 +444,6 @@ export const saveConfirmedLedgerBill = async (payload, receptionistEmail) => {
     const insuranceCoverageAmount = insuranceUsable ? deskBalance : 0;
     const netPayableAmount = insuranceUsable ? 0 : deskBalance;
 
-    if (!insuranceUsable && netPayableAmount > 0 && !["Cash", "Card", "UPI", "Mixed"].includes(payload.paymentMethod)) {
-        throw new Error("Cash, Card, UPI or Mixed payment selection parameters are required when structural coverage is not validated.");
-    }
-
     let paymentStatus;
     let paymentMethod;
 
@@ -337,31 +455,72 @@ export const saveConfirmedLedgerBill = async (payload, receptionistEmail) => {
         paymentMethod = payload.paymentMethod || "Cash";
     } else {
         paymentStatus = "Paid";
-        paymentMethod = payload.paymentMethod && payload.paymentMethod !== "Insurance" ? payload.paymentMethod : "Cash";
+        paymentMethod = payload.paymentMethod || "Cash";
     }
 
-    const bill = await Billing.create({
-        invoiceNumber: invoiceNumber(),
-        appointmentId: draft.appointmentId,
-        patientId: draft.patientId,
-        patientEmail: draft.patientEmail,
-        doctorId: draft.doctorId,
-        consultationFee: draft.costs.consultationFee,
-        treatmentCost: draft.costs.treatmentCost,
-        medicineCost: draft.costs.medicineCost,
-        labCost: draft.costs.labCost,
-        extraCharges,
-        extraChargesNotes,
-        grossTotal,
-        deductionsPrePaid,
-        insuranceCoverageAmount,
-        netPayableAmount,
-        insurance,
-        billingItems,
-        paymentStatus,
-        paymentMethod,
-        receptionistId: receptionist._id
-    });
+    let bill;
+    if (existing) {
+        const previousPaid = money(existing.paidAmount || 0);
+
+        existing.consultationFee = draft.costs.consultationFee;
+        existing.treatmentCost = draft.costs.treatmentCost;
+        existing.medicineCost = draft.costs.medicineCost;
+        existing.labCost = draft.costs.labCost;
+        existing.extraCharges = extraCharges;
+        existing.extraChargesNotes = extraChargesNotes;
+        existing.grossTotal = grossTotal;
+        existing.deductionsPrePaid = deductionsPrePaid;
+        existing.insuranceCoverageAmount = insuranceCoverageAmount;
+        existing.netPayableAmount = money(Math.max(grossTotal - deductionsPrePaid - insuranceCoverageAmount - previousPaid, 0));
+        existing.paidAmount = previousPaid;
+        existing.remainingBalance = existing.netPayableAmount;
+        existing.insurance = insurance;
+        existing.billingItems = billingItems;
+        existing.paymentMethod = paymentMethod;
+        existing.receptionistId = receptionist._id;
+
+        if (insuranceUsable) {
+            existing.paymentStatus = "Insurance_Claim_Pending";
+            existing.paymentMethod = "Insurance";
+        } else if (existing.netPayableAmount <= 0) {
+            existing.paymentStatus = "Paid";
+        } else if (existing.paidAmount > 0) {
+            existing.paymentStatus = "Partially_Paid";
+        } else {
+            existing.paymentStatus = "Unpaid";
+        }
+
+        bill = await existing.save();
+    } else {
+        bill = await Billing.create({
+            invoiceNumber: invoiceNumber(),
+            appointmentId: draft.appointmentId,
+            patientId: draft.patientId,
+            patientEmail: draft.patientEmail,
+            doctorId: draft.doctorId,
+            consultationFee: draft.costs.consultationFee,
+            treatmentCost: draft.costs.treatmentCost,
+            medicineCost: draft.costs.medicineCost,
+            labCost: draft.costs.labCost,
+            extraCharges,
+            extraChargesNotes,
+            grossTotal,
+            deductionsPrePaid,
+            insuranceCoverageAmount,
+            netPayableAmount,
+            insurance,
+            billingItems,
+            paymentStatus,
+            paymentMethod,
+            receptionistId: receptionist._id,
+            paidAmount: 0,
+            remainingBalance: netPayableAmount
+        });
+    }
+
+    if (paymentStatus === "Paid") {
+        await syncPaidRelatedRecords(draft.appointmentId);
+    }
 
     return bill;
 };
@@ -390,15 +549,23 @@ export const getPartitionedBillingHistory = async () => {
         };
     };
 
+    const unbilledApptIds = await getUnbilledAppointmentIds();
     const billedRows = await Billing.find({ paymentStatus: { $ne: "Cancelled" } }).select("appointmentId").lean();
     const billedIds = billedRows.map((row) => String(row.appointmentId));
 
     const pendingAppointments = await Appointment.find({
-        _id: { $nin: billedIds },
+        $or: [
+            { _id: { $nin: billedIds } },
+            { _id: { $in: unbilledApptIds } }
+        ],
         status: { $in: ["confirmed", "visited", "completed"] }
     })
         .sort({ appointment_date: -1, updatedAt: -1 })
         .lean();
+
+    const existingUnpaidApptIds = new Set(
+        rows.filter((r) => r.paymentStatus === "Unpaid").map((r) => String(r.appointmentId))
+    );
 
     const pendingPatientIds = [...new Set(pendingAppointments.map((row) => String(row.patient_id)).filter(Boolean))];
     const pendingDoctorIds = [...new Set(pendingAppointments.map((row) => String(row.doctor_id)).filter(Boolean))];
@@ -411,27 +578,29 @@ export const getPartitionedBillingHistory = async () => {
     const pendingPatientMap = new Map(pendingPatients.map((row) => [String(row._id), row]));
     const pendingDoctorMap = new Map(pendingDoctors.map((row) => [String(row._id), row]));
 
-    const unbilledDrafts = pendingAppointments.map((apt) => {
-        const patient = pendingPatientMap.get(String(apt.patient_id));
-        const doctor = pendingDoctorMap.get(String(apt.doctor_id));
+    const unbilledDrafts = pendingAppointments
+        .filter((apt) => !existingUnpaidApptIds.has(String(apt._id)))
+        .map((apt) => {
+            const patient = pendingPatientMap.get(String(apt.patient_id));
+            const doctor = pendingDoctorMap.get(String(apt.doctor_id));
 
-        return {
-            _id: `DRAFT-${apt._id}`,
-            appointmentId: apt._id,
-            patientId: apt.patient_id,
-            patientName: fullName(patient),
-            patientEmail: patient?.email || apt.patient_email || "",
-            doctorName: fullName(doctor),
-            invoiceNumber: "UNBILLED BACKLOG",
-            paymentStatus: "Unbilled_Queue",
-            grossTotal: 0,
-            deductionsPrePaid: 0,
-            netPayableAmount: 0,
-            billingItems: [],
-            isDraftBacklog: true,
-            createdAt: apt.updatedAt || apt.appointment_date
-        };
-    });
+            return {
+                _id: `DRAFT-${apt._id}`,
+                appointmentId: apt._id,
+                patientId: apt.patient_id,
+                patientName: fullName(patient),
+                patientEmail: patient?.email || apt.patient_email || "",
+                doctorName: fullName(doctor),
+                invoiceNumber: "UNBILLED BACKLOG",
+                paymentStatus: "Unbilled_Queue",
+                grossTotal: 0,
+                deductionsPrePaid: 0,
+                netPayableAmount: 0,
+                billingItems: [],
+                isDraftBacklog: true,
+                createdAt: apt.updatedAt || apt.appointment_date
+            };
+        });
 
     const existingUnpaid = rows.filter((row) => row.paymentStatus === "Unpaid").map(decorate);
 
@@ -447,15 +616,27 @@ export const updateInvoiceStatusState = async (invoiceId, payload) => {
     if (!mongoose.Types.ObjectId.isValid(invoiceId)) throw new Error("Invalid invoice reference id mapping.");
 
     const nextStatus = payload.paymentStatus || payload.status;
-    if (!["Unpaid", "Paid", "Insurance_Claim_Pending", "Cancelled"].includes(nextStatus)) {
+    if (!["Unpaid", "Partially_Paid", "Paid", "Insurance_Claim_Pending", "Cancelled"].includes(nextStatus)) {
         throw new Error("Invalid categorical invoice parameter adjustment payload.");
     }
+
+    const existingBill = await Billing.findById(invoiceId);
+    if (!existingBill) throw new Error("Invoice tracking context target missing.");
 
     const update = { paymentStatus: nextStatus };
 
     if (nextStatus === "Paid") {
-        update.paymentMethod = payload.paymentMethod || "Cash";
+        if (existingBill.paymentStatus === "Insurance_Claim_Pending" || existingBill.paymentMethod === "Insurance" || payload.paymentMethod === "Insurance") {
+            update.paymentMethod = "Insurance";
+        } else {
+            update.paymentMethod = payload.paymentMethod || "Cash";
+        }
+
+        const previousPaid = money(existingBill.paidAmount || 0);
+        const remaining = money(existingBill.netPayableAmount || 0);
+        update.paidAmount = money(previousPaid + remaining);
         update.netPayableAmount = 0;
+        update.remainingBalance = 0;
     }
 
     if (nextStatus === "Insurance_Claim_Pending") {
@@ -468,5 +649,10 @@ export const updateInvoiceStatusState = async (invoiceId, payload) => {
 
     const bill = await Billing.findByIdAndUpdate(invoiceId, update, { new: true, runValidators: true });
     if (!bill) throw new Error("Invoice tracking context target missing.");
+
+    if (nextStatus === "Paid") {
+        await syncPaidRelatedRecords(bill.appointmentId);
+    }
+
     return bill;
 };

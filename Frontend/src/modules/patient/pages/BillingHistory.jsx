@@ -401,6 +401,10 @@ export default function BillingHistory() {
                       <span>Pre-Settled Deductions (-):</span>
                       <span>₹{item.deductionsPrePaid || 0}</span>
                     </div>
+                    <div className="hd-cost-line hd-text-blue">
+                      <span>Paid Amount:</span>
+                      <span>₹{item.paidAmount || 0}</span>
+                    </div>
                     {(item.insuranceCoverageAmount || 0) > 0 && (
                       <div className="hd-cost-line hd-text-orange">
                         <span>Insurance Approved Amount (-):</span>
@@ -499,8 +503,7 @@ export default function BillingHistory() {
           </div>
         )}
       </div>
-
-      {/* Online Digital Checkout Modal */}
+      
       {checkoutModalInvoice && (
         <div className="hd-modal-overlay">
           <div className="hd-modal-card pr-slide-fade">

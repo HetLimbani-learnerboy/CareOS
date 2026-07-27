@@ -442,11 +442,6 @@ export default function DashboardOverview() {
         .map((item) => String(item || "").trim())
         .filter(Boolean);
 
-      if (!medicines.length && !labReports.length) {
-        notify("error", "Add at least one medicine or lab report before issuing prescription.");
-        return;
-      }
-
       const payload = {
         appointmentId: prescriptionForm.appointmentId,
         patientEmail: prescriptionForm.patientEmail,
@@ -518,23 +513,6 @@ export default function DashboardOverview() {
     }
   }, [API_BASE_URL, doctorEmail, authHeaders]);
 
-  const fetchInpatientQueueData = useCallback(async () => {
-    if (!doctorEmail) return;
-    try {
-      setLoading(true);
-      const res = await axios.get(
-        `${API_BASE_URL}/api/v1/doctors/inpatient/treatment-queue?doctorEmail=${encodeURIComponent(doctorEmail)}`,
-        authHeaders
-      );
-      if (res.data?.status === "success") {
-        setInpatientQueue(Array.isArray(res.data.data) ? res.data.data : []);
-      }
-    } catch (err) {
-      notify("error", err.response?.data?.message || "Failed to load active admitted inpatient roster.");
-    } finally {
-      setLoading(false);
-    }
-  }, [API_BASE_URL, doctorEmail, authHeaders]);
 
   const handleAddTreatmentItem = () => {
     setTreatmentForm((prev) => ({
@@ -550,53 +528,6 @@ export default function DashboardOverview() {
     }));
   };
 
-  const handleTreatmentPlanSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      setActionIdLoading("submit_treatment");
-      clearNotify();
-
-      const payload = {
-        ...treatmentForm,
-        doctorEmail,
-        items: treatmentForm.items.map((item) => ({
-          ...item,
-          unitPrice: Number(item.unitPrice || 0),
-          quantity: Number(item.quantity || 1)
-        }))
-      };
-
-      if (treatmentForm.planId) {
-        await axios.put(
-          `${API_BASE_URL}/api/v1/doctors/inpatient/treatment-plan/${treatmentForm.planId}`,
-          payload,
-          authHeaders
-        );
-        notify("success", "Treatment plan updated.");
-      } else {
-        await axios.post(`${API_BASE_URL}/api/v1/doctors/inpatient/treatment-plan`, payload, authHeaders);
-        notify("success", "New treatment directive issued.");
-      }
-
-      setTreatmentForm({
-        admissionId: "",
-        planId: null,
-        treatmentHeading: "",
-        scheduledDate: new Date().toISOString().split("T")[0],
-        scheduledTime: "09:00 AM",
-        clinicalNotes: "",
-        items: [{ itemType: "Medication Administration", itemName: "", dosageConfiguration: "", unitPrice: 0, quantity: 1 }]
-      });
-
-      fetchInpatientQueueData();
-    } catch (err) {
-      notify("error", err.response?.data?.message || "Failed to submit treatment directive.");
-    } finally {
-      setActionIdLoading(null);
-    }
-  };
-
   useEffect(() => {
     fetchProfileData();
   }, [fetchProfileData]);
@@ -609,8 +540,7 @@ export default function DashboardOverview() {
     if (activeTab === "appointments") fetchAppointmentsAndSchedule();
     if (activeTab === "roster") fetchPatientRosterData();
     if (activeTab === "labs") fetchLabReviewsData();
-    if (activeTab === "inpatients") fetchInpatientQueueData();
-  }, [activeTab, fetchAppointmentsAndSchedule, fetchPatientRosterData, fetchLabReviewsData, fetchInpatientQueueData]);
+  }, [activeTab, fetchAppointmentsAndSchedule, fetchPatientRosterData, fetchLabReviewsData]);
 
   const filteredAppointments = useMemo(() => {
     const term = appointmentSearch.toLowerCase().trim();
@@ -687,7 +617,6 @@ export default function DashboardOverview() {
               if (activeTab === "appointments") fetchAppointmentsAndSchedule();
               else if (activeTab === "roster") fetchPatientRosterData();
               else if (activeTab === "labs") fetchLabReviewsData();
-              else if (activeTab === "inpatients") fetchInpatientQueueData();
               else fetchProfileData();
             }}
           >
@@ -722,9 +651,6 @@ export default function DashboardOverview() {
         </button>
         <button className={`doc-tab ${activeTab === "labs" ? "tab-active" : ""}`} onClick={() => setActiveTab("labs")}>
           <FlaskConical size={16} /> Lab Reviews
-        </button>
-        <button className={`doc-tab ${activeTab === "inpatients" ? "tab-active" : ""}`} onClick={() => setActiveTab("inpatients")}>
-          <BedDouble size={16} /> Inpatient Directives
         </button>
       </nav>
 
@@ -1220,144 +1146,6 @@ export default function DashboardOverview() {
           </div>
         )}
 
-        {!loading && activeTab === "inpatients" && (
-          <div className="doc-grid-2 col-unequal pr-fade-in">
-            <div className="doc-card">
-              <div className="doc-card-head">
-                <BedDouble size={18} />
-                <h2>Active Admitted Inpatient Queue</h2>
-              </div>
-
-              <div className="doc-search-box" style={{ marginBottom: "1rem" }}>
-                <Search size={15} />
-                <input value={inpatientSearch} onChange={(e) => setInpatientSearch(e.target.value)} placeholder="Filter inpatients..." />
-              </div>
-
-              {filteredInpatientQueue.length === 0 ? (
-                <p className="doc-empty-text">No active admitted patients under your treatment orders.</p>
-              ) : (
-                <div className="doc-list-stack">
-                  {filteredInpatientQueue.map((ip) => (
-                    <div key={ip.admissionId} className="doc-list-node">
-                      <div>
-                        <strong>{ip.patientName}</strong>
-                        <span>{ip.patientEmail} &bull; Room: {ip.roomType} Bed #{ip.bedNumber}</span>
-                        <small>Diagnosis: {ip.diagnosis}</small>
-                      </div>
-                      <button
-                        className="doc-btn-primary"
-                        onClick={() =>
-                          setTreatmentForm((prev) => ({
-                            ...prev,
-                            admissionId: ip.admissionId,
-                            planId: null,
-                            treatmentHeading: `Ward Care Protocol - ${ip.patientName}`
-                          }))
-                        }
-                      >
-                        Order Treatment
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="doc-card">
-              <div className="doc-card-head">
-                <FileText size={18} />
-                <h2>Issue Ward Treatment Directive</h2>
-              </div>
-
-              <form onSubmit={handleTreatmentPlanSubmit} className="doc-form">
-                <div className="doc-field">
-                  <label>Admission Record ID</label>
-                  <input required value={treatmentForm.admissionId} onChange={(e) => setTreatmentForm({ ...treatmentForm, admissionId: e.target.value })} />
-                </div>
-
-                <div className="doc-field">
-                  <label>Treatment Heading</label>
-                  <input required value={treatmentForm.treatmentHeading} onChange={(e) => setTreatmentForm({ ...treatmentForm, treatmentHeading: e.target.value })} />
-                </div>
-
-                <div className="doc-grid-2">
-                  <div className="doc-field">
-                    <label>Scheduled Date</label>
-                    <input type="date" required value={treatmentForm.scheduledDate} onChange={(e) => setTreatmentForm({ ...treatmentForm, scheduledDate: e.target.value })} />
-                  </div>
-                  <div className="doc-field">
-                    <label>Scheduled Time</label>
-                    <input required value={treatmentForm.scheduledTime} onChange={(e) => setTreatmentForm({ ...treatmentForm, scheduledTime: e.target.value })} />
-                  </div>
-                </div>
-
-                <div className="doc-section-divider">
-                  <h3>Treatment Order Items</h3>
-                  <button type="button" className="doc-btn-secondary" onClick={handleAddTreatmentItem}>
-                    <Plus size={14} /> Add Item
-                  </button>
-                </div>
-
-                {treatmentForm.items.map((item, idx) => (
-                  <div key={idx} className="doc-row-inline-grid">
-                    <input
-                      placeholder="Item Name"
-                      value={item.itemName}
-                      onChange={(e) => {
-                        const updated = [...treatmentForm.items];
-                        updated[idx].itemName = e.target.value;
-                        setTreatmentForm({ ...treatmentForm, items: updated });
-                      }}
-                    />
-                    <input
-                      placeholder="Dosage Config"
-                      value={item.dosageConfiguration}
-                      onChange={(e) => {
-                        const updated = [...treatmentForm.items];
-                        updated[idx].dosageConfiguration = e.target.value;
-                        setTreatmentForm({ ...treatmentForm, items: updated });
-                      }}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Unit Price"
-                      value={item.unitPrice}
-                      onChange={(e) => {
-                        const updated = [...treatmentForm.items];
-                        updated[idx].unitPrice = e.target.value;
-                        setTreatmentForm({ ...treatmentForm, items: updated });
-                      }}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Qty"
-                      value={item.quantity}
-                      onChange={(e) => {
-                        const updated = [...treatmentForm.items];
-                        updated[idx].quantity = e.target.value;
-                        setTreatmentForm({ ...treatmentForm, items: updated });
-                      }}
-                    />
-                    {treatmentForm.items.length > 1 && (
-                      <button type="button" className="doc-btn-icon-err" onClick={() => handleRemoveTreatmentItem(idx)}>
-                        <Trash2 size={14} />
-                      </button>
-                    )}
-                  </div>
-                ))}
-
-                <div className="doc-field">
-                  <label>Clinical Notes</label>
-                  <textarea rows={2} value={treatmentForm.clinicalNotes} onChange={(e) => setTreatmentForm({ ...treatmentForm, clinicalNotes: e.target.value })} />
-                </div>
-
-                <button type="submit" className="doc-btn-primary" disabled={actionLoading === "submit_treatment"}>
-                  <Save size={16} /> Submit Ward Treatment Plan
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );

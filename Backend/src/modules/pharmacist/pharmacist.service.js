@@ -3,7 +3,11 @@ import Prescription from "../doctor/prescription.model.js";
 import UserIdentity from "../auth/userIdentity.model.js";
 import MedicineHistory from "./medicineHistory.model.js";
 import PharmacyInvoice from "./pharmacyInvoice.model.js";
+import Billing from "../receptionist/billing.model.js";
+import { upsertBillingFromDraft } from "../receptionist/billing.service.js";
 import { MedicineCatalog } from "../doctor/catalog.model.js";
+
+const money = (value) => Number(Number(value || 0).toFixed(2));
 
 const httpError = (statusCode, message) => {
     const error = new Error(message);
@@ -442,6 +446,14 @@ export const completeMedicineDispensingWithSubstitutions = async (
 
         await session.commitTransaction();
 
+        try {
+            if (invoice && invoice.appointmentId) {
+                await upsertBillingFromDraft(invoice.appointmentId);
+            }
+        } catch (err) {
+            console.warn("Failed to sync central billing after pharmacy invoice creation:", err.message || err);
+        }
+
         return {
             history,
             invoice,
@@ -521,6 +533,26 @@ export const settleInvoiceViaCash = async (invoiceId, pharmacistEmail) => {
     if (pharmacistEmail) invoice.pharmacistEmail = pharmacistEmail.toLowerCase().trim();
 
     await invoice.save();
+
+    try {
+        if (invoice.appointmentId) {
+            await upsertBillingFromDraft(invoice.appointmentId);
+
+            const bill = await Billing.findOne({ appointmentId: invoice.appointmentId, paymentStatus: { $ne: "Cancelled" } });
+            if (bill) {
+                const paidInc = money(invoice.totalAmount || invoice.total || 0);
+                bill.paidAmount = money((bill.paidAmount || 0) + paidInc);
+                bill.netPayableAmount = money(Math.max((bill.grossTotal || 0) - (bill.deductionsPrePaid || 0) - (bill.insuranceCoverageAmount || 0) - bill.paidAmount, 0));
+                bill.remainingBalance = bill.netPayableAmount;
+                if (bill.netPayableAmount <= 0) bill.paymentStatus = "Paid";
+                else if (bill.paidAmount > 0) bill.paymentStatus = "Partially_Paid";
+                await bill.save();
+            }
+        }
+    } catch (err) {
+        console.warn("Failed to update central billing after pharmacy settlement:", err.message || err);
+    }
+
     return invoice;
 };
 
@@ -542,6 +574,12 @@ export const voidPharmacyInvoice = async (invoiceId, pharmacistEmail) => {
     if (pharmacistEmail) invoice.pharmacistEmail = pharmacistEmail.toLowerCase().trim();
 
     await invoice.save();
+    try {
+        if (invoice.appointmentId) await upsertBillingFromDraft(invoice.appointmentId);
+    } catch (err) {
+        console.warn("Failed to refresh central billing after invoice void:", err.message || err);
+    }
+
     return invoice;
 };
 
