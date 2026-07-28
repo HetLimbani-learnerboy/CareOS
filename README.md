@@ -201,9 +201,7 @@ subgraph Backend["⚙️ Express.js Backend"]
     Authorization["Role-Based Authorization"]
     Controllers["REST Controllers"]
     Services["Business Logic Services"]
-
     Auth["Auth Module"]
-    Appointment["Appointment Module"]
     DoctorAPI["Doctor Module"]
     Reception["Receptionist Module"]
     Pharmacy["Pharmacy Module"]
@@ -262,61 +260,83 @@ Groq --> Llama
 <details>
 <summary><strong>1️⃣ Patient Appointment → Consultation → Billing Lifecycle</strong></summary>
 
-```
- [Patient]                [Doctor]              [Receptionist]
-     │                        │                        │
-     ▼                        │                        │
-Search Doctor                 │                        │
-by Specialization              │                        │
-     │                        │                        │
-     ▼                        │                        │
-View Live Availability         │                        │
-(Month/Date/Slot)              │                        │
-     │                        │                        │
-     ▼                        │                        │
-Book Appointment  ────────────▶  Pending Request         │
-  (status: pending)            appears on Doctor         │
-                                Dashboard                 │
-                                     │                    │
-                                     ▼                    │
-                          Confirm / Reject                │
-                          (status: confirmed/rejected)     │
-                                     │                    │
-                                     ▼                    │
-                          Patient Visits Clinic            │
-                                     │                    │
-                                     ▼                    │
-                          Doctor Issues E-Prescription     │
-                          (medicines + lab orders)         │
-                                     │                    │
-                          ┌──────────┴──────────┐         │
-                          ▼                     ▼         │
-                   Pharmacist Dispenses   Lab Technician   │
-                   Medicines               Processes Tests │
-                          │                     │          │
-                          └──────────┬──────────┘          │
-                                     ▼                      │
-                     Appointment marked "Visited/Completed" │
-                                     │                      │
-                                     ▼                      ▼
-                          Appears in Receptionist's   Aggregate Draft
-                          Visited Queue         ────▶  Invoice (auto-
-                                                        computed costs)
-                                                             │
-                                                             ▼
-                                                  Validate Insurance /
-                                                  Add Adjustments
-                                                             │
-                                                             ▼
-                                                  Finalize Invoice
-                                                  (Unpaid/Insurance/Paid)
-                                                             │
-                                                             ▼
-                                                  Patient Pays Online
-                                                  (UPI/Card/Net Banking)
-                                                             │
-                                                             ▼
-                                                     Invoice → Paid
+```mermaid
+flowchart TD
+
+    %% Roles
+    P[👤 Patient]
+    D[👨‍⚕️ Doctor]
+    R[🧑‍💼 Receptionist]
+    PH[💊 Pharmacist]
+    LT[🧪 Lab Technician]
+    BILL[💳 Billing System]
+
+    %% Patient Flow
+    P --> A[Search Doctor by Specialization]
+    A --> B[View Live Availability]
+    B --> C[Book Appointment]
+    C --> D1[Appointment Status: Pending]
+
+    %% Doctor Flow
+    D --> D1
+    D1 --> E{Doctor Decision}
+    E -->|Accept| F[Appointment Confirmed]
+    E -->|Reject| G[Appointment Rejected]
+
+    %% Consultation
+    F --> H[Patient Visits Hospital]
+    H --> I[Doctor Creates / Updates E-Prescription]
+    I --> J[Medicines]
+    I --> K[Lab Test Orders]
+
+    %% Pharmacy & Lab
+    J --> PH
+    PH --> L[Dispense Medicines]
+
+    K --> LT
+    LT --> M[Perform Tests & Upload Reports]
+
+    %% Appointment Completion
+    L --> N[Appointment Completed]
+    M --> N
+
+    %% Billing
+    N --> R
+    R --> O[Generate Draft Invoice]
+
+    O --> BILL
+    BILL --> P1[Consultation Fee]
+    BILL --> P2[Medicine Charges]
+    BILL --> P3[Lab Charges]
+    BILL --> P4[Treatment Charges]
+
+    P1 --> Q[Calculate Final Bill]
+    P2 --> Q
+    P3 --> Q
+    P4 --> Q
+
+    %% Insurance
+    Q --> S{Insurance Available?}
+    S -->|Yes| T[Apply Insurance Coverage]
+    S -->|No| U[Proceed Without Insurance]
+
+    T --> V[Final Invoice]
+    U --> V
+
+    %% Payment
+    V --> W{Payment Method}
+    W -->|Cash| X[Cash Payment]
+    W -->|Card| Y[Card Payment]
+    W -->|UPI| Z[UPI Payment]
+    W -->|Insurance| AA[Insurance Settlement]
+
+    X --> AB[Invoice Paid]
+    Y --> AB
+    Z --> AB
+    AA --> AB
+
+    AB --> AC[Update Billing Status]
+    AC --> AD[Patient, Doctor, Receptionist, Pharmacist & Lab Technician View Updated Bill]
 ```
 
 </details>
