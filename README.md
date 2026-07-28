@@ -1,4 +1,8 @@
-# 🏥 CareOS — Hospital Management & Operations Platform
+<p align="center">
+  <img src="./Frontend/src/assets/CareOS-logo.png" alt="CareOS Logo" width="120" />
+</p>
+
+# <h1 align="center">CareOS — Hospital Management & Operations Platform</h1>
 
 <div align="center">
 
@@ -32,7 +36,6 @@
 - [Getting Started](#-getting-started)
 - [Sample API Calls](#-sample-api-calls)
 - [API Reference](#-api-reference)
-- [Deployment](#️-deployment)
 
 </details>
 
@@ -58,7 +61,8 @@ The platform supports **six distinct user roles** — Patient, Doctor, Reception
 | **Institution** | `Adani University` |
 | **Internship Company** | [Covrize IT Solutions Private Limited](https://www.covrize.com/) |
 | **Duration** | `Summer Internship  June 1, 2026` – `July 26, 2026` |
-| **Live Deployment** | `<DEPLOYED_URL>` |
+| **Live Deployment (Frontend)** | `https://careos-healthcare-erpsystem.vercel.app/` |
+| **Live Deployment (Backend)** | `https://careos-backend.vercel.app/` |
 
 ---
 
@@ -197,9 +201,7 @@ subgraph Backend["⚙️ Express.js Backend"]
     Authorization["Role-Based Authorization"]
     Controllers["REST Controllers"]
     Services["Business Logic Services"]
-
     Auth["Auth Module"]
-    Appointment["Appointment Module"]
     DoctorAPI["Doctor Module"]
     Reception["Receptionist Module"]
     Pharmacy["Pharmacy Module"]
@@ -233,7 +235,6 @@ Authorization --> Controllers
 Controllers --> Services
 
 Services --> Auth
-Services --> Appointment
 Services --> DoctorAPI
 Services --> Reception
 Services --> Pharmacy
@@ -242,7 +243,6 @@ Services --> Nursing
 Services --> AI
 
 Auth --> Database
-Appointment --> Database
 DoctorAPI --> Database
 Reception --> Database
 Pharmacy --> Database
@@ -260,61 +260,83 @@ Groq --> Llama
 <details>
 <summary><strong>1️⃣ Patient Appointment → Consultation → Billing Lifecycle</strong></summary>
 
-```
- [Patient]                [Doctor]              [Receptionist]
-     │                        │                        │
-     ▼                        │                        │
-Search Doctor                 │                        │
-by Specialization              │                        │
-     │                        │                        │
-     ▼                        │                        │
-View Live Availability         │                        │
-(Month/Date/Slot)              │                        │
-     │                        │                        │
-     ▼                        │                        │
-Book Appointment  ────────────▶  Pending Request         │
-  (status: pending)            appears on Doctor         │
-                                Dashboard                 │
-                                     │                    │
-                                     ▼                    │
-                          Confirm / Reject                │
-                          (status: confirmed/rejected)     │
-                                     │                    │
-                                     ▼                    │
-                          Patient Visits Clinic            │
-                                     │                    │
-                                     ▼                    │
-                          Doctor Issues E-Prescription     │
-                          (medicines + lab orders)         │
-                                     │                    │
-                          ┌──────────┴──────────┐         │
-                          ▼                     ▼         │
-                   Pharmacist Dispenses   Lab Technician   │
-                   Medicines               Processes Tests │
-                          │                     │          │
-                          └──────────┬──────────┘          │
-                                     ▼                      │
-                     Appointment marked "Visited/Completed" │
-                                     │                      │
-                                     ▼                      ▼
-                          Appears in Receptionist's   Aggregate Draft
-                          Visited Queue         ────▶  Invoice (auto-
-                                                        computed costs)
-                                                             │
-                                                             ▼
-                                                  Validate Insurance /
-                                                  Add Adjustments
-                                                             │
-                                                             ▼
-                                                  Finalize Invoice
-                                                  (Unpaid/Insurance/Paid)
-                                                             │
-                                                             ▼
-                                                  Patient Pays Online
-                                                  (UPI/Card/Net Banking)
-                                                             │
-                                                             ▼
-                                                     Invoice → Paid
+```mermaid
+flowchart TD
+
+    %% Roles
+    P[👤 Patient]
+    D[👨‍⚕️ Doctor]
+    R[🧑‍💼 Receptionist]
+    PH[💊 Pharmacist]
+    LT[🧪 Lab Technician]
+    BILL[💳 Billing System]
+
+    %% Patient Flow
+    P --> A[Search Doctor by Specialization]
+    A --> B[View Live Availability]
+    B --> C[Book Appointment]
+    C --> D1[Appointment Status: Pending]
+
+    %% Doctor Flow
+    D --> D1
+    D1 --> E{Doctor Decision}
+    E -->|Accept| F[Appointment Confirmed]
+    E -->|Reject| G[Appointment Rejected]
+
+    %% Consultation
+    F --> H[Patient Visits Hospital]
+    H --> I[Doctor Creates / Updates E-Prescription]
+    I --> J[Medicines]
+    I --> K[Lab Test Orders]
+
+    %% Pharmacy & Lab
+    J --> PH
+    PH --> L[Dispense Medicines]
+
+    K --> LT
+    LT --> M[Perform Tests & Upload Reports]
+
+    %% Appointment Completion
+    L --> N[Appointment Completed]
+    M --> N
+
+    %% Billing
+    N --> R
+    R --> O[Generate Draft Invoice]
+
+    O --> BILL
+    BILL --> P1[Consultation Fee]
+    BILL --> P2[Medicine Charges]
+    BILL --> P3[Lab Charges]
+    BILL --> P4[Treatment Charges]
+
+    P1 --> Q[Calculate Final Bill]
+    P2 --> Q
+    P3 --> Q
+    P4 --> Q
+
+    %% Insurance
+    Q --> S{Insurance Available?}
+    S -->|Yes| T[Apply Insurance Coverage]
+    S -->|No| U[Proceed Without Insurance]
+
+    T --> V[Final Invoice]
+    U --> V
+
+    %% Payment
+    V --> W{Payment Method}
+    W -->|Cash| X[Cash Payment]
+    W -->|Card| Y[Card Payment]
+    W -->|UPI| Z[UPI Payment]
+    W -->|Insurance| AA[Insurance Settlement]
+
+    X --> AB[Invoice Paid]
+    Y --> AB
+    Z --> AB
+    AA --> AB
+
+    AB --> AC[Update Billing Status]
+    AC --> AD[Patient, Doctor, Receptionist, Pharmacist & Lab Technician View Updated Bill]
 ```
 
 </details>
@@ -339,25 +361,23 @@ flowchart TD
 
     G["💾 Store JWT & User Object<br/>(localStorage / sessionStorage)"]
 
-    H["📡 Client sends API requests<br/>Authorization: Bearer &lt;token&gt;"]
+    H["🛡️ protectRoute Middleware<br/>Verify JWT"]
 
-    I["🛡️ protectRoute Middleware<br/>Verify JWT"]
+    I{"JWT Valid?"}
 
-    J{"JWT Valid?"}
+    J["❌ Return 401 Unauthorized"]
 
-    K["❌ Return 401 Unauthorized"]
+    K["🔒 requireRole()<br/>Authorize User Role"]
 
-    L["🔒 requireRole()<br/>Authorize User Role"]
+    L{"Role Authorized?"}
 
-    M{"Role Authorized?"}
+    M["❌ Return 403 Forbidden"]
 
-    N["❌ Return 403 Forbidden"]
+    N["⚙️ Execute Controller & Service"]
 
-    O["⚙️ Execute Controller & Service"]
+    O["📤 Send API Response"]
 
-    P["📤 Send API Response"]
-
-    Q["🖥️ React Router redirects<br/>to Role Dashboard"]
+    P["🖥️ React Router redirects<br/>to Role Dashboard"]
 
     A --> B
     B --> C
@@ -370,18 +390,16 @@ flowchart TD
     G --> H
     H --> I
 
-    I --> J
+    I -- "No" --> J
+    I -- "Yes" --> K
 
-    J -- "No" --> K
-    J -- "Yes" --> L
+    K --> L
 
-    L --> M
-
-    M -- "No" --> N
-    M -- "Yes" --> O
+    L -- "No" --> M
+    L -- "Yes" --> N
 
     O --> P
-    P --> Q
+    O --> P
 ```
 
 </details>
@@ -538,17 +556,26 @@ receptionist/
 <summary><strong>Core Collections</strong></summary>
 
 | Collection | Purpose | Key Relationships |
-|---|---|---|
-| `UserIdentity` | Base auth identity for all roles | Referenced by every profile collection |
-| `PatientProfile` | Medical details, insurance, emergency contacts | `patient_id → UserIdentity` |
-| `DoctorProfile` | Specialization, fee, clinic info | `doctor_id → UserIdentity` |
-| `PatientDashboard` | Vitals, allergies, chronic conditions | `patient_id → UserIdentity` |
-| `Appointment` | Booking records with status lifecycle | `patient_id`, `doctor_id → UserIdentity` |
-| `Prescription` | Medicines + lab orders per appointment | `appointmentId → Appointment` |
-| `Billing` | Finalized invoices with itemized costs | `appointmentId`, `patientId`, `doctorId` |
-| `LabReportHistory` | Diagnostic test pipeline & results | `patientId → UserIdentity` |
-| `PharmacyInvoice` | Medicine dispensing records | `appointmentId → Appointment` |
-| `ChatSession` | AI assistant persistent conversations | `userEmail → UserIdentity` |
+|------------|---------|-------------------|
+| `UserIdentity` | Stores authentication, user credentials, and role information for all system users. | Parent collection for all user profiles |
+| `PatientProfile` | Stores patient demographics, insurance, emergency contacts, and personal information. | `patient_id → UserIdentity` |
+| `DoctorProfile` | Stores doctor profile details, specialization, qualifications, clinic information, and consultation fee. | `doctor_id → UserIdentity` |
+| `DoctorConfig` | Defines the doctor's default weekly availability and appointment time slots. | `doctor_id → UserIdentity` |
+| `DoctorOverrides` | Stores custom schedules, leave days, holidays, and overridden appointment slots. | `doctor_id → UserIdentity` |
+| `PatientConsultation` | Stores patient consultation requests submitted through the website. | Independent collection |
+| `Appointment` | Manages appointment bookings, scheduling, and appointment lifecycle. | `patient_id`, `doctor_id → UserIdentity` |
+| `Prescription` | Stores doctor diagnosis, medicines, lab test requests, and treatment notes. | `appointmentId → Appointment` |
+| `Medicines` | Master catalog of medicines including pricing, stock, barcode, and composition. | Referenced by `Prescription` & `PharmacyInvoice` |
+| `LabReports` | Master catalog of diagnostic laboratory tests and pricing. | Referenced by `Prescription` & `LabReportHistory` |
+| `MedicineHistory` | Tracks dispensed medicines, pharmacist actions, skipped medicines, and payment status. | `prescriptionId`, `appointmentId`, `patientId` |
+| `LabReportHistory` | Tracks laboratory workflow, requested tests, generated reports, billing, and technician activity. | `prescriptionId`, `appointmentId`, `patientId` |
+| `PharmacyInvoice` | Stores medicine invoices, dispensed items, payment status, and pharmacy billing records. | `prescriptionId`, `appointmentId`, `patientId` |
+| `WardBeds` | Maintains hospital room and bed availability with occupancy status. | `currentAdmissionId → Admission` |
+| `Admissions` | Stores inpatient admission records, assigned beds, nurses, and hospitalization details. | `patientId`, `bedId`, `prescriptionId` |
+| `TreatmentPlans` | Stores inpatient treatment plans, scheduled procedures, medications, and nursing tasks. | `admissionId`, `patientId` |
+| `Billing` | Centralized billing system combining consultation, pharmacy, laboratory, treatment, insurance, and payment information. | `appointmentId`, `patientId`, `doctorId`, `receptionistId` |
+| `PatientDashboard` | Stores patient vitals, allergies, chronic diseases, and health monitoring history. | `patient_id → UserIdentity` |
+| `ChatSession` | Stores persistent AI chatbot conversations, message history, and session metadata. | `userEmail → UserIdentity` |
 
 </details>
 
@@ -699,27 +726,5 @@ Content-Type: application/json
 | GET | `/api/v1/ai/sessions/:sessionId` | Get full thread |
 | PATCH | `/api/v1/ai/sessions/:sessionId` | Rename session |
 | DELETE | `/api/v1/ai/sessions/:sessionId` | Delete session |
-
-</details>
-
-## ☁️ Deployment
-
-<details>
-<summary><strong>Deploying to Vercel</strong></summary>
-
-Both frontend and backend are configured for Vercel deployment.
-
-**Backend (`vercel.json`)**
-```json
-{
-  "version": 2,
-  "builds": [{ "src": "src/app.js", "use": "@vercel/node" }],
-  "routes": [{ "src": "/(.*)", "dest": "src/app.js" }]
-}
-```
-
-**Critical:** cache your MongoDB connection across serverless invocations to avoid exhausting connections — see `docs/DEPLOYMENT_NOTES.md`.
-
-Set all environment variables in **Vercel Project Settings → Environment Variables** for both the frontend and backend projects.
 
 </details>
