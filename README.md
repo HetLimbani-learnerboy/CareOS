@@ -1,4 +1,8 @@
-#   <img src="./Frontend//src//assets/CareOS-logo.png" alt="CareOS Logo" width="120" /> CareOS — Hospital Management & Operations Platform
+<p align="center">
+  <img src="./assets/CareOS-logo.png" alt="CareOS Logo" width="120" />
+</p>
+
+# <h1 align="center">CareOS — Hospital Management & Operations Platform</h1>
 
 <div align="center">
 
