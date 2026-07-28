@@ -79,14 +79,14 @@ export const findPatientAppointments = async (email) => {
   const structuredAppointments = await Promise.all(
     filteredAppointments.map(async (appointment) => {
       const profile = await DoctorProfile.findOne({ doctor_id: appointment.doctor_id._id })
-        .select('clinic_address consultation_fee qualification')
+        .select('specialization clinic_address consultation_fee qualification')
         .lean();
 
       return {
         id: String(appointment._id),
         doctorName: `Dr. ${appointment.doctor_id.firstName} ${appointment.doctor_id.lastName}`.trim(),
         doctorEmail: appointment.doctor_id.email,
-        specialization: appointment.specialization,
+        specialization: profile?.specialization || appointment.specialization,
         date: appointment.appointment_date,
         time: appointment.time_slot,
         status: appointment.status,
