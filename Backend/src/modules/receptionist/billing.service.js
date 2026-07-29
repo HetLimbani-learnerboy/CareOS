@@ -101,13 +101,12 @@ const getInsurance = (profile) => {
 };
 
 export const getCompletedAppointmentsList = async () => {
-    const billedRows = await Billing.find({ paymentStatus: { $ne: "Cancelled" } }).select("appointmentId").lean();
-    const fullyBilledIds = billedRows.map((row) => String(row.appointmentId));
+    const billedRows = await Billing.find({}).select("appointmentId").lean();
+    const allBilledIds = billedRows.map((row) => String(row.appointmentId));
     const unbilledApptIds = await getUnbilledAppointmentIds();
-
     const appointments = await Appointment.find({
         $or: [
-            { _id: { $nin: fullyBilledIds } },
+            { _id: { $nin: allBilledIds } },
             { _id: { $in: unbilledApptIds } }
         ],
         status: { $in: ["confirmed", "visited", "completed"] }
@@ -331,7 +330,7 @@ export const upsertBillingFromDraft = async (appointmentId, options = {}) => {
     if (netPayableAmount <= 0) {
         paymentStatus = isInsurancePayment ? "Insurance_Claim_Pending" : "Paid";
     } else if (paidAmount > 0) {
-        paymentStatus = "Partially_Paid"; 
+        paymentStatus = "Partially_Paid";
     } else {
         paymentStatus = isInsurancePayment ? "Insurance_Claim_Pending" : "Unpaid";
     }
@@ -550,22 +549,18 @@ export const getPartitionedBillingHistory = async () => {
     };
 
     const unbilledApptIds = await getUnbilledAppointmentIds();
-    const billedRows = await Billing.find({ paymentStatus: { $ne: "Cancelled" } }).select("appointmentId").lean();
-    const billedIds = billedRows.map((row) => String(row.appointmentId));
+
+    const existingBilledApptIds = new Set(rows.map((r) => String(r.appointmentId)));
 
     const pendingAppointments = await Appointment.find({
         $or: [
-            { _id: { $nin: billedIds } },
+            { _id: { $nin: Array.from(existingBilledApptIds) } },
             { _id: { $in: unbilledApptIds } }
         ],
         status: { $in: ["confirmed", "visited", "completed"] }
     })
         .sort({ appointment_date: -1, updatedAt: -1 })
         .lean();
-
-    const existingUnpaidApptIds = new Set(
-        rows.filter((r) => r.paymentStatus === "Unpaid").map((r) => String(r.appointmentId))
-    );
 
     const pendingPatientIds = [...new Set(pendingAppointments.map((row) => String(row.patient_id)).filter(Boolean))];
     const pendingDoctorIds = [...new Set(pendingAppointments.map((row) => String(row.doctor_id)).filter(Boolean))];
@@ -579,7 +574,7 @@ export const getPartitionedBillingHistory = async () => {
     const pendingDoctorMap = new Map(pendingDoctors.map((row) => [String(row._id), row]));
 
     const unbilledDrafts = pendingAppointments
-        .filter((apt) => !existingUnpaidApptIds.has(String(apt._id)))
+        .filter((apt) => !existingBilledApptIds.has(String(apt._id)))
         .map((apt) => {
             const patient = pendingPatientMap.get(String(apt.patient_id));
             const doctor = pendingDoctorMap.get(String(apt.doctor_id));
