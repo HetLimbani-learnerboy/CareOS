@@ -35,7 +35,6 @@
 - [Database Schema Overview](#-database-schema-overview)
 - [Getting Started](#-getting-started)
 - [Sample API Calls](#-sample-api-calls)
-- [API Reference](#-api-reference)
 
 </details>
 
@@ -62,7 +61,7 @@ The platform supports **six distinct user roles** — Patient, Doctor, Reception
 | **Internship Company** | [Covrize IT Solutions Private Limited](https://www.covrize.com/) |
 | **Duration** | `Summer Internship  June 1, 2026` – `July 26, 2026` |
 | **Live Deployment (Frontend)** | `https://careos-healthcare-erpsystem.vercel.app/` |
-| **Live Deployment (Backend)** | `https://careos-backend.vercel.app/` |
+| **API REFERENCE** | `https://careos-backend.vercel.app/` |
 
 ---
 
@@ -679,52 +678,3 @@ Content-Type: application/json
 </details>
 
 
-## 📚 API Reference
-
-<details>
-<summary><strong>Full endpoint index by module</strong></summary>
-
-### Auth
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/v1/auth/register` | Create new user account |
-| POST | `/api/v1/auth/login` | Authenticate & issue JWT |
-
-### Appointments
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/v1/appointments/doctors-by-spec` | Search doctors by specialization |
-| GET | `/api/v1/appointments/public-doctor-meta` | Get public doctor profile |
-| GET | `/api/v1/appointments/doctor-slots-live` | Live monthly availability |
-| GET | `/api/v1/appointments/booked-ledger` | Patient's own appointments |
-| POST | `/api/v1/appointments/book-request` | Book / reschedule / cancel |
-
-### Patients
-| Method | Endpoint | Description |
-|---|---|---|
-| GET / PUT | `/api/v1/patients/profile` | Get / update patient profile |
-| GET / POST | `/api/v1/patients/dashboard-summary` | Clinical dashboard (vitals, allergies) |
-| GET | `/api/v1/patients/prescriptions` | Prescription history |
-| GET | `/api/v1/patients/my-reports` | Lab report history |
-| GET | `/api/v1/patients/billing-history` | Partitioned billing history |
-| POST | `/api/v1/patients/invoice/:invoiceId/pay` | Online payment |
-
-### Receptionist (Billing)
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/v1/receptionist/visited-appointments` | Unbilled visited queue |
-| GET | `/api/v1/receptionist/draft-invoice/:appointmentId` | Aggregated cost draft |
-| POST | `/api/v1/receptionist/finalize-invoice` | Commit invoice |
-| GET | `/api/v1/receptionist/billing-history-partition` | Full ledger, partitioned |
-| PATCH | `/api/v1/receptionist/invoice/:invoiceId/status` | Update invoice status |
-
-### AI Assistant
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/v1/ai/chat` | Send message (creates/continues session) |
-| GET | `/api/v1/ai/sessions` | List user's chat sessions |
-| GET | `/api/v1/ai/sessions/:sessionId` | Get full thread |
-| PATCH | `/api/v1/ai/sessions/:sessionId` | Rename session |
-| DELETE | `/api/v1/ai/sessions/:sessionId` | Delete session |
-
-</details>
