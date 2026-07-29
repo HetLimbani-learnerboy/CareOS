@@ -11,6 +11,7 @@ import PharmasictDashboardMain from "./modules/pharmacist/pages/PharmasictDashbo
 import NurseDashboardMain from './modules/nurse/pages/NurseDashboardMain';
 import ForgotPassword from "./modules/auth/pages/ForgotPassword";
 import ProtectedRoute from "./modules/auth/components/ProtectedRoute";
+import ApiDocs from "./modules/landing/pages/ApiDocs";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/patientregister" element={<PatientRegister />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/api-docs" element={<ApiDocs />} />
 
         <Route element={<ProtectedRoute allowedRoles={["patient"]} />}>
           <Route path="/patient-dashboard" element={<PatientDashboardMain />} />
