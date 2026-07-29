@@ -109,8 +109,8 @@ const HeroSection = () => {
                 className="btn-secondary"
               >
                 <span
-                  onClick={() => window.open('https://careos-backend.vercel.app/api-docs', '_blank', 'noopener,noreferrer')}
-                  style={{ cursor: 'pointer' }}
+                  onClick={() => navigate('/api-docs')}
+                  className="cursor-pointer hover:underline"
                 >
                   API DOCUMENTATION
                 </span>

@@ -36,11 +36,15 @@ if (!MONGO_URI) {
   console.error("FATAL ERROR: MONGODB_URL missing in environment variables");
 }
 
+// ----------------------------------------------------
+// 1. CORS CONFIGURATION
+// ----------------------------------------------------
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
   'https://careos-backend.vercel.app',
+  process.env.FRONTEND_URL,
   'http://localhost:8000',
-  'http://localhost:5173'
+  'http://localhost:5173',
+  'http://localhost:3000'
 ].filter(Boolean);
 
 app.use(
@@ -58,12 +62,37 @@ app.use(
 
 app.use(express.json());
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// ----------------------------------------------------
+// 2. HEALTH CHECK (MOUNTED BEFORE DB MIDDLEWARE)
+// ----------------------------------------------------
+// Mounting before database middleware ensures instance health returns 200 OK instantly
+app.get('/api/v1/health', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'CareOS Server Engine is running cleanly on Vercel Edge Serverless...'
+  });
+});
+
+// ----------------------------------------------------
+// 3. SWAGGER UI WITH CDN ASSETS (OPTIMIZED FOR VERCEL)
+// ----------------------------------------------------
+const swaggerUiOptions = {
+  customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui.min.css',
+  customJs: [
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-bundle.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.3/swagger-ui-standalone-preset.min.js'
+  ]
+};
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
 app.get('/', (req, res) => {
   res.redirect('/api-docs');
 });
 
+// ----------------------------------------------------
+// 4. DATABASE INITIALIZATION MIDDLEWARE
+// ----------------------------------------------------
 let isDbInitialized = false;
 
 const connectAndInitializeDb = async (req, res, next) => {
@@ -115,6 +144,9 @@ const connectAndInitializeDb = async (req, res, next) => {
 
 app.use(connectAndInitializeDb);
 
+// ----------------------------------------------------
+// 5. API MODULE ROUTES
+// ----------------------------------------------------
 app.use("/api/v1/auth", authRoutes);
 app.use('/api/v1/patients', patientBookingRoutes);
 app.use('/api/v1/patients', patientRoutes);
@@ -127,13 +159,9 @@ app.use('/api/v1/nurse', nurseroutes);
 app.use('/api/v1/nurse', nurselabroutes);
 app.use("/api/v1/ai", aiRoutes);
 
-app.get('/api/v1/health', (req, res) => {
-  res.status(200).json({
-    status: 'success',
-    message: 'CareOS Server Engine is running cleanly on Vercel Edge Serverless...'
-  });
-});
-
+// ----------------------------------------------------
+// 6. ERROR & UNHANDLED ROUTE MIDDLEWARE
+// ----------------------------------------------------
 app.use((req, res) => {
   res.status(404).json({
     status: 'fail',
@@ -148,6 +176,9 @@ app.use((err, req, res, next) => {
   });
 });
 
+// ----------------------------------------------------
+// 7. LOCAL BOOTSTRAP
+// ----------------------------------------------------
 if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
   const PORT = process.env.PORT || 8000;
 

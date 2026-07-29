@@ -61,7 +61,7 @@ The platform supports **six distinct user roles** — Patient, Doctor, Reception
 | **Internship Company** | [Covrize IT Solutions Private Limited](https://www.covrize.com/) |
 | **Duration** | `Summer Internship  June 1, 2026` – `July 26, 2026` |
 | **Live Deployment (Frontend)** | `https://careos-healthcare-erpsystem.vercel.app/` |
-| **API REFERENCE** | `https://careos-backend.vercel.app/` |
+| **Live Deployment (Backend)** | `https://careos-backend.vercel.app/api/v1/health` |
 
 ---
 
