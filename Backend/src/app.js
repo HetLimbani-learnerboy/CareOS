@@ -18,7 +18,9 @@ import labtechnicianroutes from './modules/lab_technician/labTechnician.routes.j
 import pharmacistroutes from './modules/pharmacist/pharmacist.routes.js';
 import nurseroutes from './modules/nurse/nurseWard.routes.js';
 import nurselabroutes from './modules/nurse/nurseLab.routes.js';
-import aiRoutes from './utils/ai.routes.js'
+import aiRoutes from './utils/ai.routes.js';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './swaggerSpec.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,6 +43,12 @@ app.use(
   })
 );
 app.use(express.json());
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.get('/', (req, res) => {
+  res.redirect('/api-docs');
+});
 
 let isDbInitialized = false;
 
@@ -139,6 +147,7 @@ if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
 
       app.listen(PORT, () => {
         console.log(`[Local Development]: CareOS Backend Running On http://localhost:${PORT}`);
+        console.log(`[Swagger Docs]: Available at http://localhost:${PORT}/api-docs`);
       });
     } catch (err) {
       console.error("[Local Boot Error]:", err.message);
