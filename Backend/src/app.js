@@ -36,12 +36,26 @@ if (!MONGO_URI) {
   console.error("FATAL ERROR: MONGODB_URL missing in environment variables");
 }
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://careos-backend.vercel.app',
+  'http://localhost:8000',
+  'http://localhost:5173'
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(null, true); 
+      }
+    },
     credentials: true,
   })
 );
+
 app.use(express.json());
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
