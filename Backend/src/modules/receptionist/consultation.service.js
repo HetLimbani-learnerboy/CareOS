@@ -6,17 +6,29 @@ const httpError = (statusCode, message) => {
     return error;
 };
 
-
 export const createConsultationRequest = async (requestData) => {
     const { firstName, lastName, email, message } = requestData;
-    if (!firstName || !lastName || !email || !message) {
-        throw httpError(400, "All data fields are required to process a consultancy request.");
+
+    const trimmedFirstName = String(firstName || "").trim();
+    const trimmedLastName = String(lastName || "").trim();
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const trimmedMessage = String(message || "").trim();
+
+    if (!trimmedFirstName || !trimmedLastName || !normalizedEmail || !trimmedMessage) {
+        throw httpError(400, "First name, last name, business email, and consultancy requirements are required.");
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail)) {
+        throw httpError(400, "Please provide a valid business email address.");
+    }
+
     const newRequest = new Consultation({
-        firstName,
-        lastName,
-        email,
-        message
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
+        email: normalizedEmail,
+        message: trimmedMessage,
+        status: "Pending"
     });
 
     return await newRequest.save();
@@ -28,18 +40,18 @@ export const getAllConsultationsForReceptionist = async () => {
 
 export const updateConsultationStatus = async (consultationId, newStatus) => {
     if (!["Pending", "Responded", "Archived"].includes(newStatus)) {
-        throw httpError(400, "Invalid status value.");
+        throw httpError(400, "Invalid status parameter provided.");
     }
 
     const updatedConsultation = await Consultation.findByIdAndUpdate(
         consultationId,
         { status: newStatus },
-        { new: true }
+        { new: true, runValidators: true }
     );
 
     if (!updatedConsultation) {
-        throw httpError(404, "Consultation request not found.");
+        throw httpError(404, "Consultation request reference not found.");
     }
 
     return updatedConsultation;
-}
+};

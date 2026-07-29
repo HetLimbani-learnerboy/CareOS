@@ -70,7 +70,7 @@ router.get("/admission/dashboard", protectRoute, requireRole("receptionist", "do
 router.post("/admission/check-in", protectRoute, requireRole("receptionist", "doctor"), createAdmissionRecord);
 router.patch("/admission/:admissionId/discharge", protectRoute, requireRole("receptionist", "doctor"), completeDischargeCheckout);
 
-router.post("/consultation/request", protectRoute, requireRole("receptionist", "doctor"), submitNewConsultRequest);
+router.post("/consultation/request", submitNewConsultRequest);
 router.get("/consultation/list", protectRoute, requireRole("receptionist", "doctor"), fetchAllRequestsForDesk);
 router.patch("/consultation/:id/status", protectRoute, requireRole("receptionist", "doctor"), updateConsultationStatus);
 
