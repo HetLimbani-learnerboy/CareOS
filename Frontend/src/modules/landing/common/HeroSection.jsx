@@ -108,7 +108,12 @@ const HeroSection = () => {
                 whileTap={{ scale: 0.98 }}
                 className="btn-secondary"
               >
-                <span>Watch Demo</span>
+                <span
+                  onClick={() => window.open('https://careos-backend.vercel.app/api-docs', '_blank', 'noopener,noreferrer')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  API DOCUMENTATION
+                </span>
                 <span className="btn-play">▶</span>
               </motion.button>
             </motion.div>
